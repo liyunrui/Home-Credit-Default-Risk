@@ -1,0 +1,133 @@
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 116)
+Process bureau and bureau_balance - done in 35s
+Previous applications df shape: (338857, 249)
+Process previous_applications - done in 31s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 17s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 53s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 24s
+Starting LightGBM. Train shape: (307507, 800), test shape: (48744, 800)
+Training until validation scores don't improve for 200 rounds.
+[100]	training's auc: 0.755696	valid_1's auc: 0.738472
+[200]	training's auc: 0.78391	valid_1's auc: 0.760991
+[300]	training's auc: 0.803217	valid_1's auc: 0.773848
+[400]	training's auc: 0.815717	valid_1's auc: 0.779788
+[500]	training's auc: 0.825674	valid_1's auc: 0.78353
+[600]	training's auc: 0.833929	valid_1's auc: 0.785645
+[700]	training's auc: 0.841281	valid_1's auc: 0.787109
+[800]	training's auc: 0.848099	valid_1's auc: 0.788231
+[900]	training's auc: 0.854067	valid_1's auc: 0.789042
+[1000]	training's auc: 0.860061	valid_1's auc: 0.789695
+[1100]	training's auc: 0.865613	valid_1's auc: 0.790215
+[1200]	training's auc: 0.870696	valid_1's auc: 0.790392
+[1300]	training's auc: 0.875881	valid_1's auc: 0.790779
+[1400]	training's auc: 0.880849	valid_1's auc: 0.791123
+[1500]	training's auc: 0.885304	valid_1's auc: 0.791375
+[1600]	training's auc: 0.889842	valid_1's auc: 0.791646
+[1700]	training's auc: 0.894257	valid_1's auc: 0.791779
+[1800]	training's auc: 0.898396	valid_1's auc: 0.791846
+[1900]	training's auc: 0.902325	valid_1's auc: 0.792061
+[2000]	training's auc: 0.905933	valid_1's auc: 0.792197
+[2100]	training's auc: 0.909584	valid_1's auc: 0.792234
+[2200]	training's auc: 0.912774	valid_1's auc: 0.792194
+[2300]	training's auc: 0.9161	valid_1's auc: 0.792346
+[2400]	training's auc: 0.919287	valid_1's auc: 0.792228
+[2500]	training's auc: 0.922458	valid_1's auc: 0.792114
+Early stopping, best iteration is:
+[2335]	training's auc: 0.917204	valid_1's auc: 0.792425
+Fold  1 AUC : 0.792425
+Training until validation scores don't improve for 200 rounds.
+[100]	training's auc: 0.754519	valid_1's auc: 0.744977
+[200]	training's auc: 0.78356	valid_1's auc: 0.766218
+[300]	training's auc: 0.802412	valid_1's auc: 0.777891
+[400]	training's auc: 0.814995	valid_1's auc: 0.783905
+[500]	training's auc: 0.824595	valid_1's auc: 0.787203
+[600]	training's auc: 0.833034	valid_1's auc: 0.789247
+[700]	training's auc: 0.840624	valid_1's auc: 0.790599
+[800]	training's auc: 0.847442	valid_1's auc: 0.791518
+[900]	training's auc: 0.853813	valid_1's auc: 0.792161
+[1000]	training's auc: 0.859596	valid_1's auc: 0.792598
+[1100]	training's auc: 0.865282	valid_1's auc: 0.792971
+[1200]	training's auc: 0.870634	valid_1's auc: 0.793121
+[1300]	training's auc: 0.87563	valid_1's auc: 0.793154
+[1400]	training's auc: 0.880344	valid_1's auc: 0.793162
+[1500]	training's auc: 0.885075	valid_1's auc: 0.793176
+[1600]	training's auc: 0.889426	valid_1's auc: 0.793205
+[1700]	training's auc: 0.893576	valid_1's auc: 0.793229
+Early stopping, best iteration is:
+[1564]	training's auc: 0.887965	valid_1's auc: 0.793323
+Fold  2 AUC : 0.793323
+Training until validation scores don't improve for 200 rounds.
+[100]	training's auc: 0.754729	valid_1's auc: 0.745143
+[200]	training's auc: 0.784078	valid_1's auc: 0.765839
+[300]	training's auc: 0.803613	valid_1's auc: 0.776774
+[400]	training's auc: 0.816425	valid_1's auc: 0.781983
+[500]	training's auc: 0.82628	valid_1's auc: 0.784619
+[600]	training's auc: 0.834713	valid_1's auc: 0.786496
+[700]	training's auc: 0.842347	valid_1's auc: 0.787544
+[800]	training's auc: 0.849065	valid_1's auc: 0.788434
+[900]	training's auc: 0.855493	valid_1's auc: 0.789102
+[1000]	training's auc: 0.861312	valid_1's auc: 0.789528
+[1100]	training's auc: 0.867291	valid_1's auc: 0.789748
+[1200]	training's auc: 0.872734	valid_1's auc: 0.789997
+[1300]	training's auc: 0.877777	valid_1's auc: 0.790174
+[1400]	training's auc: 0.882622	valid_1's auc: 0.790547
+[1500]	training's auc: 0.887113	valid_1's auc: 0.790597
+[1600]	training's auc: 0.891599	valid_1's auc: 0.790669
+[1700]	training's auc: 0.89591	valid_1's auc: 0.790738
+[1800]	training's auc: 0.899944	valid_1's auc: 0.790844
+[1900]	training's auc: 0.903609	valid_1's auc: 0.790857
+[2000]	training's auc: 0.907283	valid_1's auc: 0.790694
+Early stopping, best iteration is:
+[1868]	training's auc: 0.902487	valid_1's auc: 0.790953
+Fold  3 AUC : 0.790953
+Training until validation scores don't improve for 200 rounds.
+[100]	training's auc: 0.754269	valid_1's auc: 0.740005
+[200]	training's auc: 0.782389	valid_1's auc: 0.763791
+[300]	training's auc: 0.801753	valid_1's auc: 0.777444
+[400]	training's auc: 0.81467	valid_1's auc: 0.784001
+[500]	training's auc: 0.82472	valid_1's auc: 0.787695
+[600]	training's auc: 0.832935	valid_1's auc: 0.789597
+[700]	training's auc: 0.840401	valid_1's auc: 0.790993
+[800]	training's auc: 0.847486	valid_1's auc: 0.792128
+[900]	training's auc: 0.854156	valid_1's auc: 0.792985
+[1000]	training's auc: 0.860143	valid_1's auc: 0.793382
+[1100]	training's auc: 0.865617	valid_1's auc: 0.793757
+[1200]	training's auc: 0.870887	valid_1's auc: 0.793992
+[1300]	training's auc: 0.876218	valid_1's auc: 0.794271
+[1400]	training's auc: 0.881237	valid_1's auc: 0.794359
+[1500]	training's auc: 0.885804	valid_1's auc: 0.794561
+[1600]	training's auc: 0.890406	valid_1's auc: 0.794709
+[1700]	training's auc: 0.894479	valid_1's auc: 0.794867
+[1800]	training's auc: 0.898617	valid_1's auc: 0.794836
+[1900]	training's auc: 0.902509	valid_1's auc: 0.794867
+[2000]	training's auc: 0.906374	valid_1's auc: 0.794804
+Early stopping, best iteration is:
+[1853]	training's auc: 0.90062	valid_1's auc: 0.794904
+Fold  4 AUC : 0.794904
+Training until validation scores don't improve for 200 rounds.
+[100]	training's auc: 0.75458	valid_1's auc: 0.742795
+[200]	training's auc: 0.783602	valid_1's auc: 0.764099
+[300]	training's auc: 0.802757	valid_1's auc: 0.775467
+[400]	training's auc: 0.815401	valid_1's auc: 0.781094
+[500]	training's auc: 0.825424	valid_1's auc: 0.784299
+[600]	training's auc: 0.833769	valid_1's auc: 0.786104
+[700]	training's auc: 0.841252	valid_1's auc: 0.787283
+[800]	training's auc: 0.848256	valid_1's auc: 0.787805
+[900]	training's auc: 0.85472	valid_1's auc: 0.788579
+[1000]	training's auc: 0.860749	valid_1's auc: 0.789077
+[1100]	training's auc: 0.866197	valid_1's auc: 0.789414
+[1200]	training's auc: 0.871609	valid_1's auc: 0.789656
+[1300]	training's auc: 0.876618	valid_1's auc: 0.790042
+[1400]	training's auc: 0.881311	valid_1's auc: 0.790191
+[1500]	training's auc: 0.885764	valid_1's auc: 0.79031
+[1600]	training's auc: 0.890125	valid_1's auc: 0.790149
+Early stopping, best iteration is:
+[1499]	training's auc: 0.88573	valid_1's auc: 0.790311
+Fold  5 AUC : 0.790311
+Full AUC score 0.792364
+Run LightGBM with kfold - done in 1997s
+Full model run - done in 2165s

@@ -19,6 +19,7 @@
 
 NUM_FOLDS = 5
 SEED = 1115
+CPU_USE_RATE = 0.8
 
 import numpy as np
 import pandas as pd
@@ -31,6 +32,8 @@ from sklearn.model_selection import KFold, StratifiedKFold
 import matplotlib.pyplot as plt
 import seaborn as sns
 import warnings
+import multiprocessing
+from os.path import exists
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 @contextmanager
@@ -43,15 +46,24 @@ def timer(title):
 def one_hot_encoder(df, nan_as_category = True):
     original_columns = list(df.columns)
     categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
-    df = pd.get_dummies(df, columns= categorical_columns, dummy_na= nan_as_category)
+    df = pd.get_dummies(df, columns = categorical_columns, dummy_na = nan_as_category)
     new_columns = [c for c in df.columns if c not in original_columns]
     return df, new_columns
 
+def read_df(name):
+    if exists('../input/%s.h5' %name):
+        df = pd.read_hdf('../input/%s.h5' %name, str(name))
+    else:
+        df = pd.read_csv('../input/%s.csv' %name)
+        df.to_hdf('../input/%s.h5' %name, str(name))
+    return df
+
 # Preprocess application_train.csv and application_test.csv
-def application_train_test(num_rows = None, nan_as_category = False):
+def application_train_test(nan_as_category = False):
     # Read data and merge
-    df = pd.read_csv('../input/application_train.csv', nrows= num_rows)
-    test_df = pd.read_csv('../input/application_test.csv', nrows= num_rows)
+    df = read_df('application_train')
+    test_df = read_df('application_test')
+
     print("Train samples: {}, test samples: {}".format(len(df), len(test_df)))
     df = df.append(test_df).reset_index()
     # Optional: Remove 4 applications with XNA CODE_GENDER (train set)
@@ -71,14 +83,17 @@ def application_train_test(num_rows = None, nan_as_category = False):
     df['INCOME_PER_PERSON'] = df['AMT_INCOME_TOTAL'] / df['CNT_FAM_MEMBERS']
     df['ANNUITY_INCOME_PERC'] = df['AMT_ANNUITY'] / df['AMT_INCOME_TOTAL']
     df['PAYMENT_RATE'] = df['AMT_ANNUITY'] / df['AMT_CREDIT']
+    # More features
+    df['ENDOWMENT'] = df['FLAG_OWN_CAR']*521500 + df['FLAG_OWN_REALTY']*52911*100 # fe1
+    # df['ANNUAL_BURDEN'] = df['CNT_CHILDREN']*5000000/20*0.75 + df['AMT_ANNUITY'] # fe2
     del test_df
     gc.collect()
     return df
 
 # Preprocess bureau.csv and bureau_balance.csv
-def bureau_and_balance(num_rows = None, nan_as_category = True):
-    bureau = pd.read_csv('../input/bureau.csv', nrows = num_rows)
-    bb = pd.read_csv('../input/bureau_balance.csv', nrows = num_rows)
+def bureau_and_balance(nan_as_category = True):
+    bureau = read_df('bureau')
+    bb = read_df('bureau_balance')
     bb, bb_cat = one_hot_encoder(bb, nan_as_category)
     bureau, bureau_cat = one_hot_encoder(bureau, nan_as_category)
     
@@ -134,8 +149,8 @@ def bureau_and_balance(num_rows = None, nan_as_category = True):
     return bureau_agg
 
 # Preprocess previous_applications.csv
-def previous_applications(num_rows = None, nan_as_category = True):
-    prev = pd.read_csv('../input/previous_application.csv', nrows = num_rows)
+def previous_applications(main_df, nan_as_category = True):
+    prev = read_df('previous_application')
     prev, cat_cols = one_hot_encoder(prev, nan_as_category= True)
     # Days 365.243 values -> nan
     prev['DAYS_FIRST_DRAWING'].replace(365243, np.nan, inplace= True)
@@ -145,24 +160,31 @@ def previous_applications(num_rows = None, nan_as_category = True):
     prev['DAYS_TERMINATION'].replace(365243, np.nan, inplace= True)
     # Add feature: value ask / value received percentage
     prev['APP_CREDIT_PERC'] = prev['AMT_APPLICATION'] / prev['AMT_CREDIT']
+    # prev['PAYMENT_RATE'] = prev['AMT_ANNUITY'] / prev['AMT_CREDIT'] # fe3
+    # prev['TIME_DECAYED_EVAL'] = (prev['NAME_CONTRACT_STATUS_Approved'] - prev['NAME_CONTRACT_STATUS_Refused']) / (-prev['DAYS_DECISION']) # fe6
+    # prev['EVAL'] = prev['NAME_CONTRACT_STATUS_Approved'] - prev['NAME_CONTRACT_STATUS_Refused'] # fe7
+
     # Previous applications numeric features
-    num_aggregations = {
+    num_aggregations = { # fe5: remove 'var'
         'AMT_ANNUITY': ['min', 'max', 'mean'],
         'AMT_APPLICATION': ['min', 'max', 'mean'],
         'AMT_CREDIT': ['min', 'max', 'mean'],
         'APP_CREDIT_PERC': ['min', 'max', 'mean', 'var'],
+        # 'PAYMENT_RATE': ['min', 'max', 'mean', 'var'], # fe3
+        # 'TIME_DECAYED_EVAL': ['sum'], # fe6
+        # 'EVAL': ['min', 'max', 'mean'], # fe7
         'AMT_DOWN_PAYMENT': ['min', 'max', 'mean'],
         'AMT_GOODS_PRICE': ['min', 'max', 'mean'],
         'HOUR_APPR_PROCESS_START': ['min', 'max', 'mean'],
         'RATE_DOWN_PAYMENT': ['min', 'max', 'mean'],
-        'DAYS_DECISION': ['min', 'max', 'mean'],
+        'DAYS_DECISION': ['min', 'max', 'mean'], #['max'], # [min', 'max', 'mean'], # fe4
         'CNT_PAYMENT': ['mean', 'sum'],
     }
     # Previous applications categorical features
     cat_aggregations = {}
     for cat in cat_cols:
         cat_aggregations[cat] = ['mean']
-    
+
     prev_agg = prev.groupby('SK_ID_CURR').agg({**num_aggregations, **cat_aggregations})
     prev_agg.columns = pd.Index(['PREV_' + e[0] + "_" + e[1].upper() for e in prev_agg.columns.tolist()])
     # Previous Applications: Approved Applications - only numerical features
@@ -175,13 +197,14 @@ def previous_applications(num_rows = None, nan_as_category = True):
     refused_agg = refused.groupby('SK_ID_CURR').agg(num_aggregations)
     refused_agg.columns = pd.Index(['REFUSED_' + e[0] + "_" + e[1].upper() for e in refused_agg.columns.tolist()])
     prev_agg = prev_agg.join(refused_agg, how='left', on='SK_ID_CURR')
+
     del refused, refused_agg, approved, approved_agg, prev
     gc.collect()
     return prev_agg
 
 # Preprocess POS_CASH_balance.csv
-def pos_cash(num_rows = None, nan_as_category = True):
-    pos = pd.read_csv('../input/POS_CASH_balance.csv', nrows = num_rows)
+def pos_cash(nan_as_category = True):
+    pos = read_df('POS_CASH_balance')
     pos, cat_cols = one_hot_encoder(pos, nan_as_category= True)
     # Features
     aggregations = {
@@ -201,8 +224,8 @@ def pos_cash(num_rows = None, nan_as_category = True):
     return pos_agg
     
 # Preprocess installments_payments.csv
-def installments_payments(num_rows = None, nan_as_category = True):
-    ins = pd.read_csv('../input/installments_payments.csv', nrows = num_rows)
+def installments_payments(nan_as_category = True):
+    ins = read_df('installments_payments')
     ins, cat_cols = one_hot_encoder(ins, nan_as_category= True)
     # Percentage and difference paid in each installment (amount paid and installment value)
     ins['PAYMENT_PERC'] = ins['AMT_PAYMENT'] / ins['AMT_INSTALMENT']
@@ -234,8 +257,8 @@ def installments_payments(num_rows = None, nan_as_category = True):
     return ins_agg
 
 # Preprocess credit_card_balance.csv
-def credit_card_balance(num_rows = None, nan_as_category = True):
-    cc = pd.read_csv('../input/credit_card_balance.csv', nrows = num_rows)
+def credit_card_balance(nan_as_category = True):
+    cc = read_df('credit_card_balance')
     cc, cat_cols = one_hot_encoder(cc, nan_as_category= True)
     # General aggregations
     cc.drop(['SK_ID_PREV'], axis= 1, inplace = True)
@@ -249,7 +272,7 @@ def credit_card_balance(num_rows = None, nan_as_category = True):
 
 # LightGBM GBDT with KFold or Stratified KFold
 # Parameters from Tilii kernel: https://www.kaggle.com/tilii7/olivier-lightgbm-parameters-by-bayesian-opt/code
-def kfold_lightgbm(df, num_folds, stratified = False, debug= False):
+def kfold_lightgbm(df, num_folds, stratified = False):
     # Divide in training/validation and test data
     train_df = df[df['TARGET'].notnull()]
     test_df = df[df['TARGET'].isnull()]
@@ -263,6 +286,7 @@ def kfold_lightgbm(df, num_folds, stratified = False, debug= False):
         folds = KFold(n_splits= num_folds, shuffle=True, random_state=SEED)
     # Create arrays and dataframes to store results
     oof_preds = np.zeros(train_df.shape[0])
+    train_preds = np.zeros(train_df.shape[0])
     sub_preds = np.zeros(test_df.shape[0])
     feature_importance_df = pd.DataFrame()
     feats = [f for f in train_df.columns if f not in ['TARGET','SK_ID_CURR','SK_ID_BUREAU','SK_ID_PREV','index']]
@@ -273,45 +297,52 @@ def kfold_lightgbm(df, num_folds, stratified = False, debug= False):
 
         # LightGBM parameters found by Bayesian optimization
         clf = LGBMClassifier(
-            nthread=0,
+            nthread=int(multiprocessing.cpu_count()*CPU_USE_RATE),
             n_estimators=10000,
-            learning_rate=0.02,
+            learning_rate= 0.03,
             num_leaves=34, # 34 > 17
-            colsample_bytree=0.9497036,
+            colsample_bytree= 0.9497036, #0.1, #0.9497036, #0.9497036 > 0.6 > 0.8 > 0.9
             subsample=0.8715623,
-            max_depth=8, # 8 > 7
-            reg_alpha=0.041545473,
+            subsample_freq=1,
+            max_depth=8, # 7 > 5 > 8 > 4
+            reg_alpha=0.041545473, #0.4, # 0.041545473 > 0.4 > 0.1,
             reg_lambda=0.0735294,
             min_split_gain=0.0222415,
-            min_child_weight=39.3259775,
+            min_child_weight=39.3259775, # 39.3259775 > 1e-2
             silent=-1,
             verbose=-1,
             # min_data_in_leaf = 30, # default=20 > 30
-            # min_sum_hessian_in_leaf = 1e-2, # default = 1e-3 > 1e-2
-            # max_bin=64, # default = 255 > 64
+            max_bin=128, # default = 255 > 128 > 64
             )
+        # 1. rapid tuning
+        # 2. reg_alpha fix bad feature
+        # 3. colsample_bytree fix 2 good features misture
+        # 4. reg_alpha and colsample_bytree can work together
 
-        clf.fit(train_x, train_y, eval_set=[(train_x, train_y), (valid_x, valid_y)], 
+        clf.fit(train_x, train_y, eval_set=[(train_x, train_y), (valid_x, valid_y)],
             eval_metric= 'auc', verbose= 100, early_stopping_rounds= 200)
 
         oof_preds[valid_idx] = clf.predict_proba(valid_x, num_iteration=clf.best_iteration_)[:, 1]
+        train_preds[train_idx] = clf.predict_proba(train_x, num_iteration=clf.best_iteration_)[:, 1]
         sub_preds += clf.predict_proba(test_df[feats], num_iteration=clf.best_iteration_)[:, 1] / folds.n_splits
 
         fold_importance_df = pd.DataFrame()
         fold_importance_df["feature"] = feats
         fold_importance_df["importance"] = clf.feature_importances_
         fold_importance_df["fold"] = n_fold + 1
-        feature_importance_df = pd.concat([feature_importance_df, fold_importance_df], axis=0)
+        # feature_importance_df = pd.concat([feature_importance_df, fold_importance_df], axis=0)
         print('Fold %2d AUC : %.6f' % (n_fold + 1, roc_auc_score(valid_y, oof_preds[valid_idx])))
         del clf, train_x, train_y, valid_x, valid_y
         gc.collect()
 
-    print('Full AUC score %.6f' % roc_auc_score(train_df['TARGET'], oof_preds))
+    print('Full train AUC score %.6f' % roc_auc_score(train_df['TARGET'], train_preds))
+    print('Full valid AUC score %.6f' % roc_auc_score(train_df['TARGET'], oof_preds))
     # Write submission file and plot feature importance
-    if not debug:
-        test_df['TARGET'] = sub_preds
-        test_df[['SK_ID_CURR', 'TARGET']].to_csv(submission_file_name, index= False)
+    test_df.loc[:, 'TARGET'] = sub_preds
+    test_df.loc[:, ['SK_ID_CURR', 'TARGET']].to_csv(submission_file_name, index= False)
+
     # display_importances(feature_importance_df)
+    # feature_importance_df.to_csv("feature_importance.csv", index = False)
     return feature_importance_df
 
 # Display/plot feature importance
@@ -325,41 +356,40 @@ def display_importances(feature_importance_df_):
     plt.savefig('lgbm_importances01.png')
 
 
-def main(debug = False):
-    num_rows = 10000 if debug else None
-    df = application_train_test(num_rows)
+def main():
+    df = application_train_test()
     with timer("Process bureau and bureau_balance"):
-        bureau = bureau_and_balance(num_rows)
+        bureau = bureau_and_balance()
         print("Bureau df shape:", bureau.shape)
         df = df.join(bureau, how='left', on='SK_ID_CURR')
         del bureau
         gc.collect()
     with timer("Process previous_applications"):
-        prev = previous_applications(num_rows)
+        prev = previous_applications(df)
         print("Previous applications df shape:", prev.shape)
         df = df.join(prev, how='left', on='SK_ID_CURR')
         del prev
         gc.collect()
     with timer("Process POS-CASH balance"):
-        pos = pos_cash(num_rows)
+        pos = pos_cash()
         print("Pos-cash balance df shape:", pos.shape)
         df = df.join(pos, how='left', on='SK_ID_CURR')
         del pos
         gc.collect()
     with timer("Process installments payments"):
-        ins = installments_payments(num_rows)
+        ins = installments_payments()
         print("Installments payments df shape:", ins.shape)
         df = df.join(ins, how='left', on='SK_ID_CURR')
         del ins
         gc.collect()
     with timer("Process credit card balance"):
-        cc = credit_card_balance(num_rows)
+        cc = credit_card_balance()
         print("Credit card balance df shape:", cc.shape)
         df = df.join(cc, how='left', on='SK_ID_CURR')
         del cc
         gc.collect()
     with timer("Run LightGBM with kfold"):
-        feat_importance = kfold_lightgbm(df, num_folds= NUM_FOLDS, stratified= False, debug= debug)
+        feat_importance = kfold_lightgbm(df, num_folds= NUM_FOLDS, stratified= False)
 
 if __name__ == "__main__":
     submission_file_name = "submission_kernel02.csv"

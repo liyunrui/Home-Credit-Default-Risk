@@ -1,0 +1,210 @@
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 116)
+Process bureau and bureau_balance - done in 41s
+Previous applications df shape: (338857, 258)
+Process previous_applications - done in 38s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 22s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 53s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 28s
+Starting LightGBM. Train shape: (307507, 808), test shape: (48744, 808)
+Training until validation scores don't improve for 200 rounds.
+[100]	training's auc: 0.830366
+[200]	training's auc: 0.865949
+[300]	training's auc: 0.892046
+[400]	training's auc: 0.912018
+[500]	training's auc: 0.929426
+[600]	training's auc: 0.944281
+[700]	training's auc: 0.955612
+[800]	training's auc: 0.964327
+[900]	training's auc: 0.971307
+[1000]	training's auc: 0.977378
+[1100]	training's auc: 0.982491
+[1200]	training's auc: 0.986199
+[1300]	training's auc: 0.989532
+[1400]	training's auc: 0.992149
+[1500]	training's auc: 0.994086
+[1600]	training's auc: 0.995624
+[1700]	training's auc: 0.9968
+[1800]	training's auc: 0.997687
+[1900]	training's auc: 0.998349
+[2000]	training's auc: 0.998786
+[2100]	training's auc: 0.997341
+[2200]	training's auc: 0.995986
+Early stopping, best iteration is:
+[2025]	training's auc: 0.998882
+Fold  1 AUC : 0.998882
+Training until validation scores don't improve for 200 rounds.
+[100]	training's auc: 0.829627
+[200]	training's auc: 0.865364
+[300]	training's auc: 0.891922
+[400]	training's auc: 0.913934
+[500]	training's auc: 0.930608
+[600]	training's auc: 0.944711
+[700]	training's auc: 0.955766
+[800]	training's auc: 0.965268
+[900]	training's auc: 0.972446
+[1000]	training's auc: 0.978802
+[1100]	training's auc: 0.983864
+[1200]	training's auc: 0.987836
+[1300]	training's auc: 0.990965
+[1400]	training's auc: 0.993341
+[1500]	training's auc: 0.995033
+[1600]	training's auc: 0.9963
+[1700]	training's auc: 0.997324
+[1800]	training's auc: 0.998175
+[1900]	training's auc: 0.998796
+[2000]	training's auc: 0.999195
+[2100]	training's auc: 0.999472
+[2200]	training's auc: 0.999641
+[2300]	training's auc: 0.999823
+[2400]	training's auc: 0.999888
+[2500]	training's auc: 0.999927
+[2600]	training's auc: 0.999953
+[2700]	training's auc: 0.999975
+[2800]	training's auc: 0.999985
+[2900]	training's auc: 0.999993
+[3000]	training's auc: 0.999995
+[3100]	training's auc: 0.999998
+[3200]	training's auc: 0.999998
+[3300]	training's auc: 0.999999
+[3400]	training's auc: 0.999999
+[3500]	training's auc: 1
+[3600]	training's auc: 1
+[3700]	training's auc: 1
+[3800]	training's auc: 1
+[3900]	training's auc: 1
+[4000]	training's auc: 1
+[4100]	training's auc: 1
+Early stopping, best iteration is:
+[3926]	training's auc: 1
+Fold  2 AUC : 1.000000
+Full train AUC score 0.999680
+Full valid AUC score 0.999680
+Run LightGBM with kfold - done in 373s
+Full model run - done in 565s
+=====================================================================================
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 116)
+Process bureau and bureau_balance - done in 39s
+Previous applications df shape: (338857, 258)
+Process previous_applications - done in 37s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 22s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 54s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 26s
+Starting LightGBM. Train shape: (307507, 808), test shape: (48744, 808)
+[LightGBM] [Warning] bagging_fraction is set=1.0, subsample=1.0 will be ignored. Current value: bagging_fraction=1.0.
+[LightGBM] [Warning] min_sum_hessian_in_leaf is set=0, min_child_weight=0.001 will be ignored. Current value: min_sum_hessian_in_leaf=0.
+[LightGBM] [Warning] feature_fraction is set=1.0, colsample_bytree=1.0 will be ignored. Current value: feature_fraction=1.0.
+Training until validation scores don't improve for 200 rounds.
+[100]	training's auc: 0.830366
+[200]	training's auc: 0.865949
+[300]	training's auc: 0.892046
+[400]	training's auc: 0.912018
+[500]	training's auc: 0.929426
+[600]	training's auc: 0.944281
+[700]	training's auc: 0.955612
+[800]	training's auc: 0.964327
+[900]	training's auc: 0.971375
+[1000]	training's auc: 0.977843
+[1100]	training's auc: 0.982792
+[1200]	training's auc: 0.986943
+[1300]	training's auc: 0.989568
+[1400]	training's auc: 0.992062
+[1500]	training's auc: 0.993982
+[1600]	training's auc: 0.995496
+[1700]	training's auc: 0.996601
+[1800]	training's auc: 0.997561
+[1900]	training's auc: 0.998099
+[2000]	training's auc: 0.998638
+[2100]	training's auc: 0.999001
+[2200]	training's auc: 0.999389
+[2300]	training's auc: 0.999608
+[2400]	training's auc: 0.999737
+[2500]	training's auc: 0.999824
+[2600]	training's auc: 0.999888
+[2700]	training's auc: 0.999933
+[2800]	training's auc: 0.999956
+[2900]	training's auc: 0.999986
+[3000]	training's auc: 0.999992
+[3100]	training's auc: 0.999997
+[3200]	training's auc: 0.999998
+[3300]	training's auc: 0.999999
+[3400]	training's auc: 1
+[3500]	training's auc: 1
+[3600]	training's auc: 1
+[3700]	training's auc: 1
+[3800]	training's auc: 1
+[3900]	training's auc: 1
+[4000]	training's auc: 1
+[4100]	training's auc: 1
+[4200]	training's auc: 1
+[4300]	training's auc: 1
+[4400]	training's auc: 1
+[4500]	training's auc: 1
+Early stopping, best iteration is:
+[4342]	training's auc: 1
+Fold  1 AUC : 1.000000
+[LightGBM] [Warning] bagging_fraction is set=1.0, subsample=1.0 will be ignored. Current value: bagging_fraction=1.0.
+[LightGBM] [Warning] min_sum_hessian_in_leaf is set=0, min_child_weight=0.001 will be ignored. Current value: min_sum_hessian_in_leaf=0.
+[LightGBM] [Warning] feature_fraction is set=1.0, colsample_bytree=1.0 will be ignored. Current value: feature_fraction=1.0.
+Training until validation scores don't improve for 200 rounds.
+[100]	training's auc: 0.829627
+[200]	training's auc: 0.865364
+[300]	training's auc: 0.891922
+[400]	training's auc: 0.913934
+[500]	training's auc: 0.930608
+[600]	training's auc: 0.944711
+[700]	training's auc: 0.955766
+[800]	training's auc: 0.965268
+[900]	training's auc: 0.972446
+[1000]	training's auc: 0.978802
+[1100]	training's auc: 0.983864
+[1200]	training's auc: 0.987836
+[1300]	training's auc: 0.990965
+[1400]	training's auc: 0.993341
+[1500]	training's auc: 0.995033
+[1600]	training's auc: 0.9963
+[1700]	training's auc: 0.997324
+[1800]	training's auc: 0.998175
+[1900]	training's auc: 0.998796
+[2000]	training's auc: 0.999195
+[2100]	training's auc: 0.999472
+[2200]	training's auc: 0.999641
+[2300]	training's auc: 0.999823
+[2400]	training's auc: 0.999888
+[2500]	training's auc: 0.999927
+[2600]	training's auc: 0.999953
+[2700]	training's auc: 0.999975
+[2800]	training's auc: 0.999985
+[2900]	training's auc: 0.999993
+[3000]	training's auc: 0.999995
+[3100]	training's auc: 0.999998
+[3200]	training's auc: 0.999998
+[3300]	training's auc: 0.999999
+[3400]	training's auc: 0.999999
+[3500]	training's auc: 1
+[3600]	training's auc: 1
+[3700]	training's auc: 1
+[3800]	training's auc: 1
+[3900]	training's auc: 1
+[4000]	training's auc: 1
+[4100]	training's auc: 1
+Early stopping, best iteration is:
+[3926]	training's auc: 1
+Fold  2 AUC : 1.000000
+Full train AUC score 1.000000
+Full valid AUC score 1.000000
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Run LightGBM with kfold - done in 540s
+Full model run - done in 728s
