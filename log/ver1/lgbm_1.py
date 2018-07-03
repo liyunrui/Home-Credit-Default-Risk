@@ -20,6 +20,7 @@
 NUM_FOLDS = 5
 SEED = 1115
 CPU_USE_RATE = 0.8
+STRATIFIED = True
 
 import numpy as np
 import pandas as pd
@@ -72,6 +73,9 @@ def application_train_test(nan_as_category = False):
     # Categorical features with Binary encode (0 or 1; two categories)
     for bin_feature in ['CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY']:
         df[bin_feature], uniques = pd.factorize(df[bin_feature])
+    # preprocess some categorical features to numerical
+    df.replace({'NAME_EDUCATION_TYPE': {'Academic degree':4, 'Higher education':3, 'Incomplete higher':2.5, 'Secondary / secondary special':2, 'Lower secondary':1}}, 2, inplace= True) # fe12
+
     # Categorical features with One-Hot encode
     df, cat_cols = one_hot_encoder(df, nan_as_category)
     
@@ -84,8 +88,22 @@ def application_train_test(nan_as_category = False):
     df['ANNUITY_INCOME_PERC'] = df['AMT_ANNUITY'] / df['AMT_INCOME_TOTAL']
     df['PAYMENT_RATE'] = df['AMT_ANNUITY'] / df['AMT_CREDIT']
     # More features
-    df['ENDOWMENT'] = df['FLAG_OWN_CAR']*521500 + df['FLAG_OWN_REALTY']*52911*100 # fe1
-    # df['ANNUAL_BURDEN'] = df['CNT_CHILDREN']*5000000/20*0.75 + df['AMT_ANNUITY'] # fe2
+    ##### prove +- < */, pairwise multiplication, logisitc fncton
+    df['CAPITAL'] = df['FLAG_OWN_CAR']*521500 + df['FLAG_OWN_REALTY']*52911*100 # fe1
+    df['ANNUAL_BURDEN'] = df['CNT_CHILDREN']*10000*12 + df['AMT_ANNUITY'] # fe2
+    # df['PROB_ANNUAL_BURDEN'] = df['CNT_CHILDREN']*10000*12 + df['AMT_ANNUITY'] # fe16
+    # df['PROB_ANNUAL_BURDEN'] = df['PROB_ANNUAL_BURDEN'] - df['PROB_ANNUAL_BURDEN'].mean() # fe17
+    # df['PROB_ANNUAL_BURDEN'] = df['PROB_ANNUAL_BURDEN'] - df['PROB_ANNUAL_BURDEN'].median() # fe18
+    # df['PROB_ANNUAL_BURDEN'] = df['PROB_ANNUAL_BURDEN'].apply(lambda x: 1 / (1 + np.exp(-x))) # fe16
+    # df['ANNUAL_NET_INCOME'] = df['AMT_INCOME_TOTAL'] - df['AMT_ANNUITY'] # fe8
+    # df['COUPLE_ANNUAL_NET_INCOME'] = df['AMT_INCOME_TOTAL']*1.8 - df['AMT_ANNUITY'] # fe9
+    df['CAPITAL_CREDIT_PREC'] = (df['FLAG_OWN_CAR']*521500 + df['FLAG_OWN_REALTY']*52911*100) / df['AMT_CREDIT'] # fe10 # fe11 '/' instead of '-'
+    # df['EXT_SOURCE_MEAN'] = (df['EXT_SOURCE_1'] + df['EXT_SOURCE_2'] + df['EXT_SOURCE_3']) / 3 # fe13
+    # df['EXT_SOURCE_1_VAR'] = (df['EXT_SOURCE_1'] - (df['EXT_SOURCE_1'] + df['EXT_SOURCE_2'] + df['EXT_SOURCE_3'])/3) + (df['EXT_SOURCE_2'] - (df['EXT_SOURCE_1'] + df['EXT_SOURCE_2'] + df['EXT_SOURCE_3'])/3) + (df['EXT_SOURCE_3'] - (df['EXT_SOURCE_1'] + df['EXT_SOURCE_2'] + df['EXT_SOURCE_3'])/3) # fe14
+    df['EXT_SOURCE_1_VAR'] = (df['EXT_SOURCE_1'] - (df['EXT_SOURCE_1'] + df['EXT_SOURCE_2'] + df['EXT_SOURCE_3'])/3)**2 # fe15
+    df['EXT_SOURCE_2_VAR'] = (df['EXT_SOURCE_2'] - (df['EXT_SOURCE_1'] + df['EXT_SOURCE_2'] + df['EXT_SOURCE_3'])/3)**2 # fe15
+    df['EXT_SOURCE_3_VAR'] = (df['EXT_SOURCE_3'] - (df['EXT_SOURCE_1'] + df['EXT_SOURCE_2'] + df['EXT_SOURCE_3'])/3)**2 # fe15
+    
     del test_df
     gc.collect()
     return df
@@ -160,9 +178,9 @@ def previous_applications(main_df, nan_as_category = True):
     prev['DAYS_TERMINATION'].replace(365243, np.nan, inplace= True)
     # Add feature: value ask / value received percentage
     prev['APP_CREDIT_PERC'] = prev['AMT_APPLICATION'] / prev['AMT_CREDIT']
-    # prev['PAYMENT_RATE'] = prev['AMT_ANNUITY'] / prev['AMT_CREDIT'] # fe3
-    # prev['TIME_DECAYED_EVAL'] = (prev['NAME_CONTRACT_STATUS_Approved'] - prev['NAME_CONTRACT_STATUS_Refused']) / (-prev['DAYS_DECISION']) # fe6
-    # prev['EVAL'] = prev['NAME_CONTRACT_STATUS_Approved'] - prev['NAME_CONTRACT_STATUS_Refused'] # fe7
+    prev['PAYMENT_RATE'] = prev['AMT_ANNUITY'] / prev['AMT_CREDIT'] # fe3
+    prev['TIME_DECAYED_HUMAN_EVAL'] = (prev['NAME_CONTRACT_STATUS_Approved'] - prev['NAME_CONTRACT_STATUS_Refused']) / (-prev['DAYS_DECISION']) # fe6
+    # prev['HUMAN_EVAL'] = prev['NAME_CONTRACT_STATUS_Approved'] - prev['NAME_CONTRACT_STATUS_Refused'] # fe7
 
     # Previous applications numeric features
     num_aggregations = { # fe5: remove 'var'
@@ -170,14 +188,14 @@ def previous_applications(main_df, nan_as_category = True):
         'AMT_APPLICATION': ['min', 'max', 'mean'],
         'AMT_CREDIT': ['min', 'max', 'mean'],
         'APP_CREDIT_PERC': ['min', 'max', 'mean', 'var'],
-        # 'PAYMENT_RATE': ['min', 'max', 'mean', 'var'], # fe3
-        # 'TIME_DECAYED_EVAL': ['sum'], # fe6
-        # 'EVAL': ['min', 'max', 'mean'], # fe7
+        'PAYMENT_RATE': ['min', 'max', 'mean', 'var'], # fe3
+        'TIME_DECAYED_HUMAN_EVAL': ['sum'], # fe6
+        # 'HUMAN_EVAL': ['min', 'max', 'mean'], # fe7
         'AMT_DOWN_PAYMENT': ['min', 'max', 'mean'],
         'AMT_GOODS_PRICE': ['min', 'max', 'mean'],
         'HOUR_APPR_PROCESS_START': ['min', 'max', 'mean'],
         'RATE_DOWN_PAYMENT': ['min', 'max', 'mean'],
-        'DAYS_DECISION': ['min', 'max', 'mean'], #['max'], # [min', 'max', 'mean'], # fe4
+        'DAYS_DECISION': ['min', 'max', 'mean'], # fe4: [min', 'max', 'mean'] -> ['max']
         'CNT_PAYMENT': ['mean', 'sum'],
     }
     # Previous applications categorical features
@@ -301,23 +319,22 @@ def kfold_lightgbm(df, num_folds, stratified = False):
             n_estimators=10000,
             learning_rate= 0.03,
             num_leaves=34, # 34 > 17
-            colsample_bytree= 0.9497036, #0.1, #0.9497036, #0.9497036 > 0.6 > 0.8 > 0.9
+            colsample_bytree=0.9497036, # 0.2 > 0.1 > 0.9497036 > 0.6 > 0.8 > 0.9
             subsample=0.8715623,
             subsample_freq=1,
             max_depth=8, # 7 > 5 > 8 > 4
-            reg_alpha=0.041545473, #0.4, # 0.041545473 > 0.4 > 0.1,
+            reg_alpha=0.041545473, # 0.3 > 0.4 > 0.041545473 > 0.1,
             reg_lambda=0.0735294,
             min_split_gain=0.0222415,
             min_child_weight=39.3259775, # 39.3259775 > 1e-2
             silent=-1,
             verbose=-1,
-            # min_data_in_leaf = 30, # default=20 > 30
-            max_bin=128, # default = 255 > 128 > 64
+            # min_data_in_leaf = 30, # 20(default) > 30
+            max_bin=255, # 255(default) > 128 > 64
             )
-        # 1. rapid tuning
-        # 2. reg_alpha fix bad feature
-        # 3. colsample_bytree fix 2 good features misture
-        # 4. reg_alpha and colsample_bytree can work together
+        # rapid: max_bin=128,
+        # rapid1: max_bin=128, colsample_bytree=0.2, reg_alpha=0.3,
+        # rapid2: max_bin=64, colsample_bytree=0.2, reg_alpha=0.3,
 
         clf.fit(train_x, train_y, eval_set=[(train_x, train_y), (valid_x, valid_y)],
             eval_metric= 'auc', verbose= 100, early_stopping_rounds= 200)
@@ -326,10 +343,10 @@ def kfold_lightgbm(df, num_folds, stratified = False):
         train_preds[train_idx] = clf.predict_proba(train_x, num_iteration=clf.best_iteration_)[:, 1]
         sub_preds += clf.predict_proba(test_df[feats], num_iteration=clf.best_iteration_)[:, 1] / folds.n_splits
 
-        fold_importance_df = pd.DataFrame()
-        fold_importance_df["feature"] = feats
-        fold_importance_df["importance"] = clf.feature_importances_
-        fold_importance_df["fold"] = n_fold + 1
+        # fold_importance_df = pd.DataFrame()
+        # fold_importance_df["feature"] = feats
+        # fold_importance_df["importance"] = clf.feature_importances_
+        # fold_importance_df["fold"] = n_fold + 1
         # feature_importance_df = pd.concat([feature_importance_df, fold_importance_df], axis=0)
         print('Fold %2d AUC : %.6f' % (n_fold + 1, roc_auc_score(valid_y, oof_preds[valid_idx])))
         del clf, train_x, train_y, valid_x, valid_y
@@ -353,7 +370,7 @@ def display_importances(feature_importance_df_):
     sns.barplot(x="importance", y="feature", data=best_features.sort_values(by="importance", ascending=False))
     plt.title('LightGBM Features (avg over folds)')
     plt.tight_layout()
-    plt.savefig('lgbm_importances01.png')
+    plt.savefig('lgbm_importances.png')
 
 
 def main():
@@ -389,9 +406,9 @@ def main():
         del cc
         gc.collect()
     with timer("Run LightGBM with kfold"):
-        feat_importance = kfold_lightgbm(df, num_folds= NUM_FOLDS, stratified= False)
+        feat_importance = kfold_lightgbm(df, num_folds= NUM_FOLDS, stratified= STRATIFIED)
 
 if __name__ == "__main__":
-    submission_file_name = "submission_kernel02.csv"
+    submission_file_name = "sub.csv"
     with timer("Full model run"):
         main()
