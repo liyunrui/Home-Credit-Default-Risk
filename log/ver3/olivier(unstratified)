@@ -1,0 +1,29 @@
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 24s
+Previous applications df shape: (338857, 279)
+Process previous_applications - done in 21s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 9s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 31s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 14s
+(356251, 870)
+(356251, 531)
+Starting LightGBM. Train shape: (307507, 531), test shape: (48744, 531)
+Fold  1 AUC : 0.790714
+Fold  2 AUC : 0.791123
+Fold  3 AUC : 0.789972
+Fold  4 AUC : 0.793915
+Fold  5 AUC : 0.789386
+Full AUC score 0.791011
+lgbm_2.py:438: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  test_df['TARGET'] = sub_preds
+useless features: ''
+Run LightGBM with kfold - done in 942s
+Full model run - done in 1054s
