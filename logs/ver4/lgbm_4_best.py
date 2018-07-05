@@ -57,7 +57,7 @@ features_dropped = [
     'CNT_CHILDREN', 'ELEVATORS_MEDI', 'ELEVATORS_MODE', 'EMERGENCYSTATE_MODE_No', 'EMERGENCYSTATE_MODE_Yes', 'ENTRANCES_MODE', 'FLAG_CONT_MOBILE',
     'FLAG_DOCUMENT_10', 'FLAG_DOCUMENT_11', 'FLAG_DOCUMENT_12', 'FLAG_DOCUMENT_13', 'FLAG_DOCUMENT_14', 'FLAG_DOCUMENT_15', 'FLAG_DOCUMENT_16',
     'FLAG_DOCUMENT_17', 'FLAG_DOCUMENT_19', 'FLAG_DOCUMENT_2', 'FLAG_DOCUMENT_20', 'FLAG_DOCUMENT_21', 'FLAG_DOCUMENT_4', 'FLAG_DOCUMENT_5',
-    'FLAG_DOCUMENT_6', 'FLAG_DOCUMENT_7', 'FLAG_DOCUMENT_9', 'FLAG_EMAIL', 'FLAG_EMP_PHONE', 'FLAG_MOBIL', 'FLAG_OWN_CAR', 'FLOORSMAX_MODE',
+    'FLAG_DOCUMENT_6', 'FLAG_DOCUMENT_7', 'FLAG_DOCUMENT_9', 'FLAG_EMP_PHONE', 'FLAG_MOBIL', 'FLAG_OWN_CAR', 'FLOORSMAX_MODE',
     'FONDKAPREMONT_MODE_not specified', 'FONDKAPREMONT_MODE_org spec account', 'FONDKAPREMONT_MODE_reg oper account', 'FONDKAPREMONT_MODE_reg oper spec account',
     'HOUSETYPE_MODE_block of flats', 'HOUSETYPE_MODE_specific housing', 'HOUSETYPE_MODE_terraced house', 'LIVE_REGION_NOT_WORK_REGION',
     'NAME_CONTRACT_TYPE_Revolving loans', 'NAME_EDUCATION_TYPE_Academic degree', 'NAME_FAMILY_STATUS_Civil marriage', 'NAME_FAMILY_STATUS_Single / not married',
@@ -110,9 +110,13 @@ features_dropped = [
     'REFUSED_RATE_DOWN_PAYMENT_MIN', 'REG_CITY_NOT_WORK_CITY', 'REG_REGION_NOT_LIVE_REGION', 'REG_REGION_NOT_WORK_REGION',
     'WALLSMATERIAL_MODE_Block', 'WALLSMATERIAL_MODE_Mixed', 'WALLSMATERIAL_MODE_Monolithic', 'WALLSMATERIAL_MODE_Others', 'WALLSMATERIAL_MODE_Panel',
     'WALLSMATERIAL_MODE_Wooden', 'WEEKDAY_APPR_PROCESS_START_FRIDAY', 'WEEKDAY_APPR_PROCESS_START_THURSDAY', 'WEEKDAY_APPR_PROCESS_START_TUESDAY',
+    'FLAG_EMAIL', # fe2(rem)
+
     # imp=0 in at least 3 folds
     'APPROVED_HUMAN_EVAL_MAX', 'APPROVED_HUMAN_EVAL_MEAN', 'APPROVED_HUMAN_EVAL_MIN', 'BURO_CREDIT_TYPE_Another type of loan_MEAN', 'NEW_RATIO_PREV_HUMAN_EVAL_MAX',
     'NEW_RATIO_PREV_HUMAN_EVAL_MEAN', 'NEW_RATIO_PREV_HUMAN_EVAL_MIN', 'PREV_HUMAN_EVAL_MAX', 'REFUSED_HUMAN_EVAL_MAX', 'REFUSED_HUMAN_EVAL_MEAN', 'REFUSED_HUMAN_EVAL_MIN',
+    # 'PREV_NAME_TYPE_SUITE_Other_A_MEAN', # rm6
+    
 ]
 
 @contextmanager
@@ -149,7 +153,7 @@ def application_train_test(nan_as_category = False):
     
     docs = [_f for _f in df.columns if 'FLAG_DOC' in _f]
     live = [_f for _f in df.columns if ('FLAG_' in _f) & ('FLAG_DOC' not in _f) & ('_FLAG_' not in _f)] # _OWN_
-    # live = [_f for _f in df.columns if ('FLAG_' in _f) & ('FLAG_DOC' not in _f) & ('FLAG_OWN_' not in _f) & ('_FLAG_' not in _f)] # fe4
+    # live = [_f for _f in df.columns if ('FLAG_' in _f) & ('FLAG_DOC' not in _f) & ('FLAG_OWN_' not in _f) & ('_FLAG_' not in _f)]
 
     # NaN values for DAYS_EMPLOYED: 365.243 -> nan
     df['DAYS_EMPLOYED'].replace(365243, np.nan, inplace= True)
@@ -160,23 +164,39 @@ def application_train_test(nan_as_category = False):
     df['NEW_CREDIT_TO_GOODS_RATIO'] = df['AMT_CREDIT'] / df['AMT_GOODS_PRICE']
     df['NEW_DOC_IND_AVG'] = df[docs].mean(axis=1)
     df['NEW_DOC_IND_STD'] = df[docs].std(axis=1)
-    df['NEW_DOC_IND_KURT'] = df[docs].kurtosis(axis=1)
+    df['NEW_DOC_IND_KURT'] = df[docs].kurtosis(axis=1) # rm8
     df['NEW_LIVE_IND_SUM'] = df[live].sum(axis=1)
     df['NEW_LIVE_IND_STD'] = df[live].std(axis=1)
-    df['NEW_LIVE_IND_KURT'] = df[live].kurtosis(axis=1)
+    df['NEW_LIVE_IND_KURT'] = df[live].kurtosis(axis=1) # rm9
     df['NEW_INC_PER_CHLD'] = df['AMT_INCOME_TOTAL'] / (1 + df['CNT_CHILDREN'])
     df['NEW_INC_BY_ORG'] = df['ORGANIZATION_TYPE'].map(inc_by_org)
     df['NEW_EMPLOY_TO_BIRTH_RATIO'] = df['DAYS_EMPLOYED'] / df['DAYS_BIRTH']
     df['NEW_ANNUITY_TO_INCOME_RATIO'] = df['AMT_ANNUITY'] / (1 + df['AMT_INCOME_TOTAL'])
     df['NEW_SOURCES_PROD'] = df['EXT_SOURCE_1'] * df['EXT_SOURCE_2'] * df['EXT_SOURCE_3']
     df['NEW_EXT_SOURCES_MEAN'] = df[['EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3']].mean(axis=1)
-    df['NEW_SCORES_STD'] = df[['EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3']].std(axis=1)
-    df['NEW_SCORES_STD'] = df['NEW_SCORES_STD'].fillna(df['NEW_SCORES_STD'].mean())
-    df['NEW_CAR_TO_BIRTH_RATIO'] = df['OWN_CAR_AGE'] / df['DAYS_BIRTH']
-    df['NEW_CAR_TO_EMPLOY_RATIO'] = df['OWN_CAR_AGE'] / df['DAYS_EMPLOYED']
-    df['NEW_PHONE_TO_BIRTH_RATIO'] = df['DAYS_LAST_PHONE_CHANGE'] / df['DAYS_BIRTH']
-    df['NEW_PHONE_TO_EMPLOY_RATIO'] = df['DAYS_LAST_PHONE_CHANGE'] / df['DAYS_EMPLOYED']
+    # df['NEW_SCORES_STD'] = df[['EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3']].std(axis=1) # rm7
+    # df['NEW_SCORES_STD'] = df['NEW_SCORES_STD'].fillna(df['NEW_SCORES_STD'].mean()) # rm7
+    # df['NEW_CAR_TO_BIRTH_RATIO'] = df['OWN_CAR_AGE'] / df['DAYS_BIRTH'] # rm1
+    # df['NEW_CAR_TO_EMPLOY_RATIO'] = df['OWN_CAR_AGE'] / df['DAYS_EMPLOYED'] # rm2
+    # df['NEW_PHONE_TO_BIRTH_RATIO'] = df['DAYS_LAST_PHONE_CHANGE'] / df['DAYS_BIRTH'] # rm3
+    # df['NEW_PHONE_TO_EMPLOY_RATIO'] = df['DAYS_LAST_PHONE_CHANGE'] / df['DAYS_EMPLOYED'] # rm4
     df['NEW_CREDIT_TO_INCOME_RATIO'] = df['AMT_CREDIT'] / df['AMT_INCOME_TOTAL']
+
+    # fe3: replace NEW_SCORES_STD
+    df['EXT_SOURCE_1_VAR'] = (df['EXT_SOURCE_1'] - df['NEW_EXT_SOURCES_MEAN'])**2
+    df['EXT_SOURCE_1_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_1_VAR'].median())
+    df['EXT_SOURCE_2_VAR'] = (df['EXT_SOURCE_2'] - df['NEW_EXT_SOURCES_MEAN'])**2
+    df['EXT_SOURCE_2_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_2_VAR'].median())
+    df['EXT_SOURCE_3_VAR'] = (df['EXT_SOURCE_3'] - df['NEW_EXT_SOURCES_MEAN'])**2
+    df['EXT_SOURCE_3_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_3_VAR'].median())
+
+    # fe4
+    # df['EXT_SOURCE_1_2'] = df['EXT_SOURCE_1'] * df['EXT_SOURCE_2']
+    # df['EXT_SOURCE_1_2'] = df['EXT_SOURCE_1_2'].fillna(df['EXT_SOURCE_1_2'].median())
+    # df['EXT_SOURCE_2_3'] = df['EXT_SOURCE_2'] * df['EXT_SOURCE_3']
+    # df['EXT_SOURCE_2_3'] = df['EXT_SOURCE_2_3'].fillna(df['EXT_SOURCE_2_3'].median())
+    # df['EXT_SOURCE_1_3'] = df['EXT_SOURCE_1'] * df['EXT_SOURCE_3']
+    # df['EXT_SOURCE_1_3'] = df['EXT_SOURCE_1_3'].fillna(df['EXT_SOURCE_1_3'].median())   
 
     # to do: personal value / mode_or_median
     # to do: agg OBS/DEF_30_CNT_SOCIAL_CIRCLE
@@ -188,7 +208,8 @@ def application_train_test(nan_as_category = False):
     df, cat_cols = one_hot_encoder(df, nan_as_category)
     
     # From Aguiar: Some simple new features (percentages)
-    df['INCOME_PER_PERSON'] = df['AMT_INCOME_TOTAL'] / df['CNT_FAM_MEMBERS'] # fe1
+    df['INCOME_PER_PERSON'] = df['AMT_INCOME_TOTAL'] / df['CNT_FAM_MEMBERS']
+    # df['CREDIT_TERM'] = df['AMT_ANNUITY'] / df['AMT_CREDIT'] # fe1
 
     del test_df
     gc.collect()
@@ -229,6 +250,23 @@ def bureau_and_balance(nan_as_category = True):
         'MONTHS_BALANCE_MAX': ['max'],
         'MONTHS_BALANCE_SIZE': ['mean', 'sum']
     }
+    # fe5
+    # num_aggregations = {
+    #     'DAYS_CREDIT': ['min', 'max', 'median', 'var'],
+    #     'DAYS_CREDIT_ENDDATE': ['min', 'max', 'median'],
+    #     'DAYS_CREDIT_UPDATE': ['median'],
+    #     'CREDIT_DAY_OVERDUE': ['max', 'median'],
+    #     'AMT_CREDIT_MAX_OVERDUE': ['median'],
+    #     'AMT_CREDIT_SUM': ['max', 'median', 'sum'],
+    #     'AMT_CREDIT_SUM_DEBT': ['max', 'median', 'sum'],
+    #     'AMT_CREDIT_SUM_OVERDUE': ['median'],
+    #     'AMT_CREDIT_SUM_LIMIT': ['median', 'sum'],
+    #     'AMT_ANNUITY': ['max', 'median'],
+    #     'CNT_CREDIT_PROLONG': ['sum'],
+    #     'MONTHS_BALANCE_MIN': ['min'],
+    #     'MONTHS_BALANCE_MAX': ['max'],
+    #     'MONTHS_BALANCE_SIZE': ['median', 'sum']
+    # }
     # Bureau and bureau_balance categorical features
     cat_aggregations = {}
     for cat in bureau_cat: cat_aggregations[cat] = ['mean']
@@ -250,6 +288,7 @@ def bureau_and_balance(nan_as_category = True):
     closed_agg.columns = pd.Index(['CLOSED_' + e[0] + "_" + e[1].upper() for e in closed_agg.columns.tolist()])
     bureau_agg = bureau_agg.join(closed_agg, how='left', on='SK_ID_CURR')
     
+    # rm5
     for e in cols:
         bureau_agg['NEW_RATIO_BURO_' + e[0] + "_" + e[1].upper()] = bureau_agg['ACTIVE_' + e[0] + "_" + e[1].upper()] / bureau_agg['CLOSED_' + e[0] + "_" + e[1].upper()]
     
@@ -269,8 +308,8 @@ def previous_applications(nan_as_category = True):
     prev['DAYS_TERMINATION'].replace(365243, np.nan, inplace= True)
     # Add feature: value ask / value received percentage
     prev['APP_CREDIT_PERC'] = prev['AMT_APPLICATION'] / prev['AMT_CREDIT']
-    prev['HUMAN_EVAL'] = prev['NAME_CONTRACT_STATUS_Approved'] - prev['NAME_CONTRACT_STATUS_Refused'] # fe9
-    prev['TIME_DECAYED_HUMAN_EVAL'] = prev['HUMAN_EVAL'] / (-prev['DAYS_DECISION']) # fe10
+    prev['HUMAN_EVAL'] = prev['NAME_CONTRACT_STATUS_Approved'] - prev['NAME_CONTRACT_STATUS_Refused']
+    prev['TIME_DECAYED_HUMAN_EVAL'] = prev['HUMAN_EVAL'] / (-prev['DAYS_DECISION'])
 
     # Previous applications numeric features
     num_aggregations = {
@@ -284,8 +323,8 @@ def previous_applications(nan_as_category = True):
         'RATE_DOWN_PAYMENT': ['min', 'max', 'mean'],
         'DAYS_DECISION': ['min', 'max', 'mean'],
         'CNT_PAYMENT': ['mean', 'sum'],
-        'HUMAN_EVAL': ['min', 'max', 'mean'], # fe9
-        'TIME_DECAYED_HUMAN_EVAL': ['sum'], # fe10
+        'HUMAN_EVAL': ['min', 'max', 'mean'],
+        'TIME_DECAYED_HUMAN_EVAL': ['sum'],
     }
     # Previous applications categorical features
     cat_aggregations = {}
@@ -339,25 +378,29 @@ def installments_payments(nan_as_category = True):
     ins = read_df('installments_payments')
     ins, cat_cols = one_hot_encoder(ins, nan_as_category= True)
     # Percentage and difference paid in each installment (amount paid and installment value)
-    ins['PAYMENT_PERC'] = ins['AMT_PAYMENT'] / ins['AMT_INSTALMENT'] # fe11(rem)
+    ins['PAYMENT_PERC'] = ins['AMT_PAYMENT'] / ins['AMT_INSTALMENT']
     ins['PAYMENT_DIFF'] = ins['AMT_INSTALMENT'] - ins['AMT_PAYMENT']
     # Days past due and days before due (no negative values)
-    ins['DPD'] = (ins['DAYS_ENTRY_PAYMENT'] - ins['DAYS_INSTALMENT'])
-    ins['DBD'] = (ins['DAYS_INSTALMENT'] - ins['DAYS_ENTRY_PAYMENT'])
+    # ins['DPD'] = (ins['DAYS_ENTRY_PAYMENT'] - ins['DAYS_INSTALMENT'])
+    # ins['DBD'] = (ins['DAYS_INSTALMENT'] - ins['DAYS_ENTRY_PAYMENT'])
+    
+    # fe6
+    ins['DPD'] = (ins['DAYS_ENTRY_PAYMENT'] - ins['DAYS_INSTALMENT']) / ins['DAYS_INSTALMENT']**2
+    ins['DBD'] = (ins['DAYS_INSTALMENT'] - ins['DAYS_ENTRY_PAYMENT']) / ins['DAYS_INSTALMENT']**2
+
     ins['DPD'] = ins['DPD'].apply(lambda x: x if x > 0 else 0)
-    ins['DBD'] = ins['DBD'].apply(lambda x: x if x > 0 else 0) # fe13(rem)
+    ins['DBD'] = ins['DBD'].apply(lambda x: x if x > 0 else 0)
 
     # Features: Perform aggregations
     aggregations = {
         'NUM_INSTALMENT_VERSION': ['nunique'],
         'DPD': ['max', 'mean', 'sum'],
-        'DBD': ['max', 'mean', 'sum'], # fe13(rem)
-        'PAYMENT_PERC': ['max', 'mean', 'sum', 'var'], # fe11
+        'DBD': ['max', 'mean', 'sum'],
+        'PAYMENT_PERC': ['max', 'mean', 'sum', 'var'],
         'PAYMENT_DIFF': ['max', 'mean', 'sum', 'var'],
         'AMT_INSTALMENT': ['max', 'mean', 'sum'],
         'AMT_PAYMENT': ['min', 'max', 'mean', 'sum'],
         'DAYS_ENTRY_PAYMENT': ['max', 'mean', 'sum'],
-        # 'DEFAULT': ['sum'], # fe15
     }
     for cat in cat_cols:
         aggregations[cat] = ['mean']
@@ -447,6 +490,7 @@ def kfold_lightgbm(df, num_folds, stratified = False):
     test_df[['SK_ID_CURR', 'TARGET']].to_csv(submission_file_name, index= False)
     
     # display_importances(feature_importance_df)
+    feature_importance_df.to_csv("feature_importance.csv", index = False)
     feature_importance_df_ = feature_importance_df[["feature", "importance"]].groupby("feature").median()
     useless_features_df = feature_importance_df_.loc[feature_importance_df_['importance'] == 0]
     useless_features_list = useless_features_df.index.tolist()
@@ -499,7 +543,7 @@ def main():
         gc.collect()
     with timer("Run LightGBM with kfold"):
         print(df.shape)
-        df.drop(features_dropped, axis=1, inplace=True)
+        df.drop(features_dropped, axis=1, inplace=True, errors='ignore')
         gc.collect()
         print(df.shape)
         feat_importance = kfold_lightgbm(df, num_folds= NUM_FOLDS, stratified= STRATIFIED)
