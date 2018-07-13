@@ -1,10 +1,14 @@
-# source 1: https://www.kaggle.com/jsaguiar/updated-0-792-lb-lightgbm-with-simple-features
-# source 2: https://www.kaggle.com/ogrellier/lighgbm-with-selected-features
-# different fold causes at least 0.003: https://www.kaggle.com/c/home-credit-default-risk/discussion/58332
+# Forked from excellent kernel : https://www.kaggle.com/jsaguiar/updated-0-792-lb-lightgbm-with-simple-features
+# From Kaggler : https://www.kaggle.com/jsaguiar
+# Just added a few features so I thought I had to make release it as well...
 
 NUM_FOLDS = 5
+MAX_ITERATIONS = 15 # NUM_FOLDS
+PATIENCE = 3
+TOLERANCE = 0.001
+SEED = 1115
 CPU_USE_RATE = 0.8
-STRATIFIED = True
+STRATIFIED = False
 
 import numpy as np
 import pandas as pd
@@ -20,7 +24,7 @@ import warnings
 import multiprocessing
 from os.path import exists
 warnings.simplefilter(action='ignore', category=FutureWarning)
-np.random.seed(int(time.time()))
+# np.random.seed(SEED)
 
 features_dropped = [
     # features_with_no_imp_at_least_twice
@@ -149,8 +153,8 @@ def application_train_test(nan_as_category = False):
     df = df[df['CODE_GENDER'] != 'XNA']
     
     docs = [_f for _f in df.columns if 'FLAG_DOC' in _f]
-    live = [_f for _f in df.columns if ('FLAG_' in _f) & ('FLAG_DOC' not in _f)]
-    # live = [_f for _f in df.columns if ('FLAG_' in _f) & ('FLAG_DOC' not in _f) & ('_OWN_' not in _f)] # fe11
+    live = [_f for _f in df.columns if ('FLAG_' in _f) & ('FLAG_DOC' not in _f) & ('_FLAG_' not in _f)] # _OWN_
+    # live = [_f for _f in df.columns if ('FLAG_' in _f) & ('FLAG_DOC' not in _f) & ('FLAG_OWN_' not in _f) & ('_FLAG_' not in _f)]
 
     # NaN values for DAYS_EMPLOYED: 365.243 -> nan
     df['DAYS_EMPLOYED'].replace(365243, np.nan, inplace= True)
@@ -161,10 +165,10 @@ def application_train_test(nan_as_category = False):
     df['NEW_CREDIT_TO_GOODS_RATIO'] = df['AMT_CREDIT'] / df['AMT_GOODS_PRICE']
     df['NEW_DOC_IND_AVG'] = df[docs].mean(axis=1) # rm1 good
     df['NEW_DOC_IND_AVG'] = df[docs].median(axis=1) # fe10
-    df['NEW_DOC_IND_STD'] = df[docs].std(axis=1) # rm6 bad
-    df['NEW_DOC_IND_KURT'] = df[docs].kurtosis(axis=1) # rm7
+    df['NEW_DOC_IND_STD'] = df[docs].std(axis=1) # rm6 good (6+8 great)
+    df['NEW_DOC_IND_KURT'] = df[docs].kurtosis(axis=1) # rm7 good
     df['NEW_LIVE_IND_SUM'] = df[live].sum(axis=1) # rm2 good
-    # df['NEW_LIVE_IND_STD'] = df[live].std(axis=1) # rm8 great
+    df['NEW_LIVE_IND_STD'] = df[live].std(axis=1) # rm8 great (6+8 great)
     df['NEW_LIVE_IND_KURT'] = df[live].kurtosis(axis=1) # rm4 good
     df['NEW_INC_PER_CHLD'] = df['AMT_INCOME_TOTAL'] / (1 + df['CNT_CHILDREN'])
     df['NEW_INC_BY_ORG'] = df['ORGANIZATION_TYPE'].map(inc_by_org)
@@ -271,8 +275,8 @@ def previous_applications(nan_as_category = True):
     prev['DAYS_FIRST_DUE'].replace(365243, np.nan, inplace= True)
     prev['DAYS_LAST_DUE_1ST_VERSION'].replace(365243, np.nan, inplace= True)
     prev['DAYS_LAST_DUE'].replace(365243, np.nan, inplace= True)
-    # prev['TIME_LEFT_BEFORE_LAST_DUE'] = prev['DAYS_LAST_DUE_1ST_VERSION'] - prev['DAYS_LAST_DUE'] # fe6
-    # prev['TIME_LEFT_BEFORE_LAST_DUE'].fillna(prev['TIME_LEFT_BEFORE_LAST_DUE'].median()) # fe6
+    # prev['TIME_LEFT_BEFORE_LAST_DUE'] = prev['DAYS_LAST_DUE_1ST_VERSION'] - prev['DAYS_LAST_DUE'] # fe6 good
+    # prev['TIME_LEFT_BEFORE_LAST_DUE'].fillna(prev['TIME_LEFT_BEFORE_LAST_DUE'].median()) # fe6 good
     
     prev['DAYS_TERMINATION'].replace(365243, np.nan, inplace= True)
     # Add feature: value ask / value received percentage
@@ -319,7 +323,7 @@ def previous_applications(nan_as_category = True):
     #     'HUMAN_EVAL': ['max', 'mean'],
     #     'TIME_DECAYED_HUMAN_EVAL': ['sum'],
     # }
-    # # rm5
+    # # rm5 good
     # num_aggregations = {
     #     'AMT_ANNUITY': ['max', 'mean'],
     #     'AMT_APPLICATION': ['max', 'mean'],
@@ -424,8 +428,8 @@ def credit_card_balance(nan_as_category = True):
     cc, cat_cols = one_hot_encoder(cc, nan_as_category= True)
     # General aggregations
     cc.drop(['SK_ID_PREV'], axis= 1, inplace = True)
-    # cc['BALANCE_PERC'] = cc['AMT_BALANCE'] / (1 + cc['AMT_CREDIT_LIMIT_ACTUAL']) # fe1
-    # cc['BALANCE_PERC'] = cc['AMT_BALANCE'] / (1 + cc['AMT_CREDIT_LIMIT_ACTUAL']) / cc['MONTHS_BALANCE']**2 # fe2
+    # cc['BALANCE_PERC'] = cc['AMT_BALANCE'] / (1 + cc['AMT_CREDIT_LIMIT_ACTUAL']) # fe1 great
+    # cc['BALANCE_PERC'] = cc['AMT_BALANCE'] / (1 + cc['AMT_CREDIT_LIMIT_ACTUAL']) / cc['MONTHS_BALANCE']**2 # fe2 good
     # cc['ATM_DRAW_RATIO'] = cc['AMT_DRAWINGS_ATM_CURRENT'] / cc['AMT_DRAWINGS_CURRENT'] # fe3
     # cc['PAYING_MORE'] = cc['AMT_PAYMENT_CURRENT'] - cc['AMT_INST_MIN_REGULARITY'] # fe5
     # cc['PAYING_LESS'] = cc['AMT_INST_MIN_REGULARITY'] - cc['AMT_PAYMENT_CURRENT'] # fe4
@@ -442,6 +446,77 @@ def credit_card_balance(nan_as_category = True):
 
 # LightGBM GBDT with KFold or Stratified KFold
 # Parameters from Tilii kernel: https://www.kaggle.com/tilii7/olivier-lightgbm-parameters-by-bayesian-opt/code
+# def kfold_lightgbm(df, num_folds, stratified = False):
+#     # Divide in training/validation and test data
+#     train_df = df[df['TARGET'].notnull()]
+#     test_df = df[df['TARGET'].isnull()]
+#     print("Starting LightGBM. Train shape: {}, test shape: {}".format(train_df.shape, test_df.shape))
+#     del df
+#     gc.collect()
+#     # Cross validation model
+#     if stratified:
+#         folds = StratifiedKFold(n_splits= num_folds, shuffle=True, random_state=SEED)
+#     else:
+#         folds = KFold(n_splits= num_folds, shuffle=True, random_state=SEED)
+#     # Create arrays and dataframes to store results
+#     oof_preds = np.zeros(train_df.shape[0])
+#     train_preds = np.zeros(train_df.shape[0])
+#     sub_preds = np.zeros(test_df.shape[0])
+#     feature_importance_df = pd.DataFrame()
+#     feats = [f for f in train_df.columns if f not in ['TARGET','SK_ID_CURR','SK_ID_BUREAU','SK_ID_PREV','index']]
+    
+#     for n_fold, (train_idx, valid_idx) in enumerate(folds.split(train_df[feats], train_df['TARGET'])):
+#         train_x, train_y = train_df[feats].iloc[train_idx], train_df['TARGET'].iloc[train_idx]
+#         valid_x, valid_y = train_df[feats].iloc[valid_idx], train_df['TARGET'].iloc[valid_idx]
+
+#         # LightGBM parameters found by Bayesian optimization
+#         clf = LGBMClassifier(
+#             nthread=int(multiprocessing.cpu_count()*CPU_USE_RATE),
+#             n_estimators=10000,
+#             learning_rate=0.02,
+#             num_leaves=34, # 20
+#             colsample_bytree=0.9497036, # 0.2
+#             subsample=0.8715623,
+#             max_depth=8, # 7
+#             reg_alpha=0.041545473, # 0.3
+#             reg_lambda=0.0735294,
+#             min_split_gain=0.0222415,
+#             min_child_weight=39.3259775, # 60
+#             silent=-1,
+#             verbose=-1,
+#             random_state=SEED,
+#             )
+
+#         clf.fit(train_x, train_y, eval_set=[(train_x, train_y), (valid_x, valid_y)], 
+#             eval_metric= 'auc', verbose= False, early_stopping_rounds= 200)
+
+#         oof_preds[valid_idx] = clf.predict_proba(valid_x, num_iteration=clf.best_iteration_)[:, 1]
+#         train_preds[train_idx] += clf.predict_proba(train_x, num_iteration=clf.best_iteration_)[:, 1] / folds.n_splits
+#         sub_preds += clf.predict_proba(test_df[feats], num_iteration=clf.best_iteration_)[:, 1] / folds.n_splits
+
+#         fold_importance_df = pd.DataFrame()
+#         fold_importance_df["feature"] = feats
+#         fold_importance_df["importance"] = clf.feature_importances_
+#         fold_importance_df["fold"] = n_fold + 1
+#         feature_importance_df = pd.concat([feature_importance_df, fold_importance_df], axis=0)
+#         print('Fold %2d AUC : %.6f' % (n_fold + 1, roc_auc_score(valid_y, oof_preds[valid_idx])))
+#         del clf, train_x, train_y, valid_x, valid_y
+#         gc.collect()
+
+#     print('Full train AUC score %.6f' % roc_auc_score(train_df['TARGET'], train_preds))
+#     print('Full AUC score %.6f' % roc_auc_score(train_df['TARGET'], oof_preds))
+#     # Write submission file and plot feature importance
+#     test_df.loc[:,'TARGET'] = sub_preds
+#     test_df[['SK_ID_CURR', 'TARGET']].to_csv(submission_file_name, index= False)
+    
+#     # display_importances(feature_importance_df)
+#     feature_importance_df.to_csv("feature_importance.csv", index = False)
+#     feature_importance_df_ = feature_importance_df[["feature", "importance"]].groupby("feature").median()
+#     useless_features_df = feature_importance_df_.loc[feature_importance_df_['importance'] == 0]
+#     useless_features_list = useless_features_df.index.tolist()
+#     print('useless features: \'' + '\', \''.join(useless_features_list) + '\'')
+
+#     return feature_importance_df
 def kfold_lightgbm(df, num_folds, stratified = False):
     # Divide in training/validation and test data
     train_df = df[df['TARGET'].notnull()]
@@ -449,19 +524,28 @@ def kfold_lightgbm(df, num_folds, stratified = False):
     print("Starting LightGBM. Train shape: {}, test shape: {}".format(train_df.shape, test_df.shape))
     del df
     gc.collect()
-    # Cross validation model
-    if stratified:
-        folds = StratifiedKFold(n_splits= num_folds, shuffle=True, random_state=int(time.time()))
-    else:
-        folds = KFold(n_splits= num_folds, shuffle=True, random_state=int(time.time()))
+
+    # # Cross validation model
+    # if stratified:
+    #     folds = StratifiedKFold(n_splits= num_folds, shuffle=True, random_state=SEED)
+    # else:
+    #     folds = KFold(n_splits= num_folds, shuffle=True, random_state=SEED)
+    
     # Create arrays and dataframes to store results
     oof_preds = np.zeros(train_df.shape[0])
     train_preds = np.zeros(train_df.shape[0])
     sub_preds = np.zeros(test_df.shape[0])
     feature_importance_df = pd.DataFrame()
     feats = [f for f in train_df.columns if f not in ['TARGET','SK_ID_CURR','SK_ID_BUREAU','SK_ID_PREV','index']]
-    
-    for n_fold, (train_idx, valid_idx) in enumerate(folds.split(train_df[feats], train_df['TARGET'])):
+    cvg_iter = 0
+    last_auc = 0
+    # for n_fold, (train_idx, valid_idx) in enumerate(folds.split(train_df[feats], train_df['TARGET'])):
+    for n_fold in range(MAX_ITERATIONS):
+        np.random.seed(time.time())
+        indices = np.random.permutation(train_df.shape[0])
+        train_len = int(train_df.shape[0] * (1 - 1 / NUM_FOLDS))
+        train_idx, valid_idx = indices[:train_len], indices[train_len:]
+
         train_x, train_y = train_df[feats].iloc[train_idx], train_df['TARGET'].iloc[train_idx]
         valid_x, valid_y = train_df[feats].iloc[valid_idx], train_df['TARGET'].iloc[valid_idx]
 
@@ -480,15 +564,15 @@ def kfold_lightgbm(df, num_folds, stratified = False):
             min_child_weight=39.3259775, # 60
             silent=-1,
             verbose=-1,
-            random_state=int(time.time()),
+            random_state=time.time(),
             )
 
         clf.fit(train_x, train_y, eval_set=[(train_x, train_y), (valid_x, valid_y)], 
             eval_metric= 'auc', verbose= False, early_stopping_rounds= 200)
 
         oof_preds[valid_idx] = clf.predict_proba(valid_x, num_iteration=clf.best_iteration_)[:, 1]
-        train_preds[train_idx] += clf.predict_proba(train_x, num_iteration=clf.best_iteration_)[:, 1] / folds.n_splits
-        sub_preds += clf.predict_proba(test_df[feats], num_iteration=clf.best_iteration_)[:, 1] / folds.n_splits
+        train_preds[train_idx] += clf.predict_proba(train_x, num_iteration=clf.best_iteration_)[:, 1] / NUM_FOLDS
+        sub_preds += clf.predict_proba(test_df[feats], num_iteration=clf.best_iteration_)[:, 1] / NUM_FOLDS
 
         fold_importance_df = pd.DataFrame()
         fold_importance_df["feature"] = feats
@@ -498,6 +582,9 @@ def kfold_lightgbm(df, num_folds, stratified = False):
         print('Fold %2d AUC : %.6f' % (n_fold + 1, roc_auc_score(valid_y, oof_preds[valid_idx])))
         del clf, train_x, train_y, valid_x, valid_y
         gc.collect()
+
+        if abs(last_auc - curr_auc) <= TOLERANCE: cvg_iter += 1
+        if (cvg_iter > PATIENCE): break
 
     print('Full train AUC score %.6f' % roc_auc_score(train_df['TARGET'], train_preds))
     print('Full AUC score %.6f' % roc_auc_score(train_df['TARGET'], oof_preds))
@@ -515,7 +602,6 @@ def kfold_lightgbm(df, num_folds, stratified = False):
     return feature_importance_df
 
 # Display/plot feature importance
-
 def display_importances(feature_importance_df_):
     cols = feature_importance_df_[["feature", "importance"]].groupby("feature").mean().sort_values(by="importance", ascending=False)[:40].index
     best_features = feature_importance_df_.loc[feature_importance_df_.feature.isin(cols)]

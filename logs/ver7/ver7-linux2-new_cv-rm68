@@ -1,0 +1,23 @@
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 22s
+Previous applications df shape: (338857, 295)
+Process previous_applications - done in 20s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 9s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 29s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 15s
+(356251, 883)
+(356251, 533)
+Starting LightGBM. Train shape: (307507, 533), test shape: (48744, 533)
+Traceback (most recent call last):
+  File "lgbm_7.py", line 641, in <module>
+    main()
+  File "lgbm_7.py", line 636, in main
+    feat_importance = kfold_lightgbm(df, num_folds= NUM_FOLDS, stratified= STRATIFIED)
+  File "lgbm_7.py", line 534, in kfold_lightgbm
+    train_idx, valid_idx = (KFold(n_splits= num_folds, shuffle=True, random_state=SEEDS[n_fold]).split(train_df[feats], train_df['TARGET']))[0]
+TypeError: 'generator' object is not subscriptable
