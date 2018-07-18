@@ -152,3 +152,35 @@ See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stabl
   self.obj[item] = s
 Iteration 3
 Starting LightGBM. Train shape: (307507, 213), test shape: (48744, 213)
+Fold  1 val AUC : 0.792826
+Fold  2 val AUC : 0.797059
+Fold  3 val AUC : 0.796163
+Fold  4 val AUC : 0.795734
+Fold  5 val AUC : 0.793598
+Over-folds train AUC score 0.892674
+Over-folds val AUC score 0.795046
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 4
+Starting LightGBM. Train shape: (307507, 213), test shape: (48744, 213)
+Fold  1 val AUC : 0.792454
+Fold  2 val AUC : 0.795314
+Fold  3 val AUC : 0.797881
+Fold  4 val AUC : 0.795636
+Fold  5 val AUC : 0.794188
+Over-folds train AUC score 0.886122
+Over-folds val AUC score 0.795073
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Over-iterations val AUC score 0.794867
+useless/overfitting features: 'NAME_CONTRACT_TYPE_Revolving loans'
+Run LightGBM with kfold - done in 2681s
+Full model run - done in 2786s
