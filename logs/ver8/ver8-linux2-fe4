@@ -1,0 +1,126 @@
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 24s
+Previous applications df shape: (338857, 295)
+Process previous_applications - done in 21s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 9s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 34s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 15s
+(356251, 884)
+(356251, 534)
+Starting LightGBM. Train shape: (307507, 534), test shape: (48744, 534)
+Fold  1 AUC : 0.793846
+Fold  2 AUC : 0.784266
+Fold  3 AUC : 0.798710
+Fold  4 AUC : 0.795505
+Fold  5 AUC : 0.794394
+Full train AUC score 0.902108
+Full AUC score 0.793307
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless features: 'CC_CNT_DRAWINGS_POS_CURRENT_MIN', 'NEW_DOC_IND_AVG'
+Run LightGBM with kfold - done in 1192s
+Full model run - done in 1305s
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 23s
+Previous applications df shape: (338857, 295)
+Process previous_applications - done in 21s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 9s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 32s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 14s
+(356251, 884)
+(356251, 534)
+Starting LightGBM. Train shape: (307507, 534), test shape: (48744, 534)
+Fold  1 AUC : 0.789684
+Fold  2 AUC : 0.798704
+Fold  3 AUC : 0.794393
+Fold  4 AUC : 0.796700
+Fold  5 AUC : 0.788208
+Full train AUC score 0.895017
+Full AUC score 0.793525
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless features: 'CC_CNT_DRAWINGS_POS_CURRENT_MIN', 'NEW_DOC_IND_AVG'
+Run LightGBM with kfold - done in 1077s
+Full model run - done in 1186s
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 22s
+Previous applications df shape: (338857, 295)
+Process previous_applications - done in 21s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 8s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 28s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 13s
+(356251, 884)
+(356251, 534)
+Starting LightGBM. Train shape: (307507, 534), test shape: (48744, 534)
+Fold  1 AUC : 0.789073
+Fold  2 AUC : 0.797964
+Fold  3 AUC : 0.787292
+Fold  4 AUC : 0.796411
+Fold  5 AUC : 0.796491
+Full train AUC score 0.897312
+Full AUC score 0.793457
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless features: 'NEW_DOC_IND_AVG'
+Run LightGBM with kfold - done in 1065s
+Full model run - done in 1167s
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 24s
+Previous applications df shape: (338857, 295)
+Process previous_applications - done in 22s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 9s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 31s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 14s
+(356251, 884)
+(356251, 534)
+Starting LightGBM. Train shape: (307507, 534), test shape: (48744, 534)
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Fold  1 AUC : 0.789835
+Fold  2 AUC : 0.795350
+Fold  3 AUC : 0.791385
+Fold  4 AUC : 0.794834
+Fold  5 AUC : 0.794474
+Full train AUC score 0.904404
+Full AUC score 0.793157
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless features: 'NEW_DOC_IND_AVG'
+Run LightGBM with kfold - done in 1204s
+Full model run - done in 1314s

@@ -1,0 +1,91 @@
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 24s
+Previous applications df shape: (338857, 295)
+Process previous_applications - done in 22s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 9s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 31s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 14s
+(356251, 884)
+(356251, 527)
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.796312
+Fold  2 AUC : 0.791734
+Fold  3 AUC : 0.794828
+Fold  4 AUC : 0.794029
+Fold  5 AUC : 0.792825
+Full train AUC score 0.893306
+Full AUC score 0.793939
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'CC_AMT_TOTAL_RECEIVABLE_MEAN', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN'
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.791703
+Fold  2 AUC : 0.789418
+Fold  3 AUC : 0.796656
+Fold  4 AUC : 0.791578
+Fold  5 AUC : 0.797181
+Full train AUC score 0.887879
+Full AUC score 0.793287
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'CC_CNT_DRAWINGS_POS_CURRENT_MIN'
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.785735
+Fold  2 AUC : 0.793775
+Fold  3 AUC : 0.795472
+Fold  4 AUC : 0.796907
+Fold  5 AUC : 0.795284
+Full train AUC score 0.901019
+Full AUC score 0.793429
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'CC_AMT_TOTAL_RECEIVABLE_MEAN', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN'
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.795585
+Fold  2 AUC : 0.789359
+Fold  3 AUC : 0.792036
+Fold  4 AUC : 0.798245
+Fold  5 AUC : 0.790842
+Full train AUC score 0.892547
+Full AUC score 0.793194
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'CC_AMT_TOTAL_RECEIVABLE_MEAN', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN'
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.794883
+Fold  2 AUC : 0.793333
+Fold  3 AUC : 0.793966
+Fold  4 AUC : 0.792829
+Fold  5 AUC : 0.792698
+Full train AUC score 0.893128
+Full AUC score 0.793529
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'CC_AMT_TOTAL_RECEIVABLE_MEAN', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN'
+Run LightGBM with kfold - done in 7529s
+Full model run - done in 7640s

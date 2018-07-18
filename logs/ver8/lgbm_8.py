@@ -150,7 +150,6 @@ def application_train_test(nan_as_category = False):
     
     docs = [_f for _f in df.columns if 'FLAG_DOC' in _f]
     live = [_f for _f in df.columns if ('FLAG_' in _f) & ('FLAG_DOC' not in _f)]
-    # live = [_f for _f in df.columns if ('FLAG_' in _f) & ('FLAG_DOC' not in _f) & ('_OWN_' not in _f)] # fe11
 
     # NaN values for DAYS_EMPLOYED: 365.243 -> nan
     df['DAYS_EMPLOYED'].replace(365243, np.nan, inplace= True)
@@ -159,13 +158,12 @@ def application_train_test(nan_as_category = False):
 
     df['NEW_CREDIT_TO_ANNUITY_RATIO'] = df['AMT_CREDIT'] / df['AMT_ANNUITY']
     df['NEW_CREDIT_TO_GOODS_RATIO'] = df['AMT_CREDIT'] / df['AMT_GOODS_PRICE']
-    df['NEW_DOC_IND_AVG'] = df[docs].mean(axis=1) # rm1 good
-    df['NEW_DOC_IND_AVG'] = df[docs].median(axis=1) # fe10
-    df['NEW_DOC_IND_STD'] = df[docs].std(axis=1) # rm6 bad
-    df['NEW_DOC_IND_KURT'] = df[docs].kurtosis(axis=1) # rm7
-    df['NEW_LIVE_IND_SUM'] = df[live].sum(axis=1) # rm2 good
-    # df['NEW_LIVE_IND_STD'] = df[live].std(axis=1) # rm8 great
-    df['NEW_LIVE_IND_KURT'] = df[live].kurtosis(axis=1) # rm4 good
+    df['NEW_DOC_IND_AVG'] = df[docs].mean(axis=1)
+    df['NEW_DOC_IND_AVG'] = df[docs].median(axis=1)
+    df['NEW_DOC_IND_STD'] = df[docs].std(axis=1)
+    df['NEW_DOC_IND_KURT'] = df[docs].kurtosis(axis=1)
+    df['NEW_LIVE_IND_SUM'] = df[live].sum(axis=1)
+    df['NEW_LIVE_IND_KURT'] = df[live].kurtosis(axis=1)
     df['NEW_INC_PER_CHLD'] = df['AMT_INCOME_TOTAL'] / (1 + df['CNT_CHILDREN'])
     df['NEW_INC_BY_ORG'] = df['ORGANIZATION_TYPE'].map(inc_by_org)
     df['NEW_EMPLOY_TO_BIRTH_RATIO'] = df['DAYS_EMPLOYED'] / df['DAYS_BIRTH']
@@ -173,7 +171,6 @@ def application_train_test(nan_as_category = False):
     df['NEW_SOURCES_PROD'] = df['EXT_SOURCE_1'] * df['EXT_SOURCE_2'] * df['EXT_SOURCE_3']
     df['NEW_EXT_SOURCES_MEAN'] = df[['EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3']].mean(axis=1)
     df['NEW_CREDIT_TO_INCOME_RATIO'] = df['AMT_CREDIT'] / df['AMT_INCOME_TOTAL']
-    # df['ANNUAL_BURDEN'] = df['CNT_FAM_MEMBERS']*10000*12 + df['AMT_ANNUITY'] # fe8
 
     # replace NEW_SCORES_STD
     df['EXT_SOURCE_1_VAR'] = (df['EXT_SOURCE_1'] - df['NEW_EXT_SOURCES_MEAN'])**2
@@ -271,21 +268,12 @@ def previous_applications(nan_as_category = True):
     prev['DAYS_FIRST_DUE'].replace(365243, np.nan, inplace= True)
     prev['DAYS_LAST_DUE_1ST_VERSION'].replace(365243, np.nan, inplace= True)
     prev['DAYS_LAST_DUE'].replace(365243, np.nan, inplace= True)
-    # prev['TIME_LEFT_BEFORE_LAST_DUE'] = prev['DAYS_LAST_DUE_1ST_VERSION'] - prev['DAYS_LAST_DUE'] # fe6
-    # prev['TIME_LEFT_BEFORE_LAST_DUE'].fillna(prev['TIME_LEFT_BEFORE_LAST_DUE'].median()) # fe6
     
     prev['DAYS_TERMINATION'].replace(365243, np.nan, inplace= True)
     # Add feature: value ask / value received percentage
     prev['APP_CREDIT_PERC'] = prev['AMT_APPLICATION'] / prev['AMT_CREDIT']
     prev['HUMAN_EVAL'] = prev['NAME_CONTRACT_STATUS_Approved'] - prev['NAME_CONTRACT_STATUS_Refused']
     prev['TIME_DECAYED_HUMAN_EVAL'] = prev['HUMAN_EVAL'] / prev['DAYS_DECISION']**2
-    # prev['REAL_TERMS'] = prev['AMT_CREDIT'] / prev['AMT_ANNUITY'] # fe7
-
-    # # fe9
-    # days_decision = prev['DAYS_DECISION']
-    # for c in prev.columns.tolist(): # remove prev['TIME_DECAYED_HUMAN_EVAL'] = prev['HUMAN_EVAL'] / prev['DAYS_DECISION']**2, 'TIME_DECAYED_HUMAN_EVAL': ['sum'], 'DAYS_DECISION': ['min', 'max', 'mean'],
-    #     prev[c] = prev[c] / days_decision**2
-    # prev.drop('DAYS_DECISION', axis = 1)
 
     # Previous applications numeric features
     num_aggregations = {
@@ -301,41 +289,8 @@ def previous_applications(nan_as_category = True):
         'CNT_PAYMENT': ['mean', 'sum'],
         'HUMAN_EVAL': ['min', 'max', 'mean'],
         'TIME_DECAYED_HUMAN_EVAL': ['sum'],
-        # 'TIME_LEFT_BEFORE_LAST_DUE': ['min', 'max', 'mean', 'var'], # fe6
-        # 'REAL_TERMS': ['min', 'max', 'mean', 'var'], # fe7
     }
-    # # rm3
-    # num_aggregations = {
-    #     'AMT_ANNUITY': ['max', 'mean'],
-    #     'AMT_APPLICATION': ['max', 'mean'],
-    #     'AMT_CREDIT': ['max', 'mean'],
-    #     'APP_CREDIT_PERC': ['max', 'mean', 'var'],
-    #     'AMT_DOWN_PAYMENT': ['max', 'mean'],
-    #     'AMT_GOODS_PRICE': ['max', 'mean'],
-    #     'HOUR_APPR_PROCESS_START': ['max', 'mean'],
-    #     'RATE_DOWN_PAYMENT': ['max', 'mean'],
-    #     'DAYS_DECISION': ['max', 'mean'],
-    #     'CNT_PAYMENT': ['mean', 'sum'],
-    #     'HUMAN_EVAL': ['max', 'mean'],
-    #     'TIME_DECAYED_HUMAN_EVAL': ['sum'],
-    # }
-    # # rm5
-    # num_aggregations = {
-    #     'AMT_ANNUITY': ['max', 'mean'],
-    #     'AMT_APPLICATION': ['max', 'mean'],
-    #     'AMT_CREDIT': ['max', 'mean'],
-    #     'APP_CREDIT_PERC': ['max', 'mean', 'var'],
-    #     'AMT_DOWN_PAYMENT': ['min', 'max', 'mean'],
-    #     'AMT_GOODS_PRICE': ['max', 'mean'],
-    #     'HOUR_APPR_PROCESS_START': ['min', 'max', 'mean'],
-    #     'RATE_DOWN_PAYMENT': ['min', 'max', 'mean'],
-    #     'DAYS_DECISION': ['min', 'max', 'mean'],
-    #     'CNT_PAYMENT': ['mean', 'sum'],
-    #     'HUMAN_EVAL': ['min', 'max', 'mean'],
-    #     'TIME_DECAYED_HUMAN_EVAL': ['sum'],
-    #     # 'TIME_LEFT_BEFORE_LAST_DUE': ['min', 'max', 'mean', 'var'], # fe6
-    #     # 'REAL_TERMS': ['min', 'max', 'mean', 'var'], # fe7
-    # }
+
     # Previous applications categorical features
     cat_aggregations = {}
     for cat in cat_cols:
@@ -424,13 +379,6 @@ def credit_card_balance(nan_as_category = True):
     cc, cat_cols = one_hot_encoder(cc, nan_as_category= True)
     # General aggregations
     cc.drop(['SK_ID_PREV'], axis= 1, inplace = True)
-    # cc['BALANCE_PERC'] = cc['AMT_BALANCE'] / (1 + cc['AMT_CREDIT_LIMIT_ACTUAL']) # fe1
-    # cc['BALANCE_PERC'] = cc['AMT_BALANCE'] / (1 + cc['AMT_CREDIT_LIMIT_ACTUAL']) / cc['MONTHS_BALANCE']**2 # fe2
-    # cc['ATM_DRAW_RATIO'] = cc['AMT_DRAWINGS_ATM_CURRENT'] / cc['AMT_DRAWINGS_CURRENT'] # fe3
-    # cc['PAYING_MORE'] = cc['AMT_PAYMENT_CURRENT'] - cc['AMT_INST_MIN_REGULARITY'] # fe5
-    # cc['PAYING_LESS'] = cc['AMT_INST_MIN_REGULARITY'] - cc['AMT_PAYMENT_CURRENT'] # fe4
-    # cc['PAYING_MORE'] = cc['PAYING_MORE'].apply(lambda x: x if x > 0 else 0) # fe5
-    # cc['PAYING_LESS'] = cc['PAYING_LESS'].apply(lambda x: x if x > 0 else 0) # fe4
 
     cc_agg = cc.groupby('SK_ID_CURR').agg(['min', 'max', 'mean', 'sum', 'var'])
     cc_agg.columns = pd.Index(['CC_' + e[0] + "_" + e[1].upper() for e in cc_agg.columns.tolist()])

@@ -1,0 +1,93 @@
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 23s
+Previous applications df shape: (338857, 295)
+Process previous_applications - done in 21s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 9s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 29s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 13s
+(356251, 884)
+(356251, 554)
+Iteration 0
+Starting LightGBM. Train shape: (307507, 554), test shape: (48744, 554)
+Fold  1 val AUC : 0.795372
+Fold  2 val AUC : 0.795352
+Fold  3 val AUC : 0.795483
+Fold  4 val AUC : 0.792385
+Fold  5 val AUC : 0.790316
+Over-folds train AUC score 0.900747
+Over-folds val AUC score 0.793763
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 1
+Starting LightGBM. Train shape: (307507, 554), test shape: (48744, 554)
+Fold  1 val AUC : 0.794872
+Fold  2 val AUC : 0.795017
+Fold  3 val AUC : 0.796349
+Fold  4 val AUC : 0.789963
+Fold  5 val AUC : 0.793901
+Over-folds train AUC score 0.897038
+Over-folds val AUC score 0.793947
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 2
+Starting LightGBM. Train shape: (307507, 554), test shape: (48744, 554)
+Fold  1 val AUC : 0.791732
+Fold  2 val AUC : 0.791333
+Fold  3 val AUC : 0.793979
+Fold  4 val AUC : 0.797533
+Fold  5 val AUC : 0.793139
+Over-folds train AUC score 0.897263
+Over-folds val AUC score 0.793535
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 3
+Starting LightGBM. Train shape: (307507, 554), test shape: (48744, 554)
+Fold  1 val AUC : 0.793578
+Fold  2 val AUC : 0.793208
+Fold  3 val AUC : 0.792749
+Fold  4 val AUC : 0.797090
+Fold  5 val AUC : 0.789532
+Over-folds train AUC score 0.893537
+Over-folds val AUC score 0.793228
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 4
+Starting LightGBM. Train shape: (307507, 554), test shape: (48744, 554)
+Fold  1 val AUC : 0.790243
+Fold  2 val AUC : 0.797355
+Fold  3 val AUC : 0.793381
+Fold  4 val AUC : 0.793513
+Fold  5 val AUC : 0.795327
+Over-folds train AUC score 0.890215
+Over-folds val AUC score 0.793954
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Over-iterations val AUC score 0.793685
+useless/overfitting features: 'NAME_CONTRACT_TYPE_Revolving loans', 'EXT_SOURCE_3_VAR'
+Run LightGBM with kfold - done in 6915s
+Full model run - done in 7020s

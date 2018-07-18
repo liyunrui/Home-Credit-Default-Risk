@@ -1,0 +1,93 @@
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 25s
+Previous applications df shape: (338857, 299)
+Process previous_applications - done in 24s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 10s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 33s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 15s
+(356251, 888)
+(356251, 547)
+Starting LightGBM. Train shape: (307507, 547), test shape: (48744, 547)
+Fold  1 AUC : 0.795448
+Fold  2 AUC : 0.791884
+Fold  3 AUC : 0.794399
+Fold  4 AUC : 0.794698
+Fold  5 AUC : 0.791726
+Full train AUC score 0.896532
+Full AUC score 0.793619
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'APPROVED_HUMAN_EVAL_MAX', 'APPROVED_HUMAN_EVAL_MEAN', 'APPROVED_HUMAN_EVAL_MIN', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN', 'EXT_SOURCE_3_VAR', 'NEW_RATIO_PREV_HUMAN_EVAL_MAX', 'NEW_RATIO_PREV_HUMAN_EVAL_MEAN', 'NEW_RATIO_PREV_HUMAN_EVAL_MIN', 'PREV_HUMAN_EVAL_MAX', 'REFUSED_HUMAN_EVAL_MAX', 'REFUSED_HUMAN_EVAL_MEAN', 'REFUSED_HUMAN_EVAL_MIN'
+Run LightGBM with kfold - done in 1573s
+Full model run - done in 1689s
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 24s
+Previous applications df shape: (338857, 299)
+Process previous_applications - done in 23s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 10s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 33s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 14s
+(356251, 889)
+(356251, 536)
+Starting LightGBM. Train shape: (307507, 536), test shape: (48744, 536)
+Fold  1 AUC : 0.793554
+Fold  2 AUC : 0.788142
+Fold  3 AUC : 0.796648
+Fold  4 AUC : 0.795179
+Fold  5 AUC : 0.793616
+Full train AUC score 0.895622
+Full AUC score 0.793410
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: ''
+Run LightGBM with kfold - done in 1574s
+Full model run - done in 1687s
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 23s
+Previous applications df shape: (338857, 299)
+Process previous_applications - done in 22s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 9s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 30s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 13s
+(356251, 889)
+(356251, 536)
+Starting LightGBM. Train shape: (307507, 536), test shape: (48744, 536)
+Fold  1 AUC : 0.791105
+Fold  2 AUC : 0.795962
+Fold  3 AUC : 0.796151
+Fold  4 AUC : 0.792860
+Fold  5 AUC : 0.792101
+Full train AUC score 0.902627
+Full AUC score 0.793628
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: ''
+Run LightGBM with kfold - done in 1668s
+Full model run - done in 1776s

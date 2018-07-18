@@ -1,0 +1,62 @@
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 26s
+Previous applications df shape: (338857, 295)
+Process previous_applications - done in 24s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 10s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 34s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 15s
+(356251, 885)
+(356251, 532)
+Starting LightGBM. Train shape: (307507, 532), test shape: (48744, 532)
+Fold  1 AUC : 0.791547
+Fold  2 AUC : 0.791784
+Fold  3 AUC : 0.790666
+Fold  4 AUC : 0.794342
+Fold  5 AUC : 0.795691
+Full train AUC score 0.894311
+Full AUC score 0.792769
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: ''
+Run LightGBM with kfold - done in 1456s
+Full model run - done in 1576s
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 26s
+Previous applications df shape: (338857, 295)
+Process previous_applications - done in 24s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 10s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 33s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 15s
+(356251, 885)
+(356251, 532)
+Starting LightGBM. Train shape: (307507, 532), test shape: (48744, 532)
+Fold  1 AUC : 0.795964
+Fold  2 AUC : 0.787592
+Fold  3 AUC : 0.794336
+Fold  4 AUC : 0.794538
+Fold  5 AUC : 0.794893
+Full train AUC score 0.894017
+Full AUC score 0.793449
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: ''
+Run LightGBM with kfold - done in 1456s
+Full model run - done in 1575s

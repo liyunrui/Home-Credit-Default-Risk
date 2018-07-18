@@ -1,0 +1,166 @@
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 25s
+Previous applications df shape: (338857, 295)
+Process previous_applications - done in 22s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 9s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 32s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 15s
+(356251, 884)
+(356251, 527)
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.790109
+Fold  2 AUC : 0.793951
+Fold  3 AUC : 0.794713
+Fold  4 AUC : 0.795333
+Fold  5 AUC : 0.790606
+Full train AUC score 0.890677
+Full AUC score 0.792937
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'CC_AMT_TOTAL_RECEIVABLE_MEAN', 'PREV_HUMAN_EVAL_MIN', 'PREV_NAME_TYPE_SUITE_Other_A_MEAN', 'ACTIVE_CREDIT_DAY_OVERDUE_MAX', 'FLAG_DOCUMENT_18', 'PREV_NAME_CASH_LOAN_PURPOSE_Car repairs_MEAN', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN'
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.796598
+Fold  2 AUC : 0.793327
+Fold  3 AUC : 0.792961
+Fold  4 AUC : 0.794614
+Fold  5 AUC : 0.793093
+Full train AUC score 0.895051
+Full AUC score 0.794082
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'PREV_HUMAN_EVAL_MIN', 'FLAG_DOCUMENT_18', 'PREV_NAME_CASH_LOAN_PURPOSE_Car repairs_MEAN', 'NAME_HOUSING_TYPE_Rented apartment', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN'
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.791075
+Fold  2 AUC : 0.795937
+Fold  3 AUC : 0.791614
+Fold  4 AUC : 0.795260
+Fold  5 AUC : 0.793397
+Full train AUC score 0.899446
+Full AUC score 0.793445
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'PREV_HUMAN_EVAL_MIN', 'NAME_HOUSING_TYPE_Rented apartment', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN'
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.788963
+Fold  2 AUC : 0.791029
+Fold  3 AUC : 0.793069
+Fold  4 AUC : 0.798492
+Fold  5 AUC : 0.794044
+Full train AUC score 0.899357
+Full AUC score 0.793062
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'FLAG_DOCUMENT_18', 'PREV_NAME_CASH_LOAN_PURPOSE_Car repairs_MEAN', 'NAME_HOUSING_TYPE_Rented apartment', 'PREV_HUMAN_EVAL_MIN', 'CC_AMT_TOTAL_RECEIVABLE_MEAN', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN'
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.796349
+Fold  2 AUC : 0.793927
+Fold  3 AUC : 0.793092
+Fold  4 AUC : 0.786048
+Fold  5 AUC : 0.795049
+Full train AUC score 0.891876
+Full AUC score 0.792876
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'PREV_NAME_TYPE_SUITE_Other_A_MEAN', 'NAME_HOUSING_TYPE_Rented apartment', 'FLAG_DOCUMENT_18', 'CC_AMT_TOTAL_RECEIVABLE_MEAN', 'PREV_HUMAN_EVAL_MIN', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN'
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.787257
+Fold  2 AUC : 0.791339
+Fold  3 AUC : 0.797167
+Fold  4 AUC : 0.796504
+Fold  5 AUC : 0.790773
+Full train AUC score 0.885430
+Full AUC score 0.792586
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'NAME_EDUCATION_TYPE_Incomplete higher', 'CC_AMT_TOTAL_RECEIVABLE_MEAN', 'ACTIVE_CREDIT_DAY_OVERDUE_MAX', 'PREV_NAME_TYPE_SUITE_Other_A_MEAN', 'NAME_HOUSING_TYPE_Rented apartment', 'PREV_HUMAN_EVAL_MIN', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN', 'FLAG_DOCUMENT_18', 'PREV_NAME_CASH_LOAN_PURPOSE_Car repairs_MEAN'
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.794335
+Fold  2 AUC : 0.793587
+Fold  3 AUC : 0.798244
+Fold  4 AUC : 0.793463
+Fold  5 AUC : 0.789620
+Full train AUC score 0.892379
+Full AUC score 0.793840
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'PREV_NAME_TYPE_SUITE_Other_A_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Car repairs_MEAN', 'CC_AMT_TOTAL_RECEIVABLE_MEAN', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN', 'PREV_HUMAN_EVAL_MIN', 'FLAG_DOCUMENT_18'
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.792849
+Fold  2 AUC : 0.796478
+Fold  3 AUC : 0.791532
+Fold  4 AUC : 0.792483
+Fold  5 AUC : 0.792106
+Full train AUC score 0.891709
+Full AUC score 0.793083
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'ACTIVE_CREDIT_DAY_OVERDUE_MAX', 'FLAG_DOCUMENT_18', 'NAME_HOUSING_TYPE_Rented apartment', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN', 'PREV_HUMAN_EVAL_MIN'
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.799102
+Fold  2 AUC : 0.785046
+Fold  3 AUC : 0.794808
+Fold  4 AUC : 0.792710
+Fold  5 AUC : 0.797064
+Full train AUC score 0.895762
+Full AUC score 0.793646
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'PREV_NAME_CASH_LOAN_PURPOSE_Car repairs_MEAN', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN', 'NAME_HOUSING_TYPE_Rented apartment', 'PREV_HUMAN_EVAL_MIN', 'FLAG_DOCUMENT_18'
+Starting LightGBM. Train shape: (307507, 527), test shape: (48744, 527)
+Fold  1 AUC : 0.800872
+Fold  2 AUC : 0.790817
+Fold  3 AUC : 0.790088
+Fold  4 AUC : 0.793516
+Fold  5 AUC : 0.794306
+Full train AUC score 0.899998
+Full AUC score 0.793874
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+useless/overfitting features: 'CC_AMT_TOTAL_RECEIVABLE_MEAN', 'FLAG_DOCUMENT_18', 'PREV_HUMAN_EVAL_MIN', 'CC_CNT_DRAWINGS_POS_CURRENT_MIN'
+Run LightGBM with kfold - done in 14262s
+Full model run - done in 14376s

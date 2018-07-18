@@ -1,0 +1,93 @@
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 24s
+Previous applications df shape: (338857, 295)
+Process previous_applications - done in 22s
+Pos-cash balance df shape: (337252, 18)
+Process POS-CASH balance - done in 9s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 32s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 14s
+(356251, 884)
+(356251, 884)
+Iteration 0
+Starting LightGBM. Train shape: (307507, 884), test shape: (48744, 884)
+Fold  1 val AUC : 0.790461
+Fold  2 val AUC : 0.792233
+Fold  3 val AUC : 0.792822
+Fold  4 val AUC : 0.799068
+Fold  5 val AUC : 0.792118
+Over-folds train AUC score 0.884919
+Over-folds val AUC score 0.793339
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 1
+Starting LightGBM. Train shape: (307507, 884), test shape: (48744, 884)
+Fold  1 val AUC : 0.796018
+Fold  2 val AUC : 0.791530
+Fold  3 val AUC : 0.791260
+Fold  4 val AUC : 0.795691
+Fold  5 val AUC : 0.792819
+Over-folds train AUC score 0.897328
+Over-folds val AUC score 0.793444
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 2
+Starting LightGBM. Train shape: (307507, 884), test shape: (48744, 884)
+Fold  1 val AUC : 0.793020
+Fold  2 val AUC : 0.800608
+Fold  3 val AUC : 0.787464
+Fold  4 val AUC : 0.792960
+Fold  5 val AUC : 0.793464
+Over-folds train AUC score 0.889531
+Over-folds val AUC score 0.793473
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 3
+Starting LightGBM. Train shape: (307507, 884), test shape: (48744, 884)
+Fold  1 val AUC : 0.792934
+Fold  2 val AUC : 0.793722
+Fold  3 val AUC : 0.794977
+Fold  4 val AUC : 0.794162
+Fold  5 val AUC : 0.791086
+Over-folds train AUC score 0.885004
+Over-folds val AUC score 0.793379
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 4
+Starting LightGBM. Train shape: (307507, 884), test shape: (48744, 884)
+Fold  1 val AUC : 0.797717
+Fold  2 val AUC : 0.788034
+Fold  3 val AUC : 0.793382
+Fold  4 val AUC : 0.796162
+Fold  5 val AUC : 0.791568
+Over-folds train AUC score 0.891432
+Over-folds val AUC score 0.793365
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Over-iterations val AUC score 0.793400
+useless/overfitting features: 'BURO_CREDIT_CURRENCY_nan_MEAN', 'BURO_CREDIT_CURRENCY_currency 2_MEAN', 'PREV_NAME_GOODS_CATEGORY_Education_MEAN', 'BURO_CREDIT_CURRENCY_currency 3_MEAN', 'PREV_NAME_GOODS_CATEGORY_Fitness_MEAN', 'PREV_NAME_GOODS_CATEGORY_Homewares_MEAN', 'BURO_CREDIT_CURRENCY_currency 4_MEAN', 'PREV_NAME_GOODS_CATEGORY_Insurance_MEAN', 'PREV_NAME_GOODS_CATEGORY_House Construction_MEAN', 'PREV_NAME_PORTFOLIO_Cars_MEAN', 'PREV_WEEKDAY_APPR_PROCESS_START_nan_MEAN', 'PREV_NAME_GOODS_CATEGORY_Direct Sales_MEAN', 'BURO_CREDIT_CURRENCY_currency 1_MEAN', 'BURO_CREDIT_ACTIVE_nan_MEAN', 'BURO_CREDIT_ACTIVE_Bad debt_MEAN', 'PREV_PRODUCT_COMBINATION_nan_MEAN', 'APPROVED_HUMAN_EVAL_MIN', 'APPROVED_HUMAN_EVAL_MEAN', 'APPROVED_HUMAN_EVAL_MAX', 'REFUSED_HUMAN_EVAL_MAX', 'REFUSED_HUMAN_EVAL_MEAN', 'REFUSED_HUMAN_EVAL_MIN', 'AMT_REQ_CREDIT_BUREAU_HOUR', 'PREV_NAME_GOODS_CATEGORY_Animals_MEAN', 'BURO_CREDIT_TYPE_Another type of loan_MEAN', 'BURO_CREDIT_TYPE_Cash loan (non-earmarked)_MEAN', 'PREV_NAME_GOODS_CATEGORY_Medical Supplies_MEAN', 'PREV_NAME_GOODS_CATEGORY_Medicine_MEAN', 'PREV_NAME_PORTFOLIO_nan_MEAN', 'PREV_NAME_PRODUCT_TYPE_nan_MEAN', 'BURO_STATUS_nan_MEAN_MEAN', 'PREV_NAME_SELLER_INDUSTRY_Jewelry_MEAN', 'PREV_NAME_PAYMENT_TYPE_nan_MEAN', 'PREV_NAME_SELLER_INDUSTRY_MLM partners_MEAN', 'PREV_NAME_SELLER_INDUSTRY_Tourism_MEAN', 'PREV_NAME_SELLER_INDUSTRY_nan_MEAN', 'PREV_NAME_TYPE_SUITE_Group of people_MEAN', 'WALLSMATERIAL_MODE_Monolithic', 'BURO_CREDIT_TYPE_nan_MEAN', 'BURO_CREDIT_TYPE_Unknown type of loan_MEAN', 'BURO_CREDIT_TYPE_Real estate loan_MEAN', 'PREV_NAME_YIELD_GROUP_nan_MEAN', 'WALLSMATERIAL_MODE_Mixed', 'BURO_CREDIT_TYPE_Mobile operator loan_MEAN', 'BURO_CREDIT_TYPE_Loan for working capital replenishment_MEAN', 'PREV_NAME_PAYMENT_TYPE_Cashless from the account of the employer_MEAN', 'BURO_CREDIT_TYPE_Loan for the purchase of equipment_MEAN', 'PREV_NAME_GOODS_CATEGORY_nan_MEAN', 'BURO_CREDIT_TYPE_Loan for purchase of shares (margin lending)_MEAN', 'PREV_NAME_GOODS_CATEGORY_Weapon_MEAN', 'BURO_CREDIT_TYPE_Interbank credit_MEAN', 'PREV_NAME_CONTRACT_TYPE_nan_MEAN', 'PREV_NAME_GOODS_CATEGORY_Tourism_MEAN', 'WALLSMATERIAL_MODE_Wooden', 'PREV_PRODUCT_COMBINATION_POS others without interest_MEAN', 'PREV_NAME_GOODS_CATEGORY_Other_MEAN', 'PREV_NAME_GOODS_CATEGORY_Office Appliances_MEAN', 'PREV_NAME_GOODS_CATEGORY_Additional Service_MEAN', 'EMERGENCYSTATE_MODE_Yes', 'PREV_NAME_CONTRACT_TYPE_XNA_MEAN', 'NAME_FAMILY_STATUS_Unknown', 'CC_NAME_CONTRACT_STATUS_Refused_MEAN', 'CC_NAME_CONTRACT_STATUS_Refused_MIN', 'CC_NAME_CONTRACT_STATUS_Refused_SUM', 'NEW_DOC_IND_AVG', 'CC_NAME_CONTRACT_STATUS_Refused_VAR', 'CC_NAME_CONTRACT_STATUS_Sent proposal_MAX', 'CC_NAME_CONTRACT_STATUS_Sent proposal_MEAN', 'CC_NAME_CONTRACT_STATUS_Sent proposal_MIN', 'NAME_TYPE_SUITE_Other_A', 'NAME_TYPE_SUITE_Group of people', 'NAME_TYPE_SUITE_Children', 'CC_NAME_CONTRACT_STATUS_Sent proposal_SUM', 'NAME_INCOME_TYPE_Unemployed', 'NAME_INCOME_TYPE_Student', 'NAME_INCOME_TYPE_Pensioner', 'NAME_INCOME_TYPE_Maternity leave', 'NAME_INCOME_TYPE_Businessman', 'CC_NAME_CONTRACT_STATUS_Refused_MAX', 'CC_NAME_CONTRACT_STATUS_Demand_VAR', 'CC_NAME_CONTRACT_STATUS_Demand_SUM', 'CC_NAME_CONTRACT_STATUS_Approved_SUM', 'NEW_RATIO_PREV_HUMAN_EVAL_MIN', 'NEW_RATIO_PREV_HUMAN_EVAL_MEAN', 'NEW_RATIO_PREV_HUMAN_EVAL_MAX', 'CC_NAME_CONTRACT_STATUS_Active_MAX', 'CC_NAME_CONTRACT_STATUS_Approved_MAX', 'CC_NAME_CONTRACT_STATUS_Approved_MEAN', 'CC_NAME_CONTRACT_STATUS_Approved_MIN', 'CC_NAME_CONTRACT_STATUS_Approved_VAR', 'CC_NAME_CONTRACT_STATUS_Demand_MIN', 'CC_NAME_CONTRACT_STATUS_Completed_MAX', 'CC_NAME_CONTRACT_STATUS_Completed_MIN', 'NEW_RATIO_BURO_CREDIT_DAY_OVERDUE_MEAN', 'NEW_RATIO_BURO_CREDIT_DAY_OVERDUE_MAX', 'CC_NAME_CONTRACT_STATUS_Demand_MAX', 'NEW_RATIO_BURO_AMT_CREDIT_SUM_OVERDUE_MEAN', 'CC_NAME_CONTRACT_STATUS_Demand_MEAN', 'NAME_HOUSING_TYPE_Co-op apartment', 'CC_NAME_CONTRACT_STATUS_Sent proposal_VAR', 'PREV_NAME_CONTRACT_STATUS_nan_MEAN', 'CC_NAME_CONTRACT_STATUS_Signed_MAX', 'FLAG_DOCUMENT_7', 'FLAG_DOCUMENT_5', 'FLAG_DOCUMENT_4', 'FLAG_DOCUMENT_21', 'FLAG_DOCUMENT_20', 'FLAG_DOCUMENT_2', 'FLAG_DOCUMENT_19', 'FLAG_DOCUMENT_17', 'FLAG_DOCUMENT_16', 'FLAG_DOCUMENT_15', 'FLAG_DOCUMENT_14', 'FLAG_DOCUMENT_13', 'FLAG_DOCUMENT_12', 'FLAG_DOCUMENT_10', 'FLAG_CONT_MOBILE', 'EXT_SOURCE_3_VAR', 'EMERGENCYSTATE_MODE_No', 'FLAG_DOCUMENT_9', 'FLAG_EMP_PHONE', 'FLAG_MOBIL', 'CC_NAME_CONTRACT_STATUS_nan_SUM', 'NAME_EDUCATION_TYPE_Academic degree', 'NAME_CONTRACT_TYPE_Revolving loans', 'CC_NAME_CONTRACT_STATUS_Signed_MIN', 'CC_NAME_CONTRACT_STATUS_Signed_SUM', 'CC_NAME_CONTRACT_STATUS_nan_MAX', 'CC_NAME_CONTRACT_STATUS_nan_MEAN', 'CC_NAME_CONTRACT_STATUS_nan_MIN', 'CC_NAME_CONTRACT_STATUS_nan_VAR', 'HOUSETYPE_MODE_block of flats', 'CC_SK_DPD_DEF_MAX', 'CC_SK_DPD_DEF_MIN', 'CC_SK_DPD_MIN', 'CLOSED_AMT_CREDIT_SUM_OVERDUE_MEAN', 'CLOSED_CREDIT_DAY_OVERDUE_MAX', 'CLOSED_CREDIT_DAY_OVERDUE_MEAN', 'HOUSETYPE_MODE_terraced house', 'CC_CNT_DRAWINGS_OTHER_CURRENT_SUM', 'CC_CNT_DRAWINGS_OTHER_CURRENT_MIN', 'OCCUPATION_TYPE_Cooking staff', 'OCCUPATION_TYPE_HR staff', 'PREV_NAME_CASH_LOAN_PURPOSE_Business development_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Building a house or an annex_MEAN', 'PREV_HUMAN_EVAL_MAX', 'CC_AMT_DRAWINGS_OTHER_CURRENT_MIN', 'PREV_FLAG_LAST_APPL_PER_CONTRACT_nan_MEAN', 'PREV_FLAG_LAST_APPL_PER_CONTRACT_Y_MEAN', 'PREV_CODE_REJECT_REASON_nan_MEAN', 'PREV_CODE_REJECT_REASON_XNA_MEAN', 'PREV_CODE_REJECT_REASON_SYSTEM_MEAN', 'PREV_CODE_REJECT_REASON_CLIENT_MEAN', 'PREV_CHANNEL_TYPE_nan_MEAN', 'PREV_CHANNEL_TYPE_Car dealer_MEAN', 'POS_NAME_CONTRACT_STATUS_nan_MEAN', 'POS_NAME_CONTRACT_STATUS_XNA_MEAN', 'POS_NAME_CONTRACT_STATUS_Demand_MEAN', 'POS_NAME_CONTRACT_STATUS_Canceled_MEAN', 'POS_NAME_CONTRACT_STATUS_Amortized debt_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Buying a garage_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Buying a holiday home / land_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Buying a home_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Payments on other loans_MEAN', 'CC_AMT_DRAWINGS_ATM_CURRENT_MIN', 'PREV_NAME_CLIENT_TYPE_nan_MEAN', 'PREV_NAME_CLIENT_TYPE_XNA_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_nan_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Wedding / gift / holiday_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Refusal to name the goal_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Purchase of electronic equipment_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Money for a third person_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Buying a new car_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Journey_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Hobby_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Gasification / water supply_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Furniture_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Everyday expenses_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Education_MEAN', 'PREV_NAME_CASH_LOAN_PURPOSE_Buying a used car_MEAN', 'CC_CNT_DRAWINGS_ATM_CURRENT_MIN', 'ORGANIZATION_TYPE_XNA', 'ORGANIZATION_TYPE_University', 'ORGANIZATION_TYPE_Electricity', 'ORGANIZATION_TYPE_Industry: type 13', 'ORGANIZATION_TYPE_Industry: type 12', 'ORGANIZATION_TYPE_Industry: type 11', 'ORGANIZATION_TYPE_Industry: type 10', 'ORGANIZATION_TYPE_Industry: type 1', 'ORGANIZATION_TYPE_Housing', 'ORGANIZATION_TYPE_Emergency', 'ORGANIZATION_TYPE_Culture', 'ORGANIZATION_TYPE_Industry: type 4', 'ORGANIZATION_TYPE_Cleaning', 'ORGANIZATION_TYPE_Business Entity Type 2', 'ORGANIZATION_TYPE_Agriculture', 'ORGANIZATION_TYPE_Advertising', 'OCCUPATION_TYPE_Secretaries', 'OCCUPATION_TYPE_Realty agents', 'OCCUPATION_TYPE_IT staff', 'ORGANIZATION_TYPE_Industry: type 2', 'ORGANIZATION_TYPE_Industry: type 5', 'ORGANIZATION_TYPE_Transport: type 1', 'CC_CNT_DRAWINGS_OTHER_CURRENT_MAX', 'ORGANIZATION_TYPE_Trade: type 6', 'ORGANIZATION_TYPE_Trade: type 5', 'ORGANIZATION_TYPE_Trade: type 4', 'ORGANIZATION_TYPE_Trade: type 2', 'ORGANIZATION_TYPE_Trade: type 1', 'ORGANIZATION_TYPE_Telecom', 'ORGANIZATION_TYPE_Services', 'ORGANIZATION_TYPE_Religion', 'ORGANIZATION_TYPE_Industry: type 6', 'ORGANIZATION_TYPE_Realtor', 'ORGANIZATION_TYPE_Postal', 'ORGANIZATION_TYPE_Mobile', 'ORGANIZATION_TYPE_Legal Services', 'ORGANIZATION_TYPE_Insurance', 'ORGANIZATION_TYPE_Industry: type 8', 'ORGANIZATION_TYPE_Industry: type 7', 'ORGANIZATION_TYPE_Transport: type 2'
+Run LightGBM with kfold - done in 6541s
+Full model run - done in 6651s
