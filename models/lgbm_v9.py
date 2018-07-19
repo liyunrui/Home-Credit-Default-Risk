@@ -310,7 +310,6 @@ def application_train_test(nan_as_category = False):
     df['EXT_SOURCE_1_VAR'] = (df['EXT_SOURCE_1'] - df['NEW_EXT_SOURCES_MEAN'])**2    
     df['EXT_SOURCE_2_VAR'] = (df['EXT_SOURCE_2'] - df['NEW_EXT_SOURCES_MEAN'])**2
     df['EXT_SOURCE_3_VAR'] = (df['EXT_SOURCE_3'] - df['NEW_EXT_SOURCES_MEAN'])**2
-    
     df['EXT_SOURCE_1_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_1_VAR'].median())
     df['EXT_SOURCE_2_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_2_VAR'].median())
     df['EXT_SOURCE_3_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_3_VAR'].median())
@@ -365,7 +364,7 @@ def bureau_and_balance(nan_as_category = True):
         'CNT_CREDIT_PROLONG': ['sum'],
         'MONTHS_BALANCE_MIN': ['min'],
         'MONTHS_BALANCE_MAX': ['max'],
-        'MONTHS_BALANCE_SIZE': ['mean', 'sum']
+        'MONTHS_BALANCE_SIZE': ['mean', 'sum'],
     }
     # Bureau and bureau_balance categorical features
     cat_aggregations = {}
@@ -662,15 +661,14 @@ def main():
             feature_importance_df = pd.concat([feature_importance_df, iter_feat_imp], axis=0)
             over_folds_val_auc_list[i] = over_folds_val_auc
 
-        print('Over-iterations val AUC score %.6f' % over_folds_val_auc_list.mean())
-
+        print('=============================\nOver-iterations val AUC score %.6f\n=============================' % over_folds_val_auc_list.mean())
         # display_importances(feature_importance_df)
         feature_importance_df_median = feature_importance_df[["feature", "importance"]].groupby("feature").median().sort_values(by="importance", ascending=False)
         useless_features_df = feature_importance_df_median.loc[feature_importance_df_median['importance'] == 0]
         feature_importance_df_mean = feature_importance_df[["feature", "importance"]].groupby("feature").mean().sort_values(by="importance", ascending=False)
 
         if TEST_NULL_HYPO:
-            feature_importance_df_mean.to_csv("feature_importance_null_hypo.csv", index = True)
+            feature_importance_df_mean.to_csv("feature_importance-null_hypo.csv", index = True)
         else:
             feature_importance_df_mean.to_csv("feature_importance.csv", index = True)
             useless_features_list = useless_features_df.index.tolist()

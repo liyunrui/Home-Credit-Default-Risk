@@ -20,8 +20,8 @@ def display_distributions(df, col1, col2):
     plt.xlabel('importance')
     plt.show()
 
-feat_imp_df = pd.read_csv('/Users/Allen/MEGA/HCDR/logs/feature_importance-drop.csv')
-null_feat_imp_df = pd.read_csv('/Users/Allen/MEGA/HCDR/logs/feature_importance-null_hypo-drop-level_wise_tree.csv')
+feat_imp_df = pd.read_csv('/Users/Allen/MEGA/HCDR/logs/ver8/feature_importance-drop.csv')
+null_feat_imp_df = pd.read_csv('/Users/Allen/MEGA/HCDR/logs/ver8/feature_importance-null_hypo-drop-level_wise_tree.csv')
 
 null_feat_imp_df.columns = ['feature', 'null_importance']
 feat_imp_df = pd.merge(feat_imp_df, null_feat_imp_df, on=['feature'])
