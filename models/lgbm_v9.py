@@ -6,7 +6,7 @@ NUM_FOLDS = 5
 CPU_USE_RATE = 0.8
 STRATIFIED = True
 TEST_NULL_HYPO = False
-ITERATION = (80 if TEST_NULL_HYPO else 5)
+ITERATION = (80 if TEST_NULL_HYPO else 10)
 
 import numpy as np
 import pandas as pd
@@ -286,7 +286,7 @@ def application_train_test(nan_as_category = False):
 
     inc_by_org = df[['AMT_INCOME_TOTAL', 'ORGANIZATION_TYPE']].groupby('ORGANIZATION_TYPE').median()['AMT_INCOME_TOTAL']
 
-    df['NEW_CREDIT_TO_ANNUITY_RATIO'] = df['AMT_CREDIT'] / df['AMT_ANNUITY']
+    df['NEW_CREDIT_TO_ANNUITY_RATIO'] = df['AMT_CREDIT'] / df['AMT_ANNUITY'] 
     df['DIFF_CREDIT_AND_GOODS_RATIO'] = df['AMT_CREDIT'] - df['AMT_GOODS_PRICE']
     df['NEW_DOC_IND_AVG'] = df[docs].mean(axis=1)
     df['NEW_DOC_IND_AVG'] = df[docs].median(axis=1)
@@ -300,7 +300,8 @@ def application_train_test(nan_as_category = False):
     df['NEW_ANNUITY_TO_INCOME_RATIO'] = df['AMT_ANNUITY'] / (1 + df['AMT_INCOME_TOTAL'])
     df['NEW_SOURCES_PROD'] = df['EXT_SOURCE_1'] * df['EXT_SOURCE_2'] * df['EXT_SOURCE_3']
     df['NEW_EXT_SOURCES_MEAN'] = df[['EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3']].mean(axis=1)
-    df['NEW_CREDIT_TO_INCOME_RATIO'] = df['AMT_CREDIT'] / df['AMT_INCOME_TOTAL']
+    df['NEW_CREDIT_TO_INCOME_RATIO'] = df['AMT_CREDIT'] / df['AMT_INCOME_TOTAL'] # fe10
+    # df['SLOPE_CREDIT_TO_INCOME'] = (df['AMT_CREDIT'] - df['AMT_CREDIT'].mean()) / (df['AMT_INCOME_TOTAL'] - df['AMT_INCOME_TOTAL'].mean()) # fe10
     df['INCOME_TO_GOODS_PRICE_RATIO'] = df['AMT_INCOME_TOTAL'] / df['AMT_GOODS_PRICE']
     df['DIFF_INCOME_AND_GOODS_PRICE'] = df['AMT_INCOME_TOTAL'] - df['AMT_GOODS_PRICE']
 
@@ -314,7 +315,10 @@ def application_train_test(nan_as_category = False):
     df['EXT_SOURCE_2_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_2_VAR'].median())
     df['EXT_SOURCE_3_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_3_VAR'].median())
 
-    # to do: personal value / mode_or_median
+    # df['DIFF_APARTMENTS_MEDI_AND_MODE'] = df['APARTMENTS_MEDI'] - df['APARTMENTS_MODE'] # fe6
+    # df['DIFF_APARTMENTS_AVG_AND_MODE'] = df['APARTMENTS_AVG'] - df['APARTMENTS_MODE'] # fe7
+    # df['DIFF_APARTMENTS_MEDI_AND_AVG'] = df['APARTMENTS_MEDI'] - df['APARTMENTS_AVG'] # fe8
+    # df['SLOPE_EXT_SOURCE_1_DAYS_BIRTH'] = (df['EXT_SOURCE_1'] - df['EXT_SOURCE_1'].median()) / (df['DAYS_BIRTH'] - df['DAYS_BIRTH'].median()) # fe9
   
     df['SOCIAL_PRED'] = df['OBS_30_CNT_SOCIAL_CIRCLE'] + df['DEF_30_CNT_SOCIAL_CIRCLE'] + 2*df['OBS_60_CNT_SOCIAL_CIRCLE'] + 2*df['DEF_60_CNT_SOCIAL_CIRCLE']
 
@@ -456,14 +460,23 @@ def previous_applications(nan_as_category = True):
 def pos_cash(nan_as_category = True):
     pos = read_df('POS_CASH_balance')
     pos, cat_cols = one_hot_encoder(pos, nan_as_category= True)
+
+    # pos['UNPAYED_RATIO'] = pos['CNT_INSTALMENT_FUTURE'] / pos['CNT_INSTALMENT'] # fe1
+    # pos['TIME_DECAYED_UNPAYED_RATIO'] = pos['CNT_INSTALMENT_FUTURE'] / pos['CNT_INSTALMENT'] / pos['MONTHS_BALANCE']**2 # fe2 good
+    # pos['TIME_DECAYED_UNPAYED_DIFF'] = (pos['CNT_INSTALMENT'] - pos['CNT_INSTALMENT_FUTURE']) / pos['MONTHS_BALANCE']**2 # fe3
+    # pos['TIME_DECAYED_UNPAYED_RATIO'] = pos['CNT_INSTALMENT_FUTURE'] / pos['CNT_INSTALMENT'] / pos['MONTHS_BALANCE']**3 # fe5
+
     # Features
     aggregations = {
         'MONTHS_BALANCE': ['max', 'mean', 'size'],
         'SK_DPD': ['max', 'mean'],
-        'SK_DPD_DEF': ['max', 'mean']
+        'SK_DPD_DEF': ['max', 'mean'],
+        # 'UNPAYED_RATIO': ['max', 'mean', 'size', 'sum'], # fe1
+        # 'TIME_DECAYED_UNPAYED_RATIO': ['max', 'mean', 'size', 'sum'], # fe2, 5
+        # 'TIME_DECAYED_UNPAYED_DIFF': ['max', 'mean', 'size', 'sum'], # fe3
     }
     for cat in cat_cols:
-        aggregations[cat] = ['mean']
+        aggregations[cat] = ['mean',]#'sum'] # fe4
     
     pos_agg = pos.groupby('SK_ID_CURR').agg(aggregations)
     pos_agg.columns = pd.Index(['POS_' + e[0] + "_" + e[1].upper() for e in pos_agg.columns.tolist()])
@@ -596,9 +609,9 @@ def kfold_lightgbm(df, num_folds, stratified = False):
         del clf, train_x, train_y, valid_x, valid_y
         gc.collect()
 
-    print('Over-folds train AUC score %.6f' % roc_auc_score(train_df['TARGET'], train_preds))
+    print('---------------------------------------\nOver-folds train AUC score %.6f\n---------------------------------------' % roc_auc_score(train_df['TARGET'], train_preds))
     over_folds_val_auc = roc_auc_score(train_df['TARGET'], oof_preds)
-    print('Over-folds val AUC score %.6f' % over_folds_val_auc)
+    print('---------------------------------------\nOver-folds val AUC score %.6f\n---------------------------------------' % over_folds_val_auc)
     # Write submission file and plot feature importance
     test_df.loc[:,'TARGET'] = sub_preds
     test_df[['SK_ID_CURR', 'TARGET']].to_csv(submission_file_name, index= False)
@@ -652,7 +665,8 @@ def main():
         print(df.shape)
         df.drop(feature_graveyard, axis=1, inplace=True, errors='ignore')
         gc.collect()
-        print(df.shape)
+        print(df.shape)   
+
         feature_importance_df = pd.DataFrame()
         over_folds_val_auc_list = np.zeros(ITERATION)
         for i in range(ITERATION):
@@ -661,7 +675,7 @@ def main():
             feature_importance_df = pd.concat([feature_importance_df, iter_feat_imp], axis=0)
             over_folds_val_auc_list[i] = over_folds_val_auc
 
-        print('=============================\nOver-iterations val AUC score %.6f\n=============================' % over_folds_val_auc_list.mean())
+        print('=======================================\nOver-iterations val AUC score %.6f\n=======================================' % over_folds_val_auc_list.mean())
         # display_importances(feature_importance_df)
         feature_importance_df_median = feature_importance_df[["feature", "importance"]].groupby("feature").median().sort_values(by="importance", ascending=False)
         useless_features_df = feature_importance_df_median.loc[feature_importance_df_median['importance'] == 0]
