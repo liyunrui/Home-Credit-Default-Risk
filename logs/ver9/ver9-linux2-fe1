@@ -1,0 +1,95 @@
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 22s
+Previous applications df shape: (338857, 299)
+Process previous_applications - done in 21s
+Pos-cash balance df shape: (337252, 22)
+Process POS-CASH balance - done in 9s
+Installments payments df shape: (339587, 26)
+Process installments payments - done in 30s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 14s
+(356251, 895)
+(356251, 223)
+Iteration 0
+Starting LightGBM. Train shape: (307507, 223), test shape: (48744, 223)
+Fold  1 val AUC : 0.799525
+Fold  2 val AUC : 0.798154
+Fold  3 val AUC : 0.798855
+Fold  4 val AUC : 0.793976
+Fold  5 val AUC : 0.787354
+Over-folds train AUC score 0.892709
+Over-folds val AUC score 0.795550
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 1
+Starting LightGBM. Train shape: (307507, 223), test shape: (48744, 223)
+Fold  1 val AUC : 0.791147
+Fold  2 val AUC : 0.791195
+Fold  3 val AUC : 0.794909
+Fold  4 val AUC : 0.798499
+Fold  5 val AUC : 0.799797
+Over-folds train AUC score 0.885983
+Over-folds val AUC score 0.795095
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 2
+Starting LightGBM. Train shape: (307507, 223), test shape: (48744, 223)
+Fold  1 val AUC : 0.798267
+Fold  2 val AUC : 0.801195
+Fold  3 val AUC : 0.794078
+Fold  4 val AUC : 0.793745
+Fold  5 val AUC : 0.788973
+Over-folds train AUC score 0.885889
+Over-folds val AUC score 0.795208
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 3
+Starting LightGBM. Train shape: (307507, 223), test shape: (48744, 223)
+Fold  1 val AUC : 0.794868
+Fold  2 val AUC : 0.795651
+Fold  3 val AUC : 0.794920
+Fold  4 val AUC : 0.793478
+Fold  5 val AUC : 0.795793
+Over-folds train AUC score 0.888686
+Over-folds val AUC score 0.794928
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 4
+Starting LightGBM. Train shape: (307507, 223), test shape: (48744, 223)
+Fold  1 val AUC : 0.791700
+Fold  2 val AUC : 0.797040
+Fold  3 val AUC : 0.794560
+Fold  4 val AUC : 0.791997
+Fold  5 val AUC : 0.798464
+Over-folds train AUC score 0.884705
+Over-folds val AUC score 0.794703
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+=============================
+Over-iterations val AUC score 0.795097
+=============================
+useless/overfitting features: 'POS_COUNT', 'NAME_CONTRACT_TYPE_Revolving loans'
+Run LightGBM with kfold - done in 2378s
+Full model run - done in 2484s
