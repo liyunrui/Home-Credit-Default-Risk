@@ -49,7 +49,7 @@ def concat_all_features():
 	#-------------------- 
 	# feature engineering
 	#--------------------
-	no_need_to_log_transform = ['SK_ID_CURR']
+	no_need_to_log_transform = ['SK_ID_CURR','SK_ID_BUREAU','SK_ID_PREV','index']
 	# some features with largest, we perform log transformation to them
 	for col in df.columns:
 		if col not in no_need_to_log_transform:
@@ -63,6 +63,10 @@ def concat_all_features():
 				df.drop(col, axis = 1, inplace = True)
 			else:
 				pass
+	#--------------------
+	# remove features we don't need to feed into the tree.
+	#--------------------
+	df.drop(['index'], axis = 1, inplace = True)
 	#--------------------
 	# output
 	#--------------------
