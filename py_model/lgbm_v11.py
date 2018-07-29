@@ -17,7 +17,7 @@ from lightgbm import LGBMClassifier
 from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.model_selection import KFold, StratifiedKFold
 #import matplotlib.pyplot as plt
-import seaborn as sns
+#import seaborn as sns
 import warnings
 import multiprocessing
 from os.path import exists
@@ -725,7 +725,7 @@ def kfold_lightgbm(df, num_folds, stratified = False):
                 min_split_gain=0.0222415,
                 min_child_weight=39.3259775, # 60
                 silent=-1,
-                verbose=-1,
+                verbose= 0,
                 random_state=int(time.time()),
                 )
 

@@ -1,3 +1,13 @@
+'''
+
+@author: Ray
+
+1. output may need to be modified to include SK_ID_CURR for merging.
+2. also, we need TARGET for testing user is NAN for the following model.
+
+Reference: https://hcmy.gitbooks.io/ycimpute/content/shi-yong-knn/yuan-li.html
+'''
+
 from ycimpute.imputer.knnimput import KNN # inputation library
 import pandas as pd
 import numpy as np
@@ -69,7 +79,7 @@ def imputation(k):
 		#-------------------
 		# save
 		#-------------------
-		output_path = '../features/filled'
+		output_path = '../features/filled_by_knn'
 		if not os.path.isdir(output_path):
 			os.mkdir(output_path)
 
