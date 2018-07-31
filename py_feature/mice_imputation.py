@@ -13,16 +13,29 @@ import multiprocessing as mp # for speeding up some process
 import os
 import gc
 import time
+import sys
+sys.path.append('../py_model')
+from utils import init_logging
+import logging 
+
 #---------------------------------------------
 # Step1: preprocessing for MICE
 #---------------------------------------------
+# setting
+
+log_dir = '../log_mice_inputation'
+init_logging(log_dir)
 
 df = pd.read_hdf('../features/base_featurs.h5','base_featurs')
-no_need_to_inpute = ['SK_ID_CURR','index']
+
+copy_for_the_following_merge = df[['SK_ID_CURR','TARGET']].copy()
+
+no_need_to_inpute = ['index']
 df.drop(no_need_to_inpute, axis = 1, inplace = True)
 # handling with infinity
 df.replace([np.inf, -np.inf], np.nan, inplace = True)
-print ('The shape of DataFrame needed to complete : ',df.shape)
+
+logging.info('shape of base_featurs : {}'.format(df.shape) )
 
 
 #---------------------------------------------
@@ -48,7 +61,12 @@ def imputation():
         else:
             name = 'w_target'
             X_missing = df.copy()
-            # what I expected, maybe the TARGET variable is the auxiliary variable, so w target may be helful for imputation, then local CV is upper. 
+            # what I expected, maybe the TARGET variable is the auxiliary variable, so w target may be helful for imputation, then local CV is upper.
+        
+        logging.info('case: {}'.format(name)) 
+        logging.info('visit_sequence: {}'.format('monotone')) 
+        logging.info('impute_type: {}'.format('col')) 
+        logging.info('init_fill_method: {}'.format('mean')) 
         #-------------------
         # core algorithm: input should be array
         #-------------------
@@ -60,7 +78,19 @@ def imputation():
         # output
         #-------------------
         X_filled = pd.DataFrame(X_filled, columns = X_missing.columns)
+
         gc.collect()
+        X_filled.SK_ID_CURR = X_filled.SK_ID_CURR.astype(int)
+        logging.info('there will be no bugging in merge' if X_filled.SK_ID_CURR.nunique() == df.SK_ID_CURR.nunique() else "opps")
+
+        if drop_targtet == True: 
+            pass
+        else:
+            X_filled.drop(['TARGET'], axis = 1, inplace = True)
+
+        X_filled = pd.merge(X_filled, copy_for_the_following_merge, on = 'SK_ID_CURR', how = 'left')
+        logging.info('final_shape : {}'.format(X_filled.shape))
+
         #-------------------
         # save
         #-------------------
@@ -76,4 +106,13 @@ def imputation():
 # Main
 ##################################################
 
+s = time.time()
+
 imputation()
+
+e = time.time()
+logging.info('{} secs'.format(e-s))
+
+
+
+

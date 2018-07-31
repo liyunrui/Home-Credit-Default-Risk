@@ -44,6 +44,8 @@ def kfold_lightgbm(df, num_folds, stratified = False):
     #---------------------
     train_df = df[df['TARGET'].notnull()]
     test_df = df[df['TARGET'].isnull()]
+    # test_id 如果是隨機的, 會有引響麼, 理論上只要sort就好, 就算有
+    logging.info('no bugging in split' if train_df.shape[0] + test_df.shape[0] == df.shape[0] else " opps")
     #---------------------
     # core
     #---------------------
@@ -156,11 +158,17 @@ def main():
         feature_importance_df_median = feature_importance_df[["feature", "importance"]].groupby("feature").median().sort_values(by="importance", ascending=False)
         useless_features_df = feature_importance_df_median.loc[feature_importance_df_median['importance'] == 0]
         feature_importance_df_mean = feature_importance_df[["feature", "importance"]].groupby("feature").mean().sort_values(by="importance", ascending=False)
+        #---------------------
+        # save
+        #---------------------
+        output_path = '../output'
+        if not os.path.isdir(output_path):
+            os.mkdir(output_path)
 
         if TEST_NULL_HYPO:
-            feature_importance_df_mean.to_csv("feature_importance-null_hypo.csv", index = True)
+            feature_importance_df_mean.to_csv(os.path.join(output_path, 'feature_importance-null_hypo.csv'), index = True)
         else:
-            feature_importance_df_mean.to_csv("feature_importance.csv", index = True)
+            feature_importance_df_mean.to_csv(os.path.join(output_path, 'feature_importance.csv'), index = True)
             useless_features_list = useless_features_df.index.tolist()
             logging.info('useless/overfitting features: \'' + '\', \''.join(useless_features_list) + '\'')
 
