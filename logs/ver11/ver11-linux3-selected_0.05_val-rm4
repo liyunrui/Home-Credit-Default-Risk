@@ -1,0 +1,155 @@
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Train/Test application df shape: (356251, 321)
+Process train/test application - done in 323s
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 23s
+Previous applications df shape: (338857, 299)
+Process previous_applications - done in 21s
+Pos-cash balance df shape: (337252, 22)
+Process POS-CASH balance - done in 10s
+Installments payments df shape: (339587, 14)
+Process installments payments - done in 24s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 13s
+(356251, 940)
+(356251, 281)
+Iteration 0
+Starting LightGBM. Train shape: (307507, 281), test shape: (48744, 281)
+Threshold of 'istest' to select validation data = 0.301296
+---------------------------------------
+Train AUC score 0.869347
+Val AUC score 0.795972
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 1
+Starting LightGBM. Train shape: (307507, 281), test shape: (48744, 281)
+Threshold of 'istest' to select validation data = 0.301296
+---------------------------------------
+Train AUC score 0.862093
+Val AUC score 0.795138
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 2
+Starting LightGBM. Train shape: (307507, 281), test shape: (48744, 281)
+Threshold of 'istest' to select validation data = 0.301296
+---------------------------------------
+Train AUC score 0.866268
+Val AUC score 0.795499
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 3
+Starting LightGBM. Train shape: (307507, 281), test shape: (48744, 281)
+Threshold of 'istest' to select validation data = 0.301296
+---------------------------------------
+Train AUC score 0.853782
+Val AUC score 0.795063
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 4
+Starting LightGBM. Train shape: (307507, 281), test shape: (48744, 281)
+Threshold of 'istest' to select validation data = 0.301296
+---------------------------------------
+Train AUC score 0.859789
+Val AUC score 0.795844
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 5
+Starting LightGBM. Train shape: (307507, 281), test shape: (48744, 281)
+Threshold of 'istest' to select validation data = 0.301296
+---------------------------------------
+Train AUC score 0.868305
+Val AUC score 0.795880
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 6
+Starting LightGBM. Train shape: (307507, 281), test shape: (48744, 281)
+Threshold of 'istest' to select validation data = 0.301296
+---------------------------------------
+Train AUC score 0.860786
+Val AUC score 0.795285
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 7
+Starting LightGBM. Train shape: (307507, 281), test shape: (48744, 281)
+Threshold of 'istest' to select validation data = 0.301296
+---------------------------------------
+Train AUC score 0.873610
+Val AUC score 0.796118
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 8
+Starting LightGBM. Train shape: (307507, 281), test shape: (48744, 281)
+Threshold of 'istest' to select validation data = 0.301296
+---------------------------------------
+Train AUC score 0.867337
+Val AUC score 0.796696
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 9
+Starting LightGBM. Train shape: (307507, 281), test shape: (48744, 281)
+Threshold of 'istest' to select validation data = 0.301296
+---------------------------------------
+Train AUC score 0.850190
+Val AUC score 0.795228
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+============================================
+Over-iterations val AUC score 0.795672
+Standard deviation 0.000494
+============================================
+Useless features: 'OCCUPATION_TYPE_Medicine staff', 'OCCUPATION_TYPE_Low-skill Laborers', 'OCCUPATION_TYPE_Accountants', 'OCCUPATION_TYPE_Core staff', 'OCCUPATION_TYPE_High skill tech staff'
+Run LightGBM with kfold - done in 1674s
+Full model run - done in 2087s

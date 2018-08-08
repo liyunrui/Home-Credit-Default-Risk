@@ -1,0 +1,18 @@
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Traceback (most recent call last):
+  File "lgbm_v10.py", line 919, in <module>
+    main()
+  File "lgbm_v10.py", line 854, in main
+    df = application_train_test()
+  File "lgbm_v10.py", line 478, in application_train_test
+    df = group_target_by_cols(df, target = 'REGION_POPULATION_RELATIVE', cols = ['HOUSETYPE_MODE','REG_CITY_NOT_WROK_CITY'], method='mean')
+  File "lgbm_v10.py", line 272, in group_target_by_cols
+    tmp = df[cols + [target]].groupby(cols).agg(method)
+  File "/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/frame.py", line 2682, in __getitem__
+    return self._getitem_array(key)
+  File "/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/frame.py", line 2726, in _getitem_array
+    indexer = self.loc._convert_to_indexer(key, axis=1)
+  File "/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py", line 1327, in _convert_to_indexer
+    .format(mask=objarr[mask]))
+KeyError: "['REG_CITY_NOT_WROK_CITY'] not in index"

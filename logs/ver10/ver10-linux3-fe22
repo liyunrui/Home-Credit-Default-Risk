@@ -1,0 +1,191 @@
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 22s
+Previous applications df shape: (338857, 299)
+Process previous_applications - done in 21s
+Pos-cash balance df shape: (337252, 22)
+Process POS-CASH balance - done in 11s
+Installments payments df shape: (339587, 14)
+Process installments payments - done in 25s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 13s
+(356251, 892)
+(356251, 233)
+Iteration 0
+Starting LightGBM. Train shape: (307507, 233), test shape: (48744, 233)
+Fold  1 val AUC : 0.789432
+Fold  2 val AUC : 0.796801
+Fold  3 val AUC : 0.797882
+Fold  4 val AUC : 0.796590
+Fold  5 val AUC : 0.797079
+---------------------------------------
+Over-folds train AUC score 0.888288
+Over-folds val AUC score 0.795549
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 1
+Starting LightGBM. Train shape: (307507, 233), test shape: (48744, 233)
+Fold  1 val AUC : 0.801126
+Fold  2 val AUC : 0.795968
+Fold  3 val AUC : 0.791419
+Fold  4 val AUC : 0.796730
+Fold  5 val AUC : 0.796010
+---------------------------------------
+Over-folds train AUC score 0.892030
+Over-folds val AUC score 0.796230
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 2
+Starting LightGBM. Train shape: (307507, 233), test shape: (48744, 233)
+Fold  1 val AUC : 0.793813
+Fold  2 val AUC : 0.795730
+Fold  3 val AUC : 0.799269
+Fold  4 val AUC : 0.792163
+Fold  5 val AUC : 0.796782
+---------------------------------------
+Over-folds train AUC score 0.894525
+Over-folds val AUC score 0.795540
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 3
+Starting LightGBM. Train shape: (307507, 233), test shape: (48744, 233)
+Fold  1 val AUC : 0.792659
+Fold  2 val AUC : 0.801321
+Fold  3 val AUC : 0.797831
+Fold  4 val AUC : 0.797544
+Fold  5 val AUC : 0.792924
+---------------------------------------
+Over-folds train AUC score 0.891699
+Over-folds val AUC score 0.796456
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 4
+Starting LightGBM. Train shape: (307507, 233), test shape: (48744, 233)
+Fold  1 val AUC : 0.798641
+Fold  2 val AUC : 0.791001
+Fold  3 val AUC : 0.795212
+Fold  4 val AUC : 0.798080
+Fold  5 val AUC : 0.797756
+---------------------------------------
+Over-folds train AUC score 0.887473
+Over-folds val AUC score 0.796141
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 5
+Starting LightGBM. Train shape: (307507, 233), test shape: (48744, 233)
+Fold  1 val AUC : 0.791025
+Fold  2 val AUC : 0.795838
+Fold  3 val AUC : 0.797139
+Fold  4 val AUC : 0.797894
+Fold  5 val AUC : 0.797061
+---------------------------------------
+Over-folds train AUC score 0.880479
+Over-folds val AUC score 0.795746
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 6
+Starting LightGBM. Train shape: (307507, 233), test shape: (48744, 233)
+Fold  1 val AUC : 0.795219
+Fold  2 val AUC : 0.801161
+Fold  3 val AUC : 0.790871
+Fold  4 val AUC : 0.798532
+Fold  5 val AUC : 0.795445
+---------------------------------------
+Over-folds train AUC score 0.884346
+Over-folds val AUC score 0.796223
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 7
+Starting LightGBM. Train shape: (307507, 233), test shape: (48744, 233)
+Fold  1 val AUC : 0.795552
+Fold  2 val AUC : 0.801804
+Fold  3 val AUC : 0.798493
+Fold  4 val AUC : 0.794345
+Fold  5 val AUC : 0.789254
+---------------------------------------
+Over-folds train AUC score 0.888900
+Over-folds val AUC score 0.795851
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 8
+Starting LightGBM. Train shape: (307507, 233), test shape: (48744, 233)
+Fold  1 val AUC : 0.790849
+Fold  2 val AUC : 0.793988
+Fold  3 val AUC : 0.800719
+Fold  4 val AUC : 0.795745
+Fold  5 val AUC : 0.800202
+---------------------------------------
+Over-folds train AUC score 0.890467
+Over-folds val AUC score 0.796274
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Iteration 9
+Starting LightGBM. Train shape: (307507, 233), test shape: (48744, 233)
+Fold  1 val AUC : 0.794565
+Fold  2 val AUC : 0.792836
+Fold  3 val AUC : 0.797091
+Fold  4 val AUC : 0.802231
+Fold  5 val AUC : 0.794834
+---------------------------------------
+Over-folds train AUC score 0.898371
+Over-folds val AUC score 0.796259
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+============================================
+Over-iterations val AUC score 0.796027
+Standard deviation 0.000311
+============================================
+useless/overfitting features: 'OCCUPATION_TYPE_Low-skill Laborers', 'OCCUPATION_TYPE_Drivers', 'OCCUPATION_TYPE_Core staff', 'OCCUPATION_TYPE_Accountants', 'NAME_CONTRACT_TYPE_Revolving loans', 'OCCUPATION_TYPE_Medicine staff'
+Run LightGBM with kfold - done in 6007s
+Full model run - done in 6154s

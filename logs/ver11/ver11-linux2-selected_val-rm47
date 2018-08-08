@@ -1,0 +1,30 @@
+nohup: ignoring input
+Train samples: 307511, test samples: 48744
+Train/Test application df shape: (356251, 311)
+Process train/test application - done in 292s
+Bureau df shape: (305811, 143)
+Process bureau and bureau_balance - done in 25s
+Previous applications df shape: (338857, 299)
+Process previous_applications - done in 24s
+Pos-cash balance df shape: (337252, 22)
+Process POS-CASH balance - done in 10s
+Installments payments df shape: (339587, 14)
+Process installments payments - done in 23s
+Credit card balance df shape: (103558, 141)
+Process credit card balance - done in 13s
+(356251, 930)
+(356251, 271)
+Starting LightGBM. Train shape: (307507, 271), test shape: (48744, 271)
+---------------------------------------
+Train AUC score 0.867169
+Val AUC score 0.791352
+---------------------------------------
+/tmp2/r03921017/ve/lib/python3.6/site-packages/pandas/core/indexing.py:543: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  self.obj[item] = s
+Useless features: 'ORGANIZATION_TYPE_Hotel', 'ORGANIZATION_TYPE_Restaurant', 'OCCUPATION_TYPE_Sales staff', 'OCCUPATION_TYPE_Low-skill Laborers', 'OCCUPATION_TYPE_Accountants'
+Run LightGBM with kfold - done in 158s
+Full model run - done in 544s
