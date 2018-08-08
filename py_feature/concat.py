@@ -3,10 +3,13 @@ Created on July 27 2018
 
 @author: Ray
 
-加了一坨30個feature, 
-兩種case:
-Case1: 如果score比base_feature好, 我們就把這30坨進去base_fautres(base_feature augmentation)
-Case2: 如果score比base_feature差, 我們重做feature selection 實驗。
+Feature engineering pipeline:
+	Step1: 加了一坨features到base_features
+	Step2: trained 一波, 觀察 Over-iterations val AUC score
+	Step3: there are two possible cases.
+		-Case1: 如果score比base_feature的score好過一個標準差, 我們就把這30坨直接丟進去base_fautres
+				==> We call this action feautures augmentation.
+		-Case2: 如果score比base_feature的score差, 我們重做 feature selection based on null feature importatn。
 
 '''
 
@@ -49,7 +52,7 @@ def concat_all_features():
 	#-------------------- 
 	# feature engineering
 	#--------------------
-	no_need_to_log_transform = ['SK_ID_CURR']
+	no_need_to_log_transform = ['SK_ID_CURR','SK_ID_BUREAU','SK_ID_PREV','index']
 	# some features with largest, we perform log transformation to them
 	for col in df.columns:
 		if col not in no_need_to_log_transform:
@@ -63,6 +66,10 @@ def concat_all_features():
 				df.drop(col, axis = 1, inplace = True)
 			else:
 				pass
+	#--------------------
+	# remove features we don't need to feed into the tree.
+	#--------------------
+	df.drop(['index'], axis = 1, inplace = True)
 	#--------------------
 	# output
 	#--------------------

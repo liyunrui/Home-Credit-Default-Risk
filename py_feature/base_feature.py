@@ -237,6 +237,7 @@ feature_graveyard = [
     'NEW_RATIO_PREV_DAYS_DECISION_MAX', 'CC_AMT_PAYMENT_CURRENT_MEAN', 'HOUSETYPE_MODE_specific housing', 'INSTAL_DBD_MEAN',
 ]
 
+
 @contextmanager
 def timer(title):
     t0 = time.time()
@@ -245,6 +246,9 @@ def timer(title):
 
 # One-hot encoding for categorical columns with get_dummies
 def one_hot_encoder(df, nan_as_category = True):
+    '''
+
+    '''
     original_columns = list(df.columns)
     categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
     df = pd.get_dummies(df, columns= categorical_columns, dummy_na= nan_as_category)
@@ -265,8 +269,35 @@ def fillna_with_gaussian(df):
     a[m] = np.random.normal(df.mean(), df.std(), size=m.sum())
     return df
 
+def group_target_by_cols(df, target, cols, method='mean', residual = False):
+    '''
+    It's a helper function to return a conditional table, using df.groupby([con1, con2,..]).agg(method)
+    where the value means the number given the condtions.
+
+    paras:
+    ------------------
+    method: str. min, max, mean, median, prod, sum, std, var,..
+    cols: list of str, which are conditions
+
+    '''
+    name_grouped_target = target+'_BY_'+'_'.join(cols)
+    tmp = df[cols + [target]].groupby(cols).agg(method)
+    tmp = tmp.reset_index().rename(index=str, columns={target: name_grouped_target})
+    df = df.merge(tmp, how='left', on=cols)
+    if residual: 
+        # compute the difference between this case and the real situation.
+        df[name_grouped_target] = df[target] - df[name_grouped_target]
+    return df
+
 # Preprocess application_train.csv and application_test.csv
 def application_train_test(nan_as_category = False):
+    '''
+    the feild we use: 
+    NAME_EDUCATION_TYPE : Level of highest education the client achieved.
+    AMT_CREDIT : Credit amount of the loan
+    AMT_ANNUITY: Loan annuity
+    
+    '''
     # Read data and merge
     df = read_df('application_train')
     test_df = read_df('application_test')
@@ -280,51 +311,109 @@ def application_train_test(nan_as_category = False):
 
     # NaN values for DAYS_EMPLOYED: 365.243 -> nan
     df['DAYS_EMPLOYED'].replace(365243, np.nan, inplace= True)
-
+    # 不同工作類別的收入中位數
     inc_by_org = df[['AMT_INCOME_TOTAL', 'ORGANIZATION_TYPE']].groupby('ORGANIZATION_TYPE').median()['AMT_INCOME_TOTAL']
 
-    df['NEW_CREDIT_TO_ANNUITY_RATIO'] = df['AMT_CREDIT'] / df['AMT_ANNUITY'] 
+    df['NUM_INSTALMENTS'] = df['AMT_CREDIT'] / df['AMT_ANNUITY'] 
     df['DIFF_CREDIT_AND_GOODS_RATIO'] = df['AMT_CREDIT'] - df['AMT_GOODS_PRICE']
     df['NEW_DOC_IND_AVG'] = df[docs].mean(axis=1)
-    df['NEW_DOC_IND_MED'] = df[docs].median(axis=1)
     df['NEW_DOC_IND_STD'] = df[docs].std(axis=1)
     df['NEW_DOC_IND_KURT'] = df[docs].kurtosis(axis=1)
     df['NEW_LIVE_IND_SUM'] = df[live].sum(axis=1)
     df['NEW_LIVE_IND_KURT'] = df[live].kurtosis(axis=1)
     df['NEW_INC_PER_CHLD'] = df['AMT_INCOME_TOTAL'] / (1 + df['CNT_CHILDREN'])
     df['NEW_INC_BY_ORG'] = df['ORGANIZATION_TYPE'].map(inc_by_org)
+
+    # to do: change all group_target_by_cols to residual_group_target_by_cols?
+    df = group_target_by_cols(df, target = 'AMT_INCOME_TOTAL', cols = ['CODE_GENDER', 'NAME_EDUCATION_TYPE'], method='median')
+
+    df = group_target_by_cols(df, target = 'AMT_CREDIT', cols = ['NAME_EDUCATION_TYPE', 'OCCUPATION_TYPE'], method='mean') 
+    df = group_target_by_cols(df, target = 'AMT_REQ_CREDIT_BUREAU_YEAR', cols = ['NAME_EDUCATION_TYPE', 'OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'APARTMENTS_AVG', cols = ['NAME_EDUCATION_TYPE', 'OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'BASEMENTAREA_AVG', cols = ['NAME_EDUCATION_TYPE', 'OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_1', cols = ['NAME_EDUCATION_TYPE', 'OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_2', cols = ['NAME_EDUCATION_TYPE', 'OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_3', cols = ['NAME_EDUCATION_TYPE', 'OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'NONLIVINGAREA_AVG', cols = ['NAME_EDUCATION_TYPE', 'OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'OWN_CAR_AGE', cols = ['NAME_EDUCATION_TYPE', 'OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'YEARS_BUILD_AVG', cols = ['NAME_EDUCATION_TYPE', 'OCCUPATION_TYPE'], method='mean')
+
+    df = group_target_by_cols(df, target = 'AMT_ANNUITY', cols = ['OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'CNT_CHILDREN', cols = ['OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'CNT_FAM_MEMBERS', cols = ['OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_BIRTH', cols = ['OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_EMPLOYED', cols = ['OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_ID_PUBLISH', cols = ['OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_REGISTRATION', cols = ['OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_1', cols = ['OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_2', cols = ['OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_3', cols = ['OCCUPATION_TYPE'], method='mean')
+
+    df = group_target_by_cols(df, target = 'AMT_ANNUITY', cols = ['CODE_GENDER','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'CNT_CHILDREN', cols = ['CODE_GENDER','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'CNT_FAM_MEMBERS', cols = ['CODE_GENDER','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_BIRTH', cols = ['CODE_GENDER','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_EMPLOYED', cols = ['CODE_GENDER','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_ID_PUBLISH', cols = ['CODE_GENDER','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_REGISTRATION', cols = ['CODE_GENDER','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_1', cols = ['CODE_GENDER','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_2', cols = ['CODE_GENDER','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_3', cols = ['CODE_GENDER','OCCUPATION_TYPE'], method='mean')
+
+    df = group_target_by_cols(df, target = 'AMT_ANNUITY', cols = ['REG_CITY_NOT_WORK_CITY','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'CNT_CHILDREN', cols = ['REG_CITY_NOT_WORK_CITY','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'CNT_FAM_MEMBERS', cols = ['REG_CITY_NOT_WORK_CITY','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_BIRTH', cols = ['REG_CITY_NOT_WORK_CITY','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_EMPLOYED', cols = ['REG_CITY_NOT_WORK_CITY','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_ID_PUBLISH', cols = ['REG_CITY_NOT_WORK_CITY','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_REGISTRATION', cols = ['REG_CITY_NOT_WORK_CITY','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_1', cols = ['REG_CITY_NOT_WORK_CITY','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_2', cols = ['REG_CITY_NOT_WORK_CITY','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_3', cols = ['REG_CITY_NOT_WORK_CITY','OCCUPATION_TYPE'], method='mean')
+
+    df = group_target_by_cols(df, target = 'AMT_ANNUITY', cols = ['NAME_INCOME_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_BIRTH', cols = ['NAME_INCOME_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_EMPLOYED', cols = ['NAME_INCOME_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_1', cols = ['NAME_INCOME_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'AMT_CREDIT', cols = ['NAME_INCOME_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'AMT_GOODS_PRICE', cols = ['NAME_INCOME_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'AMT_INCOME_TOTAL', cols = ['NAME_INCOME_TYPE','OCCUPATION_TYPE'], method='mean')
+
+    df = group_target_by_cols(df, target = 'AMT_ANNUITY', cols = ['ORGANIZATION_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'CNT_CHILDREN', cols = ['ORGANIZATION_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'CNT_FAM_MEMBERS', cols = ['ORGANIZATION_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_BIRTH', cols = ['ORGANIZATION_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_EMPLOYED', cols = ['ORGANIZATION_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_ID_PUBLISH', cols = ['ORGANIZATION_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'DAYS_REGISTRATION', cols = ['ORGANIZATION_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_1', cols = ['ORGANIZATION_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_2', cols = ['ORGANIZATION_TYPE','OCCUPATION_TYPE'], method='mean')
+    df = group_target_by_cols(df, target = 'EXT_SOURCE_3', cols = ['ORGANIZATION_TYPE','OCCUPATION_TYPE'], method='mean')
+
     df['NEW_EMPLOY_TO_BIRTH_RATIO'] = df['DAYS_EMPLOYED'] / df['DAYS_BIRTH']
     df['NEW_ANNUITY_TO_INCOME_RATIO'] = df['AMT_ANNUITY'] / (1 + df['AMT_INCOME_TOTAL'])
     df['NEW_SOURCES_PROD'] = df['EXT_SOURCE_1'] * df['EXT_SOURCE_2'] * df['EXT_SOURCE_3']
     df['NEW_EXT_SOURCES_MEAN'] = df[['EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3']].mean(axis=1)
-    df['NEW_CREDIT_TO_INCOME_RATIO'] = df['AMT_CREDIT'] / df['AMT_INCOME_TOTAL'] # fe10
-    # df['SLOPE_CREDIT_TO_INCOME'] = (df['AMT_CREDIT'] - df['AMT_CREDIT'].mean()) / (df['AMT_INCOME_TOTAL'] - df['AMT_INCOME_TOTAL'].mean()) # fe10
     df['INCOME_TO_GOODS_PRICE_RATIO'] = df['AMT_INCOME_TOTAL'] / df['AMT_GOODS_PRICE']
     df['DIFF_INCOME_AND_GOODS_PRICE'] = df['AMT_INCOME_TOTAL'] - df['AMT_GOODS_PRICE']
 
-    # to do: high correlation -> substract
-
     # replace NEW_SCORES_STD
-    df['EXT_SOURCE_1_VAR'] = (df['EXT_SOURCE_1'] - df['NEW_EXT_SOURCES_MEAN'])**2    
+    df['EXT_SOURCE_1_VAR'] = (df['EXT_SOURCE_1'] - df['NEW_EXT_SOURCES_MEAN'])**2
     df['EXT_SOURCE_2_VAR'] = (df['EXT_SOURCE_2'] - df['NEW_EXT_SOURCES_MEAN'])**2
     df['EXT_SOURCE_3_VAR'] = (df['EXT_SOURCE_3'] - df['NEW_EXT_SOURCES_MEAN'])**2
     df['EXT_SOURCE_1_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_1_VAR'].median())
     df['EXT_SOURCE_2_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_2_VAR'].median())
     df['EXT_SOURCE_3_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_3_VAR'].median())
 
-    # df['DIFF_APARTMENTS_MEDI_AND_MODE'] = df['APARTMENTS_MEDI'] - df['APARTMENTS_MODE'] # fe6
-    # df['DIFF_APARTMENTS_AVG_AND_MODE'] = df['APARTMENTS_AVG'] - df['APARTMENTS_MODE'] # fe7
-    # df['DIFF_APARTMENTS_MEDI_AND_AVG'] = df['APARTMENTS_MEDI'] - df['APARTMENTS_AVG'] # fe8
-    # df['SLOPE_EXT_SOURCE_1_DAYS_BIRTH'] = (df['EXT_SOURCE_1'] - df['EXT_SOURCE_1'].median()) / (df['DAYS_BIRTH'] - df['DAYS_BIRTH'].median()) # fe9
-  
     df['SOCIAL_PRED'] = df['OBS_30_CNT_SOCIAL_CIRCLE'] + df['DEF_30_CNT_SOCIAL_CIRCLE'] + 2*df['OBS_60_CNT_SOCIAL_CIRCLE'] + 2*df['DEF_60_CNT_SOCIAL_CIRCLE']
 
     # Categorical features with Binary encode (0 or 1; two categories)
     for bin_feature in ['CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY']:
+        # for example: turn the value of CODE_GENDER: M or F into 0 or 1.
         df[bin_feature], uniques = pd.factorize(df[bin_feature])
     # Categorical features with One-Hot encode
     df, cat_cols = one_hot_encoder(df, nan_as_category)
-    
+
     # From Aguiar: Some simple new features (percentages)
     df['INCOME_PER_PERSON'] = df['AMT_INCOME_TOTAL'] / df['CNT_FAM_MEMBERS']
 
@@ -458,22 +547,17 @@ def pos_cash(nan_as_category = True):
     pos = read_df('POS_CASH_balance')
     pos, cat_cols = one_hot_encoder(pos, nan_as_category= True)
 
-    # pos['UNPAYED_RATIO'] = pos['CNT_INSTALMENT_FUTURE'] / pos['CNT_INSTALMENT'] # fe1
-    # pos['TIME_DECAYED_UNPAYED_RATIO'] = pos['CNT_INSTALMENT_FUTURE'] / pos['CNT_INSTALMENT'] / pos['MONTHS_BALANCE']**2 # fe2 good
-    # pos['TIME_DECAYED_UNPAYED_DIFF'] = (pos['CNT_INSTALMENT'] - pos['CNT_INSTALMENT_FUTURE']) / pos['MONTHS_BALANCE']**2 # fe3
-    # pos['TIME_DECAYED_UNPAYED_RATIO'] = pos['CNT_INSTALMENT_FUTURE'] / pos['CNT_INSTALMENT'] / pos['MONTHS_BALANCE']**3 # fe5
+    pos['TIME_DECAYED_UNPAYED_RATIO'] = pos['CNT_INSTALMENT_FUTURE'] / pos['CNT_INSTALMENT'] / pos['MONTHS_BALANCE']**2
 
     # Features
     aggregations = {
         'MONTHS_BALANCE': ['max', 'mean', 'size'],
         'SK_DPD': ['max', 'mean'],
         'SK_DPD_DEF': ['max', 'mean'],
-        # 'UNPAYED_RATIO': ['max', 'mean', 'size', 'sum'], # fe1
-        # 'TIME_DECAYED_UNPAYED_RATIO': ['max', 'mean', 'size', 'sum'], # fe2, 5
-        # 'TIME_DECAYED_UNPAYED_DIFF': ['max', 'mean', 'size', 'sum'], # fe3
+        'TIME_DECAYED_UNPAYED_RATIO': ['max', 'mean', 'size', 'sum'],
     }
     for cat in cat_cols:
-        aggregations[cat] = ['mean',]#'sum'] # fe4
+        aggregations[cat] = ['mean',]
     
     pos_agg = pos.groupby('SK_ID_CURR').agg(aggregations)
     pos_agg.columns = pd.Index(['POS_' + e[0] + "_" + e[1].upper() for e in pos_agg.columns.tolist()])
@@ -484,36 +568,88 @@ def pos_cash(nan_as_category = True):
     return pos_agg
     
 # Preprocess installments_payments.csv
-def installments_payments(nan_as_category = True):
+def installments_payments(df, nan_as_category = True):
     ins = read_df('installments_payments')
     ins, cat_cols = one_hot_encoder(ins, nan_as_category= True)
     # Percentage and difference paid in each installment (amount paid and installment value)
-    ins['PAYMENT_PERC'] = ins['AMT_PAYMENT'] / ins['AMT_INSTALMENT']
-    ins['PAYMENT_DIFF'] = ins['AMT_INSTALMENT'] - ins['AMT_PAYMENT']
+    ins['PAYMENT_PERC'] = ins['AMT_PAYMENT'] / ins['AMT_INSTALMENT'] # rm1 
+    ins['PAYMENT_DIFF'] = ins['AMT_INSTALMENT'] - ins['AMT_PAYMENT'] # rm2
     # Days past due and days before due (no negative values)
     ins['DPD'] = (ins['DAYS_ENTRY_PAYMENT'] - ins['DAYS_INSTALMENT']) / ins['DAYS_INSTALMENT']**2
     ins['DBD'] = (ins['DAYS_INSTALMENT'] - ins['DAYS_ENTRY_PAYMENT']) / ins['DAYS_INSTALMENT']**2
-
     ins['DPD'] = ins['DPD'].apply(lambda x: x if x > 0 else 0)
     ins['DBD'] = ins['DBD'].apply(lambda x: x if x > 0 else 0)
 
-    # Features: Perform aggregations
-    aggregations = {
-        'NUM_INSTALMENT_VERSION': ['nunique'],
+    # # Features: Perform aggregations
+    # aggregations1 = {
+    #     'NUM_INSTALMENT_VERSION': ['nunique'],
+    #     'DPD': ['max', 'mean', 'sum'],
+    #     'DBD': ['max', 'mean', 'sum'],
+    #     'PAYMENT_PERC': ['max', 'mean', 'sum', 'var'], # rm1
+    #     'PAYMENT_DIFF': ['max', 'mean', 'sum', 'var'], # rm2
+    #     'AMT_INSTALMENT': ['max', 'mean', 'sum'],
+    #     'AMT_PAYMENT': ['min', 'max', 'mean', 'sum'],
+    #     'DAYS_ENTRY_PAYMENT': ['max', 'mean', 'sum'],
+    # }
+    # for cat in cat_cols:
+    #     aggregations1[cat] = ['mean']
+    # ins_agg = ins.groupby('SK_ID_CURR').agg(aggregations1)
+    # ins_agg.columns = pd.Index(['INSTAL_' + e[0] + "_" + e[1].upper() for e in ins_agg.columns.tolist()])
+
+    # ============================================== fe2 ok ==============================================
+    aggregations1 = {
+        'SK_ID_CURR': ['first'],
+        'NUM_INSTALMENT_VERSION': ['max', 'size'],
         'DPD': ['max', 'mean', 'sum'],
-        'DBD': ['max', 'mean', 'sum'],
-        'PAYMENT_PERC': ['max', 'mean', 'sum', 'var'],
-        'PAYMENT_DIFF': ['max', 'mean', 'sum', 'var'],
-        'AMT_INSTALMENT': ['max', 'mean', 'sum'],
-        'AMT_PAYMENT': ['min', 'max', 'mean', 'sum'],
-        'DAYS_ENTRY_PAYMENT': ['max', 'mean', 'sum'],
+        'DBD': ['max', 'sum'],
+        'PAYMENT_PERC': ['mean', 'sum'],
+        'PAYMENT_DIFF': ['max', 'sum'],
+        'AMT_INSTALMENT': ['sum'],
+        'AMT_PAYMENT': ['min', 'max', 'sum'],
+        'DAYS_ENTRY_PAYMENT': ['max'],
+        'DAYS_INSTALMENT': ['max', 'min'],
+        # 'NUM_INSTALMENT_NUMBER': ['max'], # fe5
     }
     for cat in cat_cols:
-        aggregations[cat] = ['mean']
-    ins_agg = ins.groupby('SK_ID_CURR').agg(aggregations)
-    ins_agg.columns = pd.Index(['INSTAL_' + e[0] + "_" + e[1].upper() for e in ins_agg.columns.tolist()])
-    # Count installments accounts
-    ins_agg['INSTAL_COUNT'] = ins.groupby('SK_ID_CURR').size()
+        aggregations1[cat] = ['mean']
+    ins_agg = ins.groupby(['SK_ID_PREV']).agg(aggregations1)
+    ins_agg.columns = pd.Index([e[0] if e[0]=='SK_ID_CURR' else (e[0]+'_'+e[1].upper()) for e in ins_agg.columns.tolist()])
+
+    timestamp = (ins_agg['DAYS_INSTALMENT_MAX'] + ins_agg['DAYS_INSTALMENT_MIN']) / 2
+    # ins_agg['NUM_INSTALMENT_VERSION_MAX'] = ins_agg['NUM_INSTALMENT_VERSION_MAX'] / timestamp**2 # fe3.1
+    # ins_agg['NUM_INSTALMENT_VERSION_SIZE'] = ins_agg['NUM_INSTALMENT_VERSION_SIZE'] / timestamp**2 # fe4.1
+    # ins_agg['VERSIONS_CHANGES_RATIO'] = ins_agg['NUM_INSTALMENT_VERSION_MAX'] / ins_agg['NUM_INSTALMENT_VERSION_SIZE'] # fe6
+    # ins_agg['VERSIONS_CHANGES_RATIO'] = ins_agg['NUM_INSTALMENT_VERSION_MAX'] / ins_agg['NUM_INSTALMENT_VERSION_SIZE'] / timestamp**2 # fe6.1
+    # ins_agg['VERSIONS_CHANGES_DIFF'] = ins_agg['NUM_INSTALMENT_VERSION_MAX'] - ins_agg['NUM_INSTALMENT_VERSION_SIZE'] # fe7
+    # ins_agg['VERSIONS_CHANGES_DIFF'] = (ins_agg['NUM_INSTALMENT_VERSION_MAX'] - ins_agg['NUM_INSTALMENT_VERSION_SIZE']) / timestamp**2 # fe7.1
+    # to do: compare "term" between past and now
+    aggregations2 = {
+        # 'NUM_INSTALMENT_VERSION_MAX': ['mean'], # fe3, 3.1
+        # 'NUM_INSTALMENT_VERSION_SIZE': ['mean'], # fe4, 4.1
+        'DPD_MAX': ['max'],
+        'DPD_MEAN': ['mean'],
+        'DPD_SUM': ['sum'],
+        'DBD_MAX': ['max'],
+        'DBD_SUM': ['sum'],
+        'PAYMENT_PERC_MEAN': ['mean'],        
+        'PAYMENT_PERC_SUM': ['sum'],
+        'PAYMENT_DIFF_MAX': ['max'],
+        'PAYMENT_DIFF_SUM': ['sum'],
+        'AMT_INSTALMENT_SUM': ['sum'],
+        'AMT_PAYMENT_MIN': ['min'],
+        'AMT_PAYMENT_MAX': ['max'],
+        'AMT_PAYMENT_SUM': ['sum'],
+        'DAYS_ENTRY_PAYMENT_MAX': ['max'],
+        # 'NUM_INSTALMENT_NUMBER_MAX': ['max', 'min', 'median'], # fe5
+        # 'VERSIONS_CHANGES_RATIO': ['min', 'max', 'median', 'var'], # fe6, 6.1
+        # 'VERSIONS_CHANGES_DIFF': ['min', 'max', 'median', 'var'], # fe7, 7.1
+    }
+    ins_agg = ins_agg.groupby('SK_ID_CURR').agg(aggregations2)
+    ins_agg.columns = pd.Index(['INSTAL_' + e[0] + '_' + e[1].upper() for e in ins_agg.columns.tolist()])
+    # =======================================================================================================
+
+    # # Count installments accounts
+    # ins_agg['INSTAL_COUNT'] = ins.groupby('SK_ID_CURR').size()
     del ins
     gc.collect()
     return ins_agg
@@ -554,7 +690,7 @@ def main():
         del pos
         gc.collect()
     with timer("Process installments payments"):
-        ins = installments_payments()
+        ins = installments_payments(df)
         print("Installments payments df shape:", ins.shape)
         df = df.join(ins, how='left', on='SK_ID_CURR')
         del ins
@@ -564,7 +700,8 @@ def main():
         print("Credit card balance df shape:", cc.shape)
         df = df.join(cc, how='left', on='SK_ID_CURR')
         del cc
-        gc.collect()
+        gc.collect()  
+              
     df.drop(feature_graveyard, axis=1, inplace=True, errors='ignore')
     gc.collect()
     #---------------------

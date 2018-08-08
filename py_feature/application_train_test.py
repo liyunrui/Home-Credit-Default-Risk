@@ -65,10 +65,6 @@ df['old_no_car'] = [1 if (age > 50) and (have_car == 'N') else 0 for have_car, a
 df['old_no_house'] = [1 if (age > 50) and (have_house == 'N') else 0 for have_house, age in zip(df.FLAG_OWN_REALTY, df.age)]
 df['old_no_house_and_car'] = [1 if (age > 50) and (have_house == 'N') and (have_car == 'N') else 0 for have_house,have_car,age in zip(df.FLAG_OWN_REALTY, df.FLAG_OWN_CAR,df.age)]
 
-#-----------------------------------
-# drop
-#-----------------------------------
-df.drop(['DAYS_EMPLOYED', 'DAYS_BIRTH'], axis = 1, inplace = True)
 
 #-----------------------------------
 #save 
