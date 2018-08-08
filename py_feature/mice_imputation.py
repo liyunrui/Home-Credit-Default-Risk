@@ -9,7 +9,6 @@ Reference: https://github.com/iskandr/fancyimpute
 from fancyimpute import MICE # for imputing
 import pandas as pd
 import numpy as np
-import multiprocessing as mp # for speeding up some process
 import os
 import gc
 import time
@@ -51,7 +50,7 @@ def imputation():
     #-------------------
     # preprocessing for algorithm
     #-------------------
-    for drop_targtet in [True, False]:
+    for drop_targtet in [False]:
         if drop_targtet == True:
             # avoidnig using TARGET to impute, 
             name = 'wo_target'

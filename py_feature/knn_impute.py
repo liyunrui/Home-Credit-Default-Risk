@@ -3,8 +3,7 @@ Created on 31 July
 
 @author: Ray
 
-1. Output may need to be modified to include SK_ID_CURR for finally merging with new feature extracted.
-2. Also, we need TARGET for testing user is NAN for the subsequent conputing the local cv score.
+Next_Step: we can choose which subset of features, is highly correlated.
 
 Reference: https://hcmy.gitbooks.io/ycimpute/content/shi-yong-knn/yuan-li.html
 '''
@@ -133,7 +132,7 @@ def multi(k):
 s = time.time()
 
 mp_pool = mp.Pool(4) # 4 == len of the below list
-mp_pool.map(multi, [k for k in np.arange(5, 25, step = 5)]) 
+mp_pool.map(multi, [k for k in np.arange(25, 100, step = 10)]) 
 
 e = time.time()
 

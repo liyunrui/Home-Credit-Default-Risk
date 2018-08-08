@@ -246,6 +246,9 @@ def timer(title):
 
 # One-hot encoding for categorical columns with get_dummies
 def one_hot_encoder(df, nan_as_category = True):
+    '''
+
+    '''
     original_columns = list(df.columns)
     categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
     df = pd.get_dummies(df, columns= categorical_columns, dummy_na= nan_as_category)
@@ -267,15 +270,34 @@ def fillna_with_gaussian(df):
     return df
 
 def group_target_by_cols(df, target, cols, method='mean', residual = False):
+    '''
+    It's a helper function to return a conditional table, using df.groupby([con1, con2,..]).agg(method)
+    where the value means the number given the condtions.
+
+    paras:
+    ------------------
+    method: str. min, max, mean, median, prod, sum, std, var,..
+    cols: list of str, which are conditions
+
+    '''
     name_grouped_target = target+'_BY_'+'_'.join(cols)
     tmp = df[cols + [target]].groupby(cols).agg(method)
     tmp = tmp.reset_index().rename(index=str, columns={target: name_grouped_target})
     df = df.merge(tmp, how='left', on=cols)
-    if residual: df[name_grouped_target] = df[target] - df[name_grouped_target]
+    if residual: 
+        # compute the difference between this case and the real situation.
+        df[name_grouped_target] = df[target] - df[name_grouped_target]
     return df
 
 # Preprocess application_train.csv and application_test.csv
 def application_train_test(nan_as_category = False):
+    '''
+    the feild we use: 
+    NAME_EDUCATION_TYPE : Level of highest education the client achieved.
+    AMT_CREDIT : Credit amount of the loan
+    AMT_ANNUITY: Loan annuity
+    
+    '''
     # Read data and merge
     df = read_df('application_train')
     test_df = read_df('application_test')
@@ -289,7 +311,7 @@ def application_train_test(nan_as_category = False):
 
     # NaN values for DAYS_EMPLOYED: 365.243 -> nan
     df['DAYS_EMPLOYED'].replace(365243, np.nan, inplace= True)
-
+    # 不同工作類別的收入中位數
     inc_by_org = df[['AMT_INCOME_TOTAL', 'ORGANIZATION_TYPE']].groupby('ORGANIZATION_TYPE').median()['AMT_INCOME_TOTAL']
 
     df['NUM_INSTALMENTS'] = df['AMT_CREDIT'] / df['AMT_ANNUITY'] 
@@ -337,30 +359,6 @@ def application_train_test(nan_as_category = False):
     df = group_target_by_cols(df, target = 'EXT_SOURCE_1', cols = ['CODE_GENDER','OCCUPATION_TYPE'], method='mean')
     df = group_target_by_cols(df, target = 'EXT_SOURCE_2', cols = ['CODE_GENDER','OCCUPATION_TYPE'], method='mean')
     df = group_target_by_cols(df, target = 'EXT_SOURCE_3', cols = ['CODE_GENDER','OCCUPATION_TYPE'], method='mean')
-
-    # # fe24 slightly good -> to do: some are good?
-    # df = group_target_by_cols(df, target = 'AMT_ANNUITY', cols = ['FLAG_EMP_PHONE','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'CNT_CHILDREN', cols = ['FLAG_EMP_PHONE','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'CNT_FAM_MEMBERS', cols = ['FLAG_EMP_PHONE','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'DAYS_BIRTH', cols = ['FLAG_EMP_PHONE','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'DAYS_EMPLOYED', cols = ['FLAG_EMP_PHONE','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'DAYS_ID_PUBLISH', cols = ['FLAG_EMP_PHONE','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'DAYS_REGISTRATION', cols = ['FLAG_EMP_PHONE','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'EXT_SOURCE_1', cols = ['FLAG_EMP_PHONE','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'EXT_SOURCE_2', cols = ['FLAG_EMP_PHONE','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'EXT_SOURCE_3', cols = ['FLAG_EMP_PHONE','OCCUPATION_TYPE'], method='mean')
-
-    # # fe25 slightly good -> to do: some are good?
-    # df = group_target_by_cols(df, target = 'AMT_ANNUITY', cols = ['FLAG_OWN_CAR','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'CNT_CHILDREN', cols = ['FLAG_OWN_CAR','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'CNT_FAM_MEMBERS', cols = ['FLAG_OWN_CAR','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'DAYS_BIRTH', cols = ['FLAG_OWN_CAR','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'DAYS_EMPLOYED', cols = ['FLAG_OWN_CAR','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'DAYS_ID_PUBLISH', cols = ['FLAG_OWN_CAR','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'DAYS_REGISTRATION', cols = ['FLAG_OWN_CAR','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'EXT_SOURCE_1', cols = ['FLAG_OWN_CAR','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'EXT_SOURCE_2', cols = ['FLAG_OWN_CAR','OCCUPATION_TYPE'], method='mean')
-    # df = group_target_by_cols(df, target = 'EXT_SOURCE_3', cols = ['FLAG_OWN_CAR','OCCUPATION_TYPE'], method='mean')
 
     df = group_target_by_cols(df, target = 'AMT_ANNUITY', cols = ['REG_CITY_NOT_WORK_CITY','OCCUPATION_TYPE'], method='mean')
     df = group_target_by_cols(df, target = 'CNT_CHILDREN', cols = ['REG_CITY_NOT_WORK_CITY','OCCUPATION_TYPE'], method='mean')
@@ -411,6 +409,7 @@ def application_train_test(nan_as_category = False):
 
     # Categorical features with Binary encode (0 or 1; two categories)
     for bin_feature in ['CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY']:
+        # for example: turn the value of CODE_GENDER: M or F into 0 or 1.
         df[bin_feature], uniques = pd.factorize(df[bin_feature])
     # Categorical features with One-Hot encode
     df, cat_cols = one_hot_encoder(df, nan_as_category)
