@@ -1,35 +1,38 @@
 # source 1: https://www.kaggle.com/jsaguiar/updated-0-792-lb-lightgbm-with-simple-features
 # source 2: https://www.kaggle.com/ogrellier/lighgbm-with-selected-features
+# source 3: https://github.com/neptune-ml/open-solution-home-credit
 # different fold causes at least 0.003: https://www.kaggle.com/c/home-credit-default-risk/discussion/58332
 
 NUM_FOLDS = 5
-NUM_WORKERS = 15 ######
+NUM_WORKERS = 22
 STRATIFIED = True
 TEST_NULL_HYPO = False
-ITERATION = (80 if TEST_NULL_HYPO else 10)
+ITERATION = (80 if TEST_NULL_HYPO else 1)
 USE_SELECTED_VAL = False
 
 SEED = 90210
 DEBUG =True
-HEAD = 20
+HEAD = 1000
 
+N_ESTIMATORS=5000
+LEARNING_RATE=0.02
+MAX_BIN=300
+MAX_DEPTH=-1
 NUM_LEAVES = 30
-COLSAMPLE_BYTREE=0.05
+MIN_CHILD_SAMPLES=70 # MIN_CHILD_WEIGHT=70 # 13.1
 SUBSAMPLE=1.0
 SUBSAMPLE_FREQ=1
-MAX_DEPTH=-1
-REG_ALPHA=0
-REG_LAMBDA=100
+COLSAMPLE_BYTREE=0.05
 MIN_SPLIT_GAIN=0.5
-MIN_CHILD_WEIGHT=70
-MAX_BIN=300
+REG_LAMBDA=100
+REG_ALPHA=0
 
 installments__last_k_trend_periods=[10, 50, 100, 500]
 installments__last_k_agg_periods=[1, 5, 10, 20, 50, 100]
 installments__last_k_agg_period_fractions=[(5,20),(5,50),(10,50),(10,100),(20,100)]
 pos_cash__last_k_trend_periods=[6, 12]
 pos_cash__last_k_agg_periods=[6, 12, 30]
-numbers_of_applications = [1, 2, 3, 4, 5]
+numbers_of_previous_applications = [1, 2, 3, 4, 5]
 
 import numpy as np
 import pandas as pd
@@ -46,6 +49,8 @@ import multiprocessing as mp
 from os.path import exists
 from functools import partial
 from tqdm import tqdm
+from scipy.stats import kurtosis, iqr, skew
+import category_encoders as ce
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 FEATURE_GRAVEYARD = [
@@ -264,70 +269,71 @@ FEATURE_GRAVEYARD = [
 #     'BURO_DAYS_CREDIT_MEAN', 'POS_MONTHS_BALANCE_MEAN', 'PREV_NAME_GOODS_CATEGORY_Furniture_MEAN', 'LANDAREA_MEDI',
 #     'NEW_RATIO_PREV_DAYS_DECISION_MAX', 'CC_AMT_PAYMENT_CURRENT_MEAN', 'HOUSETYPE_MODE_specific housing', 'INSTAL_DBD_MEAN',
 
-    'FLAG_DOCUMENT_2','FLAG_DOCUMENT_4', 'FLAG_DOCUMENT_5','FLAG_DOCUMENT_6','FLAG_DOCUMENT_7', 'FLAG_DOCUMENT_8','FLAG_DOCUMENT_9','FLAG_DOCUMENT_10', 'FLAG_DOCUMENT_11','FLAG_DOCUMENT_12','FLAG_DOCUMENT_13', 'FLAG_DOCUMENT_14','FLAG_DOCUMENT_15','FLAG_DOCUMENT_16', 'FLAG_DOCUMENT_17','FLAG_DOCUMENT_18','FLAG_DOCUMENT_19', 'FLAG_DOCUMENT_20','FLAG_DOCUMENT_21',
+    'FLAG_DOCUMENT_2','FLAG_DOCUMENT_4','FLAG_DOCUMENT_5','FLAG_DOCUMENT_6','FLAG_DOCUMENT_7','FLAG_DOCUMENT_8','FLAG_DOCUMENT_9',
+    'FLAG_DOCUMENT_10', 'FLAG_DOCUMENT_11','FLAG_DOCUMENT_12','FLAG_DOCUMENT_13', 'FLAG_DOCUMENT_14','FLAG_DOCUMENT_15',
+    'FLAG_DOCUMENT_16', 'FLAG_DOCUMENT_17','FLAG_DOCUMENT_18','FLAG_DOCUMENT_19', 'FLAG_DOCUMENT_20','FLAG_DOCUMENT_21',
 ]
 
-CATEGORICAL_COLUMNS = {
-    'application': [
-        'CODE_GENDER',
-        'FLAG_OWN_CAR', 'FLAG_OWN_REALTY',
-        'EMERGENCYSTATE_MODE',
-        'FLAG_DOCUMENT_3', 'FLAG_DOCUMENT_4', 'FLAG_DOCUMENT_5', 'FLAG_DOCUMENT_6', 'FLAG_DOCUMENT_7', 'FLAG_DOCUMENT_8', 'FLAG_DOCUMENT_9', 'FLAG_DOCUMENT_11', 'FLAG_DOCUMENT_18',
-        'FLAG_CONT_MOBILE', 'FLAG_EMAIL', 'FLAG_EMP_PHONE', 'FLAG_MOBIL', 'FLAG_PHONE', 'FLAG_WORK_PHONE',
-        'FONDKAPREMONT_MODE',
-        'HOUR_APPR_PROCESS_START',
-        'HOUSETYPE_MODE',
-        'NAME_CONTRACT_TYPE',
-        'NAME_TYPE_SUITE',
-        'NAME_INCOME_TYPE',
-        'NAME_EDUCATION_TYPE',
-        'NAME_FAMILY_STATUS',
-        'NAME_HOUSING_TYPE',
-        'OCCUPATION_TYPE',
-        'ORGANIZATION_TYPE',
-        'LIVE_CITY_NOT_WORK_CITY', 'LIVE_REGION_NOT_WORK_REGION', 'REG_CITY_NOT_LIVE_CITY', 'REG_CITY_NOT_WORK_CITY', 'REG_REGION_NOT_LIVE_REGION', 'REG_REGION_NOT_WORK_REGION',
-        'WALLSMATERIAL_MODE',
-        'WEEKDAY_APPR_PROCESS_START',
-    ],
-    'bureau_balance':['STATUS'],
+# CATEGORICAL_COLUMNS = {
+#     'application': [
+#         'CODE_GENDER',
+#         'FLAG_OWN_CAR', 'FLAG_OWN_REALTY',
+#         'EMERGENCYSTATE_MODE',
+#         'FLAG_DOCUMENT_3', 'FLAG_DOCUMENT_4', 'FLAG_DOCUMENT_5', 'FLAG_DOCUMENT_6', 'FLAG_DOCUMENT_7', 'FLAG_DOCUMENT_8', 'FLAG_DOCUMENT_9', 'FLAG_DOCUMENT_11', 'FLAG_DOCUMENT_18',
+#         'FLAG_CONT_MOBILE', 'FLAG_EMAIL', 'FLAG_EMP_PHONE', 'FLAG_MOBIL', 'FLAG_PHONE', 'FLAG_WORK_PHONE',
+#         'FONDKAPREMONT_MODE',
+#         'HOUR_APPR_PROCESS_START',
+#         'HOUSETYPE_MODE',
+#         'NAME_CONTRACT_TYPE',
+#         'NAME_TYPE_SUITE',
+#         'NAME_INCOME_TYPE',
+#         'NAME_EDUCATION_TYPE',
+#         'NAME_FAMILY_STATUS',
+#         'NAME_HOUSING_TYPE',
+#         'OCCUPATION_TYPE',
+#         'ORGANIZATION_TYPE',
+#         'LIVE_CITY_NOT_WORK_CITY', 'LIVE_REGION_NOT_WORK_REGION', 'REG_CITY_NOT_LIVE_CITY', 'REG_CITY_NOT_WORK_CITY', 'REG_REGION_NOT_LIVE_REGION', 'REG_REGION_NOT_WORK_REGION',
+#         'WALLSMATERIAL_MODE',
+#         'WEEKDAY_APPR_PROCESS_START',
+#     ],
+#     'bureau_balance':['STATUS'],
+# }
 
-}
-
-NUMERICAL_COLUMNS = [
-    'AMT_ANNUITY',
-    'AMT_CREDIT',
-    'AMT_INCOME_TOTAL',
-    'AMT_REQ_CREDIT_BUREAU_HOUR', 'AMT_REQ_CREDIT_BUREAU_DAY', 'AMT_REQ_CREDIT_BUREAU_WEEK', 'AMT_REQ_CREDIT_BUREAU_MON', 'AMT_REQ_CREDIT_BUREAU_QRT', 'AMT_REQ_CREDIT_BUREAU_YEAR',
-    'APARTMENTS_AVG',
-    'BASEMENTAREA_AVG',
-    'COMMONAREA_AVG',
-    'CNT_CHILDREN',
-    'CNT_FAM_MEMBERS',
-    'DAYS_BIRTH',
-    'DAYS_EMPLOYED',
-    'DAYS_ID_PUBLISH',
-    'DAYS_LAST_PHONE_CHANGE',
-    'DAYS_REGISTRATION',
-    'DEF_30_CNT_SOCIAL_CIRCLE',
-    'DEF_60_CNT_SOCIAL_CIRCLE',
-    'ELEVATORS_AVG',
-    'ENTRANCES_AVG',
-    'EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3',
-    'FLOORSMAX_AVG',
-    'FLOORSMIN_AVG',
-    'LANDAREA_AVG',
-    'LIVINGAPARTMENTS_AVG',
-    'LIVINGAREA_AVG',
-    'NONLIVINGAPARTMENTS_AVG',
-    'NONLIVINGAREA_AVG',
-    'OBS_30_CNT_SOCIAL_CIRCLE',
-    'OWN_CAR_AGE',
-    'REGION_POPULATION_RELATIVE',
-    'REGION_RATING_CLIENT',
-    'TOTALAREA_MODE',
-    'YEARS_BEGINEXPLUATATION_AVG',
-    'YEARS_BUILD_AVG'
-]
+# NUMERICAL_COLUMNS = [
+#     'AMT_ANNUITY',
+#     'AMT_CREDIT',
+#     'AMT_INCOME_TOTAL',
+#     'AMT_REQ_CREDIT_BUREAU_HOUR', 'AMT_REQ_CREDIT_BUREAU_DAY', 'AMT_REQ_CREDIT_BUREAU_WEEK', 'AMT_REQ_CREDIT_BUREAU_MON', 'AMT_REQ_CREDIT_BUREAU_QRT', 'AMT_REQ_CREDIT_BUREAU_YEAR',
+#     'APARTMENTS_AVG',
+#     'BASEMENTAREA_AVG',
+#     'COMMONAREA_AVG',
+#     'CNT_CHILDREN',
+#     'CNT_FAM_MEMBERS',
+#     'DAYS_BIRTH',
+#     'DAYS_EMPLOYED',
+#     'DAYS_ID_PUBLISH',
+#     'DAYS_LAST_PHONE_CHANGE',
+#     'DAYS_REGISTRATION',
+#     'DEF_30_CNT_SOCIAL_CIRCLE',
+#     'DEF_60_CNT_SOCIAL_CIRCLE',
+#     'ELEVATORS_AVG',
+#     'ENTRANCES_AVG',
+#     'EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3',
+#     'FLOORSMAX_AVG',
+#     'FLOORSMIN_AVG',
+#     'LANDAREA_AVG',
+#     'LIVINGAPARTMENTS_AVG',
+#     'LIVINGAREA_AVG',
+#     'NONLIVINGAPARTMENTS_AVG',
+#     'NONLIVINGAREA_AVG',
+#     'OBS_30_CNT_SOCIAL_CIRCLE',
+#     'OWN_CAR_AGE',
+#     'REGION_POPULATION_RELATIVE',
+#     'REGION_RATING_CLIENT',
+#     'TOTALAREA_MODE',
+#     'YEARS_BEGINEXPLUATATION_AVG',
+#     'YEARS_BUILD_AVG'
+# ]
 
 
 
@@ -344,7 +350,7 @@ def timer(title):
 #     df = pd.get_dummies(df, columns= categorical_columns, dummy_na= nan_as_category)
 #     new_columns = [c for c in df.columns if c not in original_columns]
 #     return df, new_columns
-def one_hot_encoder(df, nan_as_category = True):
+def one_hot_encoder(df, nan_as_category = True, encoding = 'ordinal'):
     original_columns = list(df.columns)
     categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
     
@@ -353,14 +359,21 @@ def one_hot_encoder(df, nan_as_category = True):
         df[bin+'_01encoded'], uniques = pd.factorize(df[bin])
     
     nonbinary_categorical_columns = list(set(categorical_columns) - set(binary_categorical_columns))
-    encoded = pd.get_dummies(df, columns= nonbinary_categorical_columns, dummy_na= nan_as_category)
     
-    new_categorical_columns = [c for c in encoded.columns if c not in original_columns]
-    return encoded, new_categorical_columns
+    new_categorical_columns = []
+
+    # 13.1.1 rm
+    if (len(nonbinary_categorical_columns) > 0):
+        encoded = pd.get_dummies(df[nonbinary_categorical_columns], dummy_na= nan_as_category)
+        df = pd.concat([df, encoded], axis=1)
+        new_categorical_columns = [c for c in encoded.columns if c not in original_columns]
+    
+    return df, new_categorical_columns
+
 
 def drop_categorical_columns(df):
     categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
-    df.drop(categorical_columns, axis= 1, inplace = True)
+    df = df.drop(categorical_columns, axis= 1)
     return df
 
 def read_df(name):
@@ -377,8 +390,8 @@ def fillna_with_gaussian(df):
     a[m] = np.random.normal(df.mean(), df.std(), size=m.sum())
     return df
 
-def group_target_by_cols(df, recipe):
-    count = 0
+def group_target_by_cols(df, recipe, base_id='SK_ID_CURR'):
+    features = pd.DataFrame({'SK_ID_CURR': df['SK_ID_CURR'].unique()})
     for m in range(len(recipe)):
         group_id_cols = recipe[m][0]
         for n in range(len(recipe[m][1])):
@@ -386,11 +399,31 @@ def group_target_by_cols(df, recipe):
             method = recipe[m][1][n][1]
             name_grouped_target = target+'_grouped_by_'+'_and_'.join(group_id_cols)+'_with_'+method
             tmp = df[group_id_cols + [target]].groupby(group_id_cols).agg(method)
-            tmp = tmp.reset_index().rename(index=str, columns={target: name_grouped_target})
-            df = df.merge(tmp, how='left', on=group_id_cols)
-    del tmp
-    gc.collect()
-    return df
+            tmp = tmp.reset_index()
+            tmp.columns = pd.Index(group_id_cols+[name_grouped_target])
+
+            # df = df.merge(tmp, how='left', on=group_id_cols)
+            features = features.merge(tmp, how='left', on=group_id_cols)
+
+    return features
+
+def safe_div(a, b):
+    try:
+        return float(a) / float(b)
+    except:
+        return 0.0
+
+def chunk_groups(groupby_object, chunk_size):
+    n_groups = groupby_object.ngroups
+    group_chunk, index_chunk = [], []
+    for i, (index, df) in enumerate(groupby_object):
+        group_chunk.append(df)
+        index_chunk.append(index)
+
+        if (i + 1) % chunk_size == 0 or i + 1 == n_groups:
+            group_chunk_, index_chunk_ = group_chunk.copy(), index_chunk.copy()
+            group_chunk, index_chunk = [], []
+            yield index_chunk_, group_chunk_
 
 def parallel_apply(groups, func, index_name='Index', num_workers=1, chunk_size=100000):
     n_chunks = np.ceil(1.0 * groups.ngroups / chunk_size)
@@ -511,8 +544,7 @@ def application_train_test(nan_as_category = False):
     df['NAME_FAMILY_STATUS'].replace('Unknown', np.nan, inplace=True)
     df['ORGANIZATION_TYPE'].replace('XNA', np.nan, inplace=True)
 
-
-
+    # 28
     # docs = [_f for _f in df.columns if 'FLAG_DOC' in _f]
     # # df['NEW_DOC_IND_STD'] = df[docs].std(axis=1)
     # df['NEW_DOC_IND_KURT'] = df[docs].kurtosis(axis=1)
@@ -525,34 +557,31 @@ def application_train_test(nan_as_category = False):
     # df['NEW_SOURCES_PROD'] = df['EXT_SOURCE_1'] * df['EXT_SOURCE_2'] * df['EXT_SOURCE_3']
     # df['INCOME_TO_GOODS_PRICE_RATIO'] = df['AMT_INCOME_TOTAL'] / df['AMT_GOODS_PRICE']
     # df['DIFF_INCOME_AND_GOODS_PRICE'] = df['AMT_INCOME_TOTAL'] - df['AMT_GOODS_PRICE']
-    df['income_credit_percentage'] = df['AMT_INCOME_TOTAL'] / df['AMT_CREDIT']
     df['car_to_birth_ratio'] = df['OWN_CAR_AGE'] / df['DAYS_BIRTH']
     df['car_to_employ_ratio'] = df['OWN_CAR_AGE'] / df['DAYS_EMPLOYED']
     df['children_ratio'] = df['CNT_CHILDREN'] / df['CNT_FAM_MEMBERS']
+    df['credit_to_annuity_ratio'] = df['AMT_CREDIT'] / df['AMT_ANNUITY']
+    df['credit_to_goods_ratio'] = df['AMT_CREDIT'] / df['AMT_GOODS_PRICE'] # df['DIFF_CREDIT_AND_GOODS'] = df['AMT_CREDIT'] - df['AMT_GOODS_PRICE']
+    df['credit_to_income_ratio'] = df['AMT_CREDIT'] / df['AMT_INCOME_TOTAL']
+    df['days_employed_percentage'] = df['DAYS_EMPLOYED'] / df['DAYS_BIRTH']
+    df['income_credit_percentage'] = df['AMT_INCOME_TOTAL'] / df['AMT_CREDIT']
+    df['income_per_child'] = df['AMT_INCOME_TOTAL'] / (1 + df['CNT_CHILDREN'])
     df['income_per_person'] = df['AMT_INCOME_TOTAL'] / df['CNT_FAM_MEMBERS']
+    df['payment_rate'] = df['AMT_ANNUITY'] / df['AMT_CREDIT']
     df['phone_to_birth_ratio'] = df['DAYS_LAST_PHONE_CHANGE'] / df['DAYS_BIRTH']
     df['phone_to_employ_ratio'] = df['DAYS_LAST_PHONE_CHANGE'] / df['DAYS_EMPLOYED']
+    df['external_sources_weighted'] = df.EXT_SOURCE_1 * 2 + df.EXT_SOURCE_2 * 3 + df.EXT_SOURCE_3 * 4
     df['cnt_non_child'] = df['CNT_FAM_MEMBERS'] - df['CNT_CHILDREN']
     df['child_to_non_child_ratio'] = df['CNT_CHILDREN'] / df['cnt_non_child']
     df['income_per_non_child'] = df['AMT_INCOME_TOTAL'] / df['cnt_non_child']
     df['credit_per_person'] = df['AMT_CREDIT'] / df['CNT_FAM_MEMBERS']
     df['credit_per_child'] = df['AMT_CREDIT'] / (1 + df['CNT_CHILDREN'])
     df['credit_per_non_child'] = df['AMT_CREDIT'] / df['cnt_non_child']
-    df['credit_to_annuity_ratio'] = df['AMT_CREDIT'] / df['AMT_ANNUITY']
-    df['credit_to_goods_ratio'] = df['AMT_CREDIT'] / df['AMT_GOODS_PRICE'] # df['DIFF_CREDIT_AND_GOODS'] = df['AMT_CREDIT'] - df['AMT_GOODS_PRICE']
-    df['credit_to_income_ratio'] = df['AMT_CREDIT'] / df['AMT_INCOME_TOTAL']
-    df['days_employed_percentage'] = df['DAYS_EMPLOYED'] / df['DAYS_BIRTH']
-    df['income_per_child'] = df['AMT_INCOME_TOTAL'] / (1 + df['CNT_CHILDREN'])
-    df['payment_rate'] = df['AMT_ANNUITY'] / df['AMT_CREDIT']
+    for function_name in ['min', 'max', 'sum', 'mean', 'nanmedian']: # replace NEW_SCORES_STD
+        df['external_sources_{}'.format(function_name)] = eval('np.{}'.format(function_name))(df[['EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3']], axis=1)
+
     df['long_employment'] = (df['DAYS_EMPLOYED'] < -2000).astype(int)
     df['retirement_age'] = (df['DAYS_BIRTH'] < -14000).astype(int)
-
-    
-
-    # replace NEW_SCORES_STD
-    df['external_sources_weighted'] = df.EXT_SOURCE_1 * 2 + df.EXT_SOURCE_2 * 3 + df.EXT_SOURCE_3 * 4
-    for function_name in ['min', 'max', 'sum', 'mean', 'nanmedian']:
-        df['external_sources_{}'.format(function_name)] = eval('np.{}'.format(function_name))(df[['EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3']], axis=1)
 
     # df['EXT_SOURCE_1_VAR'] = (df['EXT_SOURCE_1'] - df['NEW_EXT_SOURCES_MEAN'])**2
     # df['EXT_SOURCE_2_VAR'] = (df['EXT_SOURCE_2'] - df['NEW_EXT_SOURCES_MEAN'])**2
@@ -564,14 +593,39 @@ def application_train_test(nan_as_category = False):
     # df['SOCIAL_PRED'] = df['OBS_30_CNT_SOCIAL_CIRCLE'] + df['DEF_30_CNT_SOCIAL_CIRCLE'] + 2*df['OBS_60_CNT_SOCIAL_CIRCLE'] + 2*df['DEF_60_CNT_SOCIAL_CIRCLE']
 
     # grouping categorical features to generate new features
-    df = group_target_by_cols(df, APPLICATION_AGGREGATION_RECIPIES)
+    # df = group_target_by_cols(df, APPLICATION_AGGREGATION_RECIPIES)
+    cols_to_remove = [] # 13.1.3
+    for group_id_cols, select_and_method in APPLICATION_AGGREGATION_RECIPIES:
+        # group_id_cols = APPLICATION_AGGREGATION_RECIPIES[m][0]
+        # for n in range(len(APPLICATION_AGGREGATION_RECIPIES[m][1])):
+       	for select, method in select_and_method:
+            # select = APPLICATION_AGGREGATION_RECIPIES[m][1][n][0]
+            # method = APPLICATION_AGGREGATION_RECIPIES[m][1][n][1]
+            name_grouped_target = select+'_grouped_by_'+'_and_'.join(group_id_cols)+'_with_'+method
+            tmp = df[group_id_cols + [select]].groupby(group_id_cols).agg(method)
+            tmp = tmp.reset_index()
+            tmp.columns = pd.Index(group_id_cols+[name_grouped_target])
+            df = df.merge(tmp, how='left', on=group_id_cols)
+            
+            ## to do: redundant processings
+            cols_to_remove.append(name_grouped_target) # 13.1.3 
+            # 13.1.2
+            if method in ['mean', 'median', 'max', 'min']:
+                diff_feature_name = name_grouped_target+'_diff'
+                abs_diff_feature_name = name_grouped_target+'_abs_diff'
 
+                df[diff_feature_name] = df[select] - df[name_grouped_target]
+                df[abs_diff_feature_name] = np.abs(df[select] - df[name_grouped_target])
+
+                
+    df.drop(cols_to_remove, axis=1, inplace= True) # 13.1.3
     # Categorical features with Binary encode (0 or 1; two categories)
     # for bin_feature in ['CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY']:
     #     df[bin_feature], uniques = pd.factorize(df[bin_feature])
 
+    # 13.1.2.1 rm
     # Categorical features with One-Hot encode
-    df, new_application_categorical_cols = one_hot_encoder(df, nan_as_category)
+    # df, new_application_categorical_cols = one_hot_encoder(df, nan_as_category)
 
     del test_df
     gc.collect()
@@ -611,14 +665,17 @@ def bureau_and_balance(nan_as_category = True):
     bureau['DAYS_CREDIT_UPDATE'][bureau['DAYS_CREDIT_UPDATE'] < -40000] = np.nan
     bureau['DAYS_ENDDATE_FACT'][bureau['DAYS_ENDDATE_FACT'] < -40000] = np.nan
     
+    # 13.1.2.1 rm
     # bureau_balance, bureau categorical features
-    bb, new_bb_categorical_cols = one_hot_encoder(bb, nan_as_category)
-    bureau, new_bureau_categorical_cols = one_hot_encoder(bureau, nan_as_category)
+    # bb, new_bb_categorical_cols = one_hot_encoder(bb, nan_as_category)
+    # bureau, new_bureau_categorical_cols = one_hot_encoder(bureau, nan_as_category)
 
     # Bureau balance: Perform aggregations
     bb_aggregations = {'MONTHS_BALANCE': ['min', 'max', 'size']}
-    for col in new_bb_categorical_cols:
-        bb_aggregations[col] = ['mean']
+    
+    # 13.1.2.1 rm
+    # for col in new_bb_categorical_cols:
+    #     bb_aggregations[col] = ['mean']
 
     bb_agg = bb.groupby('SK_ID_BUREAU').agg(bb_aggregations)
     bb_agg.columns = pd.Index([e[0] + "_" + e[1].upper() for e in bb_agg.columns.tolist()])
@@ -626,6 +683,9 @@ def bureau_and_balance(nan_as_category = True):
     # merge bureau_balance.csv with bureau.csv
     bureau = bureau.join(bb_agg, how='left', on='SK_ID_BUREAU')
     bureau.drop(['SK_ID_BUREAU'], axis=1, inplace= True)
+
+    del bb, bb_agg
+    gc.collect()
 
     # to do: fill with median?
     # if FILL_MISSING:
@@ -671,13 +731,11 @@ def bureau_and_balance(nan_as_category = True):
     #     'MONTHS_BALANCE_SIZE': ['mean', 'sum'],
     # }
 
-    print(bureau.columns.tolist())
+    # 13.1.2.1 rm
+    # for cat in new_bureau_categorical_cols: BUREAU_NUM_AGGREGATION_RECIPIES[0][1].append((cat, 'mean')) # cat_aggregations[cat + "_MEAN"]
+    # for cat in new_bb_categorical_cols: BUREAU_NUM_AGGREGATION_RECIPIES[0][1].append((cat+'_MEAN', 'mean'))
 
-    for cat in new_bureau_categorical_cols: BUREAU_NUM_AGGREGATION_RECIPIES[0][1].append((cat, 'mean')) # cat_aggregations[cat + "_MEAN"]
-    for cat in new_bb_categorical_cols: BUREAU_NUM_AGGREGATION_RECIPIES[0][1].append((cat+'_MEAN', 'mean'))
-    print(bureau.columns.tolist())
     bureau_agg = group_target_by_cols(bureau, BUREAU_NUM_AGGREGATION_RECIPIES)
-
     bureau['bureau_credit_active_binary'] = (bureau['CREDIT_ACTIVE'] != 'Closed').astype(int)
     bureau['bureau_credit_enddate_binary'] = (bureau['DAYS_CREDIT_ENDDATE'] > 0).astype(int)
 
@@ -687,8 +745,8 @@ def bureau_and_balance(nan_as_category = True):
     g.rename(index=str, columns={'DAYS_CREDIT': 'bureau_number_of_past_loans'}, inplace=True)
     bureau_agg = bureau_agg.merge(g, on=['SK_ID_CURR'], how='left')
 
-    g = groupby['CREDIT_TYPE_original'].agg('nunique').reset_index()
-    g.rename(index=str, columns={'CREDIT_TYPE_original': 'bureau_number_of_loan_types'}, inplace=True)
+    g = groupby['CREDIT_TYPE'].agg('nunique').reset_index()
+    g.rename(index=str, columns={'CREDIT_TYPE': 'bureau_number_of_loan_types'}, inplace=True)
     bureau_agg = bureau_agg.merge(g, on=['SK_ID_CURR'], how='left')
 
     g = groupby['bureau_credit_active_binary'].agg('mean').reset_index()
@@ -739,7 +797,7 @@ def bureau_and_balance(nan_as_category = True):
     # for e in cols:
     #     bureau_agg['NEW_RATIO_BURO_' + e[0] + "_" + e[1].upper()] = bureau_agg['ACTIVE_' + e[0] + "_" + e[1].upper()] / bureau_agg['CLOSED_' + e[0] + "_" + e[1].upper()]
 
-    del bureau, bb, bb_agg # closed, closed_agg, active, active_agg
+    del bureau # closed, closed_agg, active, active_agg
     gc.collect()
     return bureau_agg
 
@@ -763,7 +821,9 @@ def previous_applications(nan_as_category = True):
     prev_app = read_df('previous_application')
     if DEBUG:
         prev_app = prev_app[:HEAD]
-    prev_app, new_prev_app_categorical_cols = one_hot_encoder(prev_app, nan_as_category= True)
+
+    # 13.1.2.1 rm
+    # prev_app, new_prev_app_categorical_cols = one_hot_encoder(prev_app, nan_as_category= True)
 
     prev_app['DAYS_FIRST_DRAWING'].replace(365243, np.nan, inplace= True)
     prev_app['DAYS_FIRST_DUE'].replace(365243, np.nan, inplace= True)
@@ -771,7 +831,9 @@ def previous_applications(nan_as_category = True):
     prev_app['DAYS_LAST_DUE'].replace(365243, np.nan, inplace= True)
     prev_app['DAYS_TERMINATION'].replace(365243, np.nan, inplace= True)
 
-    for cat in new_prev_app_categorical_cols: PREVIOUS_APPLICATION_AGGREGATION_RECIPIES[0][1].append((cat, 'mean'))
+    # 13.1.2.1 rm
+    # for cat in new_prev_app_categorical_cols: PREVIOUS_APPLICATION_AGGREGATION_RECIPIES[0][1].append((cat, 'mean'))
+    
     prev_app_agg = group_target_by_cols(prev_app, PREVIOUS_APPLICATION_AGGREGATION_RECIPIES)
 
     prev_app_sorted = prev_app.sort_values(['SK_ID_CURR', 'DAYS_DECISION'])
@@ -797,7 +859,7 @@ def previous_applications(nan_as_category = True):
     g = prev_app_sorted.groupby(by=['SK_ID_CURR'])['prev_applications_prev_was_revolving_loan'].last().reset_index()
     prev_app_agg = prev_app_agg.merge(g, on=['SK_ID_CURR'], how='left')
 
-    for number in numbers_of_applications:
+    for number in numbers_of_previous_applications:
         prev_applications_tail = prev_app_sorted_groupby.tail(number)
 
         tail_groupby = prev_applications_tail.groupby(by=['SK_ID_CURR'])
@@ -1007,18 +1069,23 @@ def pos_cash(nan_as_category = True):
     pos_cash = read_df('POS_CASH_balance')
     if DEBUG:
         pos_cash = pos_cash[:HEAD]
-    pos_cash, new_pos_cash_categorical_cols = one_hot_encoder(pos_cash, nan_as_category= True)
 
-    for cat in new_pos_cash_categorical_cols:
-        POS_CASH_BALANCE_AGGREGATION_RECIPIES[0][1].append((cat, 'mean'))
+	# 13.1.2.1 rm
+    # pos_cash, new_pos_cash_categorical_cols = one_hot_encoder(pos_cash, nan_as_category= True)
+    # for cat in new_pos_cash_categorical_cols:
+        # POS_CASH_BALANCE_AGGREGATION_RECIPIES[0][1].append((cat, 'mean'))
 
-    pos_cash_agg = group_target_by_cols(pos_cash, BUREAU_NUM_AGGREGATION_RECIPIES)
+    pos_cash_agg = group_target_by_cols(pos_cash, POS_CASH_BALANCE_AGGREGATION_RECIPIES)
 
     pos_cash['is_contract_status_completed'] = pos_cash['NAME_CONTRACT_STATUS'] == 'Completed'
     pos_cash['pos_cash_paid_late'] = (pos_cash['SK_DPD'] > 0).astype(int)
     pos_cash['pos_cash_paid_late_with_tolerance'] = (pos_cash['SK_DPD_DEF'] > 0).astype(int)
 
-    func = partial(pos_cash__generate_features, agg_periods=pos_cash__last_k_agg_periods, trend_periods=pos_cash__last_k_trend_periods)
+    func = partial(
+        pos_cash__generate_features,
+        agg_periods=pos_cash__last_k_agg_periods,
+        trend_periods=pos_cash__last_k_trend_periods
+    )
     g = parallel_apply(pos_cash.groupby(['SK_ID_CURR']), func, index_name='SK_ID_CURR', num_workers=NUM_WORKERS).reset_index()
     pos_cash_agg = pos_cash_agg.merge(g, on='SK_ID_CURR', how='left')
 
@@ -1054,7 +1121,7 @@ def installments_payments__generate_features(gr, agg_periods, trend_periods, per
     return pd.Series(features)
 
 def installments_payments__all_installment_features(gr):
-    return installments_payments__last_k_installment_features_with_fractions(gr, periods=[10e16])
+    return installments_payments__last_k_installment_features(gr, periods=[10e16])
 
 def get_feature_names_by_period(features, period):
     return sorted([feat for feat in features.keys() if '_{}_'.format(period) in feat])
@@ -1145,31 +1212,29 @@ def installments_payments__last_loan_features(gr):
                                      'last_loan_')
     return features
 
-PREVIOUS_APPLICATION_AGGREGATION_RECIPIES = []
+INSTALLMENTS_PAYMENTS_AGGREGATION_RECIPIES = []
 for agg in ['mean', 'min', 'max', 'sum', 'var']:
-    for select in ['AMT_ANNUITY',
-                   'AMT_APPLICATION',
-                   'AMT_CREDIT',
-                   'AMT_DOWN_PAYMENT',
-                   'AMT_GOODS_PRICE',
-                   'CNT_PAYMENT',
-                   'DAYS_DECISION',
-                   'HOUR_APPR_PROCESS_START',
-                   'RATE_DOWN_PAYMENT'
+    for select in ['AMT_INSTALMENT',
+                   'AMT_PAYMENT',
+                   'DAYS_ENTRY_PAYMENT',
+                   'DAYS_INSTALMENT',
+                   'NUM_INSTALMENT_NUMBER',
+                   'NUM_INSTALMENT_VERSION'
                    ]:
-        PREVIOUS_APPLICATION_AGGREGATION_RECIPIES.append((select, agg))
-PREVIOUS_APPLICATION_AGGREGATION_RECIPIES = [(['SK_ID_CURR'], PREVIOUS_APPLICATION_AGGREGATION_RECIPIES)]
+        INSTALLMENTS_PAYMENTS_AGGREGATION_RECIPIES.append((select, agg))
+INSTALLMENTS_PAYMENTS_AGGREGATION_RECIPIES = [(['SK_ID_CURR'], INSTALLMENTS_PAYMENTS_AGGREGATION_RECIPIES)]
 
 # Preprocess installments_payments.csv
 def installments_payments(df, nan_as_category = True):
     installments = read_df('installments_payments')
     installments = installments[:HEAD]
-    installments, new_installments_categorical_cols = one_hot_encoder(installments, nan_as_category= True)
 
-    for cat in new_installments_categorical_cols:
-        PREVIOUS_APPLICATION_AGGREGATION_RECIPIES[0][1].append((cat, 'mean'))
+    # 13.1.2.1 rm
+    # installments, new_installments_categorical_cols = one_hot_encoder(installments, nan_as_category= True)
+    # for cat in new_installments_categorical_cols:
+    #     INSTALLMENTS_PAYMENTS_AGGREGATION_RECIPIES[0][1].append((cat, 'mean'))
 
-    installments_agg = group_target_by_cols(installments, PREVIOUS_APPLICATION_AGGREGATION_RECIPIES)
+    installments_agg = group_target_by_cols(installments, INSTALLMENTS_PAYMENTS_AGGREGATION_RECIPIES)
 
     installments['installment_paid_late_in_days'] = installments['DAYS_ENTRY_PAYMENT'] - installments['DAYS_INSTALMENT']
     installments['installment_paid_late'] = (installments['installment_paid_late_in_days'] > 0).astype(int)
@@ -1180,7 +1245,7 @@ def installments_payments(df, nan_as_category = True):
     func = partial(installments_payments__generate_features,
                    agg_periods=installments__last_k_agg_periods,
                    period_fractions=installments__last_k_agg_period_fractions,
-                   trend_periods=installments__last_k_agg_period_fractions)
+                   trend_periods=installments__last_k_trend_periods)
     g = parallel_apply(groupby, func, index_name='SK_ID_CURR', num_workers=NUM_WORKERS).reset_index()
     installments_agg = installments_agg.merge(g, on='SK_ID_CURR', how='left')
 
@@ -1265,13 +1330,15 @@ def credit_card_balance(nan_as_category = True):
     if DEBUG:
         credit_card = credit_card[:HEAD]
 
-    credit_card, new_credit_card_categorical_cols = one_hot_encoder(credit_card, nan_as_category= True)
+    # 13.1.2.1 rm
+    # credit_card, new_credit_card_categorical_cols = one_hot_encoder(credit_card, nan_as_category= True)
 
     credit_card['AMT_DRAWINGS_ATM_CURRENT'][credit_card['AMT_DRAWINGS_ATM_CURRENT'] < 0] = np.nan
     credit_card['AMT_DRAWINGS_CURRENT'][credit_card['AMT_DRAWINGS_CURRENT'] < 0] = np.nan
 
-    
-    for cat in new_credit_card_categorical_cols: CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES[0][1].append((cat, 'mean')) 
+    # 13.1.2.1 rm
+    # for cat in new_credit_card_categorical_cols: CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES[0][1].append((cat, 'mean')) 
+
     credit_card_agg = group_target_by_cols(credit_card, CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES)
 
     # static features
@@ -1363,46 +1430,47 @@ def kfold_lightgbm(df, num_folds, stratified = False, seed = int(time.time())):
     feature_importance_df = pd.DataFrame()
     feats = [f for f in train_df.columns if f not in ['TARGET','SK_ID_CURR','SK_ID_BUREAU','SK_ID_PREV','index']]
     
-    # if TEST_NULL_HYPO:
-    #     train_df['TARGET'] = train_df['TARGET'].copy().sample(frac=1.0).values
+    if TEST_NULL_HYPO:
+        train_df['TARGET'] = train_df['TARGET'].copy().sample(frac=1.0).values
     for n_fold, (train_idx, valid_idx) in enumerate(folds.split(train_df[feats], train_df['TARGET'])):
         train_x, train_y = train_df[feats].iloc[train_idx], train_df['TARGET'].iloc[train_idx]
         valid_x, valid_y = train_df[feats].iloc[valid_idx], train_df['TARGET'].iloc[valid_idx]
 
         # LightGBM parameters found by Bayesian optimization
-        # if TEST_NULL_HYPO:
-        #     clf = LGBMClassifier(
-        #         nthread=int(NUM_WORKERS),
-        #         n_estimators=10000,
-        #         learning_rate=0.02,
-        #         num_leaves=127,
-        #         max_depth=MAX_DEPTH,
-        #         silent=-1,
-        #         verbose=-1,
-        #         random_state=seed,
-        #         )
-        # else:
-        clf = LGBMClassifier(
-            nthread=int(NUM_WORKERS),
-            n_estimators=10000,
-            learning_rate=0.02,
-            num_leaves=NUM_LEAVES,
-            colsample_bytree=COLSAMPLE_BYTREE,
-            subsample=SUBSAMPLE,
-            subsample_freq=SUBSAMPLE_FREQ,
-            max_depth=MAX_DEPTH,
-            reg_alpha=REG_ALPHA,
-            reg_lambda=REG_LAMBDA,
-            min_split_gain=MIN_SPLIT_GAIN,
-            min_child_weight=MIN_CHILD_WEIGHT,
-            max_bin=MAX_BIN,
-            silent=-1,
-            verbose=-1,
-            random_state=seed,
-            )
+        if TEST_NULL_HYPO:
+            clf = LGBMClassifier(
+                nthread=NUM_WORKERS,
+                n_estimators=N_ESTIMATORS,
+                learning_rate=LEARNING_RATE,
+                num_leaves=NUM_LEAVES, # 127
+                max_depth=MAX_DEPTH,
+                silent=-1,
+                verbose=-1,
+                random_state=seed,
+                )
+        else:
+            clf = LGBMClassifier(
+                nthread=NUM_WORKERS,
+                n_estimators=N_ESTIMATORS,
+                learning_rate=LEARNING_RATE,
+                num_leaves=NUM_LEAVES,
+                colsample_bytree=COLSAMPLE_BYTREE,
+                subsample=SUBSAMPLE,
+                subsample_freq=SUBSAMPLE_FREQ,
+                max_depth=MAX_DEPTH,
+                reg_alpha=REG_ALPHA,
+                reg_lambda=REG_LAMBDA,
+                min_split_gain=MIN_SPLIT_GAIN,
+                # min_child_weight=MIN_CHILD_WEIGHT,
+                min_child_samples=MIN_CHILD_SAMPLES,
+                max_bin=MAX_BIN,
+                silent=-1,
+                verbose=-1,
+                random_state=seed,
+                )
 
         clf.fit(train_x, train_y, eval_set=[(train_x, train_y), (valid_x, valid_y)], 
-            eval_metric= 'auc', verbose= False, early_stopping_rounds= 100) # early_stopping_rounds= 200
+            eval_metric= 'auc', verbose= False, early_stopping_rounds= 100)
 
         oof_preds[valid_idx] = clf.predict_proba(valid_x, num_iteration=clf.best_iteration_)[:, 1]
         train_preds[train_idx] += clf.predict_proba(train_x, num_iteration=clf.best_iteration_)[:, 1] / folds.n_splits
@@ -1436,53 +1504,99 @@ def display_importances(feature_importance_df_):
     plt.tight_layout
     plt.savefig('lgbm_importances.png')
 
+def rename_columns(df, name):
+    for col in df.columns:
+        if col != 'SK_ID_CURR':
+            df.rename(index=str, columns={col: name+'__'+col}, inplace=True)
+    return df
+
 def main():
     df = pd.DataFrame()
     with timer("Process train/test application"):
         df = application_train_test()
+        # df.set_index('SK_ID_CURR', inplace=True)
+        # df = drop_categorical_columns(df)
+
         print("Train/Test application df shape:", df.shape)
     with timer("Process bureau and bureau_balance"):
         bureau = bureau_and_balance()
+        # bureau.set_index('SK_ID_CURR', inplace=True)
+        # bureau = drop_categorical_columns(bureau)
+        bureau = rename_columns(bureau, 'bureau')
+
         print("Bureau df shape:", bureau.shape)
-        df = df.join(bureau, how='left', on='SK_ID_CURR')
+        df = df.merge(bureau, how='left', on=['SK_ID_CURR'])
+        # df = pd.concat([df, bureau], axis=1)
         del bureau
         gc.collect()
     with timer("Process previous_applications"):
         prev = previous_applications()
+        prev = rename_columns(prev, 'previous_applications')
+        # prev.set_index('SK_ID_CURR', inplace=True)
+        # prev = drop_categorical_columns(prev)
+    
         print("Previous applications df shape:", prev.shape)
-        df = df.join(prev, how='left', on='SK_ID_CURR')
+        df = df.merge(prev, how='left', on=['SK_ID_CURR'])
+        # df = pd.concat([df, prev], axis=1)
         del prev
         gc.collect()
     with timer("Process POS-CASH balance"):
         pos = pos_cash()
+        pos = rename_columns(pos, 'POS_CASH')
+        # pos.set_index('SK_ID_CURR', inplace=True)
+        # pos = drop_categorical_columns(pos)
+
         print("Pos-cash balance df shape:", pos.shape)
-        df = df.join(pos, how='left', on='SK_ID_CURR')
+        df = df.merge(pos, how='left', on=['SK_ID_CURR'])
+        # df = pd.concat([df, pos], axis=1)
         del pos
         gc.collect()
     with timer("Process installments payments"):
         ins = installments_payments(df)
+        ins = rename_columns(ins, 'installments_payments')
+        # ins.set_index('SK_ID_CURR', inplace=True)
+        # ins = drop_categorical_columns(ins)
+
         print("Installments payments df shape:", ins.shape)
-        df = df.join(ins, how='left', on='SK_ID_CURR')
+        df = df.merge(ins, how='left', on=['SK_ID_CURR'])
+        # df = pd.concat([df, ins], axis=1)
         del ins
         gc.collect()
     with timer("Process credit card balance"):
         cc = credit_card_balance()
+        cc = rename_columns(cc, 'credit_card')
+        # cc.set_index('SK_ID_CURR', inplace=True)
+        # cc = drop_categorical_columns(cc)
+
         print("Credit card balance df shape:", cc.shape)
-        df = df.join(cc, how='left', on='SK_ID_CURR')
+        df = df.merge(cc, how='left', on=['SK_ID_CURR'])
+        # df = pd.concat([df, cc], axis=1)
         del cc
         gc.collect()
     with timer("Run LightGBM with kfold"):
+        # df = drop_categorical_columns(df)
         print(df.shape)
-
-        # ver12.1.1 nodrop
-        # df.drop(FEATURE_GRAVEYARD, axis=1, inplace=True, errors='ignore')
-
-        # 12.1.2.2
-        df.drop(features_with_no_imp_at_least_twice, axis=1, inplace=True, errors='ignore')
-
+        df.drop(FEATURE_GRAVEYARD, axis=1, inplace=True, errors='ignore')
         gc.collect()
-
         print(df.shape)
+      
+        # 13.1.4
+        categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
+        tmp = df['POS_CASH__pos_cash_remaining_installments'].tolist()
+        for n,t in enumerate(tmp):
+            if t != np.nan:
+                print(n,t)
+        encoder = ce.OrdinalEncoder(cols=categorical_columns,drop_invariant=True)
+        print(categorical_columns)
+        # for col in df.columns:
+        #     if df[col].dtype == 'object':
+        #         print(col)
+        #         print(df[col].head)
+        #         df[col]=encoder.fit_transform(df['index',col])
+                # df[col] = df[col].astype('str')
+        
+        encoder.fit(df)
+        df = encoder.transform(df)
 
         feature_importance_df = pd.DataFrame()
         over_iterations_val_auc = np.zeros(ITERATION)
@@ -1502,7 +1616,7 @@ def main():
 
         if TEST_NULL_HYPO:
             feature_importance_df_mean.to_csv("feature_importance-null_hypo.csv", index = True)
-        else:
+        elif not DEBUG:
             feature_importance_df_mean.to_csv("feature_importance.csv", index = True)
             useless_features_list = useless_features_df.index.tolist()
             print('Useless features: \'' + '\', \''.join(useless_features_list) + '\'')
