@@ -1,5 +1,7 @@
 '''
-one imputation method, 10 iterations, may take 1 hrs.
+
+One imputation method, 10 iterations may take 1 hrs.
+
 '''
 import numpy as np
 import pandas as pd
@@ -13,7 +15,7 @@ import multiprocessing
 import warnings
 from utils import init_logging
 import logging 
-
+import os
 warnings.simplefilter(action='ignore', category=FutureWarning)
 np.random.seed(int(time.time()))
 
@@ -44,7 +46,7 @@ def kfold_lightgbm(df, num_folds, stratified = False):
     #---------------------
     train_df = df[df['TARGET'].notnull()]
     test_df = df[df['TARGET'].isnull()]
-    # test_id 如果是隨機的, 會有引響麼, 理論上只要sort就好, 就算有
+    # 
     logging.info('no bugging in split' if train_df.shape[0] + test_df.shape[0] == df.shape[0] else " opps")
     #---------------------
     # core
