@@ -60074,3 +60074,622 @@ case: wo_target
 visit_sequence: monotone
 impute_type: col
 init_fill_method: mean
+Using TensorFlow backend.
+/home/linuxbrew/.linuxbrew/Cellar/python/3.6.5/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: compiletime version 3.5 of module 'tensorflow.python.framework.fast_tensor_util' does not match runtime version 3.6
+  return f(*args, **kwds)
+similarity threshold : 0.9
+ratio_that_similar_to_all_feautres : 0.04
+num_features_in_raw_features_will_be_impute: 3
+num_base_feature_worth_imputing_set : 1
+original_raw_featurs : (356251, 820)
+X_missing_df before feature_scaling : (356251, 3)
+feature_scaling: True
+correlation_selection_and_mice_imputing.py:104: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  X_missing_df[f] = (X_missing_df[f] - mean) / std
+X_missing_df after feature_scaling : (356251, 3)
+visit_sequence: monotone
+impute_type: col
+init_fill_method: mean
+X_filled : (356251, 3)
+base_featurs : (356251, 281)
+featurs : APARTMENTS_MEDI
+done - 0.04
+ratio_that_similar_to_all_feautres : 0.03
+num_features_in_raw_features_will_be_impute: 8
+num_base_feature_worth_imputing_set : 2
+original_raw_featurs : (356251, 820)
+X_missing_df before feature_scaling : (356251, 8)
+feature_scaling: True
+X_missing_df after feature_scaling : (356251, 8)
+visit_sequence: monotone
+impute_type: col
+init_fill_method: mean
+(820, 818)
+num pair of highly similar feautures 165
+(356251, 281)
+(356251, 279)
+APARTMENTS_MODE
+APARTMENTS_MEDI
+APARTMENTS_AVG
+[MICE] Completing matrix with shape (356251, 3)
+[MICE] Starting imputation round 1/110, elapsed time 0.033
+[MICE] Starting imputation round 2/110, elapsed time 0.314
+[MICE] Starting imputation round 3/110, elapsed time 0.611
+[MICE] Starting imputation round 4/110, elapsed time 0.941
+[MICE] Starting imputation round 5/110, elapsed time 1.249
+[MICE] Starting imputation round 6/110, elapsed time 1.565
+[MICE] Starting imputation round 7/110, elapsed time 1.917
+[MICE] Starting imputation round 8/110, elapsed time 2.243
+[MICE] Starting imputation round 9/110, elapsed time 2.545
+[MICE] Starting imputation round 10/110, elapsed time 2.910
+[MICE] Starting imputation round 11/110, elapsed time 3.271
+[MICE] Starting imputation round 12/110, elapsed time 3.704
+[MICE] Starting imputation round 13/110, elapsed time 3.918
+[MICE] Starting imputation round 14/110, elapsed time 4.151
+[MICE] Starting imputation round 15/110, elapsed time 4.383
+[MICE] Starting imputation round 16/110, elapsed time 4.610
+[MICE] Starting imputation round 17/110, elapsed time 4.836
+[MICE] Starting imputation round 18/110, elapsed time 5.090
+[MICE] Starting imputation round 19/110, elapsed time 5.363
+[MICE] Starting imputation round 20/110, elapsed time 5.591
+[MICE] Starting imputation round 21/110, elapsed time 5.864
+[MICE] Starting imputation round 22/110, elapsed time 6.145
+[MICE] Starting imputation round 23/110, elapsed time 6.427
+[MICE] Starting imputation round 24/110, elapsed time 6.601
+[MICE] Starting imputation round 25/110, elapsed time 6.816
+[MICE] Starting imputation round 26/110, elapsed time 7.048
+[MICE] Starting imputation round 27/110, elapsed time 7.274
+[MICE] Starting imputation round 28/110, elapsed time 7.542
+[MICE] Starting imputation round 29/110, elapsed time 7.805
+[MICE] Starting imputation round 30/110, elapsed time 8.047
+[MICE] Starting imputation round 31/110, elapsed time 8.278
+[MICE] Starting imputation round 32/110, elapsed time 8.505
+[MICE] Starting imputation round 33/110, elapsed time 8.733
+[MICE] Starting imputation round 34/110, elapsed time 8.969
+[MICE] Starting imputation round 35/110, elapsed time 9.209
+[MICE] Starting imputation round 36/110, elapsed time 9.499
+[MICE] Starting imputation round 37/110, elapsed time 9.741
+[MICE] Starting imputation round 38/110, elapsed time 10.002
+[MICE] Starting imputation round 39/110, elapsed time 10.226
+[MICE] Starting imputation round 40/110, elapsed time 10.495
+[MICE] Starting imputation round 41/110, elapsed time 10.737
+[MICE] Starting imputation round 42/110, elapsed time 11.028
+[MICE] Starting imputation round 43/110, elapsed time 11.398
+[MICE] Starting imputation round 44/110, elapsed time 11.639
+[MICE] Starting imputation round 45/110, elapsed time 11.900
+[MICE] Starting imputation round 46/110, elapsed time 12.125
+[MICE] Starting imputation round 47/110, elapsed time 12.358
+[MICE] Starting imputation round 48/110, elapsed time 12.583
+[MICE] Starting imputation round 49/110, elapsed time 12.835
+[MICE] Starting imputation round 50/110, elapsed time 13.078
+[MICE] Starting imputation round 51/110, elapsed time 13.362
+[MICE] Starting imputation round 52/110, elapsed time 13.603
+[MICE] Starting imputation round 53/110, elapsed time 13.833
+[MICE] Starting imputation round 54/110, elapsed time 14.083
+[MICE] Starting imputation round 55/110, elapsed time 14.316
+[MICE] Starting imputation round 56/110, elapsed time 14.555
+[MICE] Starting imputation round 57/110, elapsed time 14.784
+[MICE] Starting imputation round 58/110, elapsed time 15.019
+[MICE] Starting imputation round 59/110, elapsed time 15.248
+[MICE] Starting imputation round 60/110, elapsed time 15.472
+[MICE] Starting imputation round 61/110, elapsed time 15.698
+[MICE] Starting imputation round 62/110, elapsed time 15.984
+[MICE] Starting imputation round 63/110, elapsed time 16.223
+[MICE] Starting imputation round 64/110, elapsed time 16.463
+[MICE] Starting imputation round 65/110, elapsed time 16.726
+[MICE] Starting imputation round 66/110, elapsed time 16.955
+[MICE] Starting imputation round 67/110, elapsed time 17.181
+[MICE] Starting imputation round 68/110, elapsed time 17.412
+[MICE] Starting imputation round 69/110, elapsed time 17.661
+[MICE] Starting imputation round 70/110, elapsed time 17.937
+[MICE] Starting imputation round 71/110, elapsed time 18.172
+[MICE] Starting imputation round 72/110, elapsed time 18.419
+[MICE] Starting imputation round 73/110, elapsed time 18.664
+[MICE] Starting imputation round 74/110, elapsed time 18.910
+[MICE] Starting imputation round 75/110, elapsed time 19.160
+[MICE] Starting imputation round 76/110, elapsed time 19.410
+[MICE] Starting imputation round 77/110, elapsed time 19.637
+[MICE] Starting imputation round 78/110, elapsed time 19.863
+[MICE] Starting imputation round 79/110, elapsed time 20.089
+[MICE] Starting imputation round 80/110, elapsed time 20.314
+[MICE] Starting imputation round 81/110, elapsed time 20.546
+[MICE] Starting imputation round 82/110, elapsed time 20.772
+[MICE] Starting imputation round 83/110, elapsed time 21.033
+[MICE] Starting imputation round 84/110, elapsed time 21.328
+[MICE] Starting imputation round 85/110, elapsed time 21.616
+[MICE] Starting imputation round 86/110, elapsed time 21.843
+[MICE] Starting imputation round 87/110, elapsed time 22.100
+[MICE] Starting imputation round 88/110, elapsed time 22.383
+[MICE] Starting imputation round 89/110, elapsed time 22.628
+[MICE] Starting imputation round 90/110, elapsed time 22.884
+[MICE] Starting imputation round 91/110, elapsed time 23.121
+[MICE] Starting imputation round 92/110, elapsed time 23.346
+[MICE] Starting imputation round 93/110, elapsed time 23.595
+[MICE] Starting imputation round 94/110, elapsed time 23.824
+[MICE] Starting imputation round 95/110, elapsed time 24.065
+[MICE] Starting imputation round 96/110, elapsed time 24.291
+[MICE] Starting imputation round 97/110, elapsed time 24.524
+[MICE] Starting imputation round 98/110, elapsed time 24.753
+[MICE] Starting imputation round 99/110, elapsed time 24.987
+[MICE] Starting imputation round 100/110, elapsed time 25.233
+[MICE] Starting imputation round 101/110, elapsed time 25.484
+[MICE] Starting imputation round 102/110, elapsed time 25.786
+[MICE] Starting imputation round 103/110, elapsed time 26.028
+[MICE] Starting imputation round 104/110, elapsed time 26.291
+[MICE] Starting imputation round 105/110, elapsed time 26.518
+[MICE] Starting imputation round 106/110, elapsed time 26.745
+[MICE] Starting imputation round 107/110, elapsed time 26.978
+[MICE] Starting imputation round 108/110, elapsed time 27.209
+[MICE] Starting imputation round 109/110, elapsed time 27.440
+[MICE] Starting imputation round 110/110, elapsed time 27.673
+APARTMENTS_MODE
+APARTMENTS_MEDI
+APARTMENTS_AVG
+LIVINGAREA_AVG
+LIVINGAPARTMENTS_AVG
+LIVINGAPARTMENTS_MEDI
+LIVINGAREA_MEDI
+LIVINGAPARTMENTS_MODE
+[MICE] Completing matrix with shape (356251, 8)
+[MICE] Starting imputation round 1/110, elapsed time 0.068
+[MICE] Starting imputation round 2/110, elapsed time 0.891
+[MICE] Starting imputation round 3/110, elapsed time 1.651
+[MICE] Starting imputation round 4/110, elapsed time 2.400
+[MICE] Starting imputation round 5/110, elapsed time 3.168
+[MICE] Starting imputation round 6/110, elapsed time 3.925
+[MICE] Starting imputation round 7/110, elapsed time 4.692
+[MICE] Starting imputation round 8/110, elapsed time 5.443
+[MICE] Starting imputation round 9/110, elapsed time 6.206
+[MICE] Starting imputation round 10/110, elapsed time 7.043
+[MICE] Starting imputation round 11/110, elapsed time 7.806
+[MICE] Starting imputation round 12/110, elapsed time 8.596
+[MICE] Starting imputation round 13/110, elapsed time 9.444
+[MICE] Starting imputation round 14/110, elapsed time 10.224
+[MICE] Starting imputation round 15/110, elapsed time 11.004
+[MICE] Starting imputation round 16/110, elapsed time 11.785
+[MICE] Starting imputation round 17/110, elapsed time 12.583
+[MICE] Starting imputation round 18/110, elapsed time 13.420
+[MICE] Starting imputation round 19/110, elapsed time 14.203
+[MICE] Starting imputation round 20/110, elapsed time 15.016X_filled : (356251, 8)
+base_featurs : (356251, 281)
+featurs : APARTMENTS_MEDI
+featurs : LIVINGAREA_MEDI
+done - 0.03
+ratio_that_similar_to_all_feautres : 0.019999999999999997
+num_features_in_raw_features_will_be_impute: 17
+num_base_feature_worth_imputing_set : 5
+original_raw_featurs : (356251, 820)
+X_missing_df before feature_scaling : (356251, 17)
+feature_scaling: True
+X_missing_df after feature_scaling : (356251, 17)
+visit_sequence: monotone
+impute_type: col
+init_fill_method: mean
+
+[MICE] Starting imputation round 21/110, elapsed time 15.832
+[MICE] Starting imputation round 22/110, elapsed time 16.622
+[MICE] Starting imputation round 23/110, elapsed time 17.476
+[MICE] Starting imputation round 24/110, elapsed time 18.256
+[MICE] Starting imputation round 25/110, elapsed time 19.053
+[MICE] Starting imputation round 26/110, elapsed time 19.853
+[MICE] Starting imputation round 27/110, elapsed time 20.793
+[MICE] Starting imputation round 28/110, elapsed time 21.641
+[MICE] Starting imputation round 29/110, elapsed time 22.408
+[MICE] Starting imputation round 30/110, elapsed time 23.250
+[MICE] Starting imputation round 31/110, elapsed time 24.047
+[MICE] Starting imputation round 32/110, elapsed time 24.879
+[MICE] Starting imputation round 33/110, elapsed time 25.702
+[MICE] Starting imputation round 34/110, elapsed time 26.468
+[MICE] Starting imputation round 35/110, elapsed time 27.447
+[MICE] Starting imputation round 36/110, elapsed time 28.226
+[MICE] Starting imputation round 37/110, elapsed time 29.031
+[MICE] Starting imputation round 38/110, elapsed time 29.908
+[MICE] Starting imputation round 39/110, elapsed time 30.779
+[MICE] Starting imputation round 40/110, elapsed time 31.697
+[MICE] Starting imputation round 41/110, elapsed time 32.538
+[MICE] Starting imputation round 42/110, elapsed time 33.340
+[MICE] Starting imputation round 43/110, elapsed time 34.133
+[MICE] Starting imputation round 44/110, elapsed time 34.923
+[MICE] Starting imputation round 45/110, elapsed time 35.717
+[MICE] Starting imputation round 46/110, elapsed time 36.624
+[MICE] Starting imputation round 47/110, elapsed time 37.435
+[MICE] Starting imputation round 48/110, elapsed time 38.218
+[MICE] Starting imputation round 49/110, elapsed time 39.032
+[MICE] Starting imputation round 50/110, elapsed time 39.868
+[MICE] Starting imputation round 51/110, elapsed time 40.680
+[MICE] Starting imputation round 52/110, elapsed time 41.486
+[MICE] Starting imputation round 53/110, elapsed time 42.272
+[MICE] Starting imputation round 54/110, elapsed time 43.053
+[MICE] Starting imputation round 55/110, elapsed time 43.913
+[MICE] Starting imputation round 56/110, elapsed time 44.726
+[MICE] Starting imputation round 57/110, elapsed time 45.559
+[MICE] Starting imputation round 58/110, elapsed time 46.397
+[MICE] Starting imputation round 59/110, elapsed time 47.184
+[MICE] Starting imputation round 60/110, elapsed time 47.974
+[MICE] Starting imputation round 61/110, elapsed time 48.750
+[MICE] Starting imputation round 62/110, elapsed time 49.554
+[MICE] Starting imputation round 63/110, elapsed time 50.355
+[MICE] Starting imputation round 64/110, elapsed time 51.159
+[MICE] Starting imputation round 65/110, elapsed time 52.048
+[MICE] Starting imputation round 66/110, elapsed time 52.839
+[MICE] Starting imputation round 67/110, elapsed time 53.645
+[MICE] Starting imputation round 68/110, elapsed time 54.465
+[MICE] Starting imputation round 69/110, elapsed time 55.185
+[MICE] Starting imputation round 70/110, elapsed time 55.956
+[MICE] Starting imputation round 71/110, elapsed time 56.734
+[MICE] Starting imputation round 72/110, elapsed time 57.502
+[MICE] Starting imputation round 73/110, elapsed time 58.389
+[MICE] Starting imputation round 74/110, elapsed time 59.277
+[MICE] Starting imputation round 75/110, elapsed time 60.101
+[MICE] Starting imputation round 76/110, elapsed time 60.907
+[MICE] Starting imputation round 77/110, elapsed time 61.745
+[MICE] Starting imputation round 78/110, elapsed time 62.571
+[MICE] Starting imputation round 79/110, elapsed time 63.368
+[MICE] Starting imputation round 80/110, elapsed time 64.350
+[MICE] Starting imputation round 81/110, elapsed time 65.247
+[MICE] Starting imputation round 82/110, elapsed time 66.163
+[MICE] Starting imputation round 83/110, elapsed time 67.005
+[MICE] Starting imputation round 84/110, elapsed time 67.971
+[MICE] Starting imputation round 85/110, elapsed time 68.838
+[MICE] Starting imputation round 86/110, elapsed time 69.609
+[MICE] Starting imputation round 87/110, elapsed time 70.453
+[MICE] Starting imputation round 88/110, elapsed time 71.232
+[MICE] Starting imputation round 89/110, elapsed time 72.035
+[MICE] Starting imputation round 90/110, elapsed time 72.831
+[MICE] Starting imputation round 91/110, elapsed time 73.661
+[MICE] Starting imputation round 92/110, elapsed time 74.434
+[MICE] Starting imputation round 93/110, elapsed time 75.364
+[MICE] Starting imputation round 94/110, elapsed time 76.149
+[MICE] Starting imputation round 95/110, elapsed time 76.937
+[MICE] Starting imputation round 96/110, elapsed time 77.709
+[MICE] Starting imputation round 97/110, elapsed time 78.490
+[MICE] Starting imputation round 98/110, elapsed time 79.422
+[MICE] Starting imputation round 99/110, elapsed time 80.319
+[MICE] Starting imputation round 100/110, elapsed time 81.093
+[MICE] Starting imputation round 101/110, elapsed time 81.897
+[MICE] Starting imputation round 102/110, elapsed time 82.725
+[MICE] Starting imputation round 103/110, elapsed time 83.521
+[MICE] Starting imputation round 104/110, elapsed time 84.331
+[MICE] Starting imputation round 105/110, elapsed time 85.249
+[MICE] Starting imputation round 106/110, elapsed time 86.054
+[MICE] Starting imputation round 107/110, elapsed time 86.852
+[MICE] Starting imputation round 108/110, elapsed time 87.682
+[MICE] Starting imputation round 109/110, elapsed time 88.611
+[MICE] Starting imputation round 110/110, elapsed time 89.430
+APARTMENTS_MODE
+APARTMENTS_MEDI
+APARTMENTS_AVG
+LIVINGAREA_AVG
+BURO_MONTHS_BALANCE_MIN_MIN
+CLOSED_MONTHS_BALANCE_MIN_MIN
+BURO_AMT_CREDIT_SUM_DEBT_MAX
+BURO_AMT_CREDIT_SUM_DEBT_SUM
+ACTIVE_AMT_CREDIT_SUM_DEBT_MAX
+LIVINGAPARTMENTS_AVG
+LIVINGAREA_MODE
+CLOSED_DAYS_CREDIT_MIN
+ACTIVE_AMT_CREDIT_SUM_DEBT_SUM
+BURO_DAYS_CREDIT_MIN
+LIVINGAPARTMENTS_MEDI
+LIVINGAREA_MEDI
+LIVINGAPARTMENTS_MODE
+[MICE] Completing matrix with shape (356251, 17)
+[MICE] Starting imputation round 1/110, elapsed time 0.153
+[MICE] Starting imputation round 2/110, elapsed time 2.836
+[MICE] Starting imputation round 3/110, elapsed time 5.455
+[MICE] Starting imputation round 4/110, elapsed time 8.262
+[MICE] Starting imputation round 5/110, elapsed time 10.994
+[MICE] Starting imputation round 6/110, elapsed time 13.549
+[MICE] Starting imputation round 7/110, elapsed time 16.176
+[MICE] Starting imputation round 8/110, elapsed time 19.842
+[MICE] Starting imputation round 9/110, elapsed time 23.851
+[MICE] Starting imputation round 10/110, elapsed time 28.020
+[MICE] Starting imputation round 11/110, elapsed time 32.195
+[MICE] Starting imputation round 12/110, elapsed time 35.704
+[MICE] Starting imputation round 13/110, elapsed time 38.461
+[MICE] Starting imputation round 14/110, elapsed time 41.185
+[MICE] Starting imputation round 15/110, elapsed time 44.971
+[MICE] Starting imputation round 16/110, elapsed time 49.007
+[MICE] Starting imputation round 17/110, elapsed time 53.333
+[MICE] Starting imputation round 18/110, elapsed time 58.004
+[MICE] Starting imputation round 19/110, elapsed time 63.224
+[MICE] Starting imputation round 20/110, elapsed time 67.605
+[MICE] Starting imputation round 21/110, elapsed time 72.896
+[MICE] Starting imputation round 22/110, elapsed time 77.451
+[MICE] Starting imputation round 23/110, elapsed time 82.836
+[MICE] Starting imputation round 24/110, elapsed time 88.850
+[MICE] Starting imputation round 25/110, elapsed time 95.215
+[MICE] Starting imputation round 26/110, elapsed time 101.654
+[MICE] Starting imputation round 27/110, elapsed time 108.131
+[MICE] Starting imputation round 28/110, elapsed time 114.627
+[MICE] Starting imputation round 29/110, elapsed time 121.099
+[MICE] Starting imputation round 30/110, elapsed time 127.538
+[MICE] Starting imputation round 31/110, elapsed time 133.696
+[MICE] Starting imputation round 32/110, elapsed time 140.230
+[MICE] Starting imputation round 33/110, elapsed time 146.758
+[MICE] Starting imputation round 34/110, elapsed time 153.163
+[MICE] Starting imputation round 35/110, elapsed time 158.251
+[MICE] Starting imputation round 36/110, elapsed time 160.973
+[MICE] Starting imputation round 37/110, elapsed time 167.304
+[MICE] Starting imputation round 38/110, elapsed time 173.875X_filled : (356251, 17)
+base_featurs : (356251, 281)
+featurs : APARTMENTS_MEDI
+featurs : BURO_AMT_CREDIT_SUM_DEBT_SUM
+featurs : ACTIVE_AMT_CREDIT_SUM_DEBT_MAX
+featurs : ACTIVE_AMT_CREDIT_SUM_DEBT_SUM
+featurs : LIVINGAREA_MEDI
+done - 0.019999999999999997
+ratio_that_similar_to_all_feautres : 0.009999999999999995
+
+[MICE] Starting imputation round 39/110, elapsed time 180.450
+[MICE] Starting imputation round 40/110, elapsed time 185.846
+[MICE] Starting imputation round 41/110, elapsed time 192.548
+[MICE] Starting imputation round 42/110, elapsed time 199.134
+[MICE] Starting imputation round 43/110, elapsed time 205.695
+[MICE] Starting imputation round 44/110, elapsed time 212.186
+[MICE] Starting imputation round 45/110, elapsed time 218.541
+[MICE] Starting imputation round 46/110, elapsed time 225.178
+[MICE] Starting imputation round 47/110, elapsed time 230.296
+[MICE] Starting imputation round 48/110, elapsed time 235.418
+[MICE] Starting imputation round 49/110, elapsed time 241.932
+[MICE] Starting imputation round 50/110, elapsed time 248.515
+[MICE] Starting imputation round 51/110, elapsed time 255.086
+[MICE] Starting imputation round 52/110, elapsed time 261.490
+[MICE] Starting imputation round 53/110, elapsed time 267.962
+[MICE] Starting imputation round 54/110, elapsed time 274.488
+[MICE] Starting imputation round 55/110, elapsed time 281.059
+[MICE] Starting imputation round 56/110, elapsed time 287.532
+[MICE] Starting imputation round 57/110, elapsed time 294.077
+[MICE] Starting imputation round 58/110, elapsed time 300.541
+[MICE] Starting imputation round 59/110, elapsed time 305.824
+[MICE] Starting imputation round 60/110, elapsed time 312.389
+[MICE] Starting imputation round 61/110, elapsed time 319.007
+[MICE] Starting imputation round 62/110, elapsed time 325.613
+[MICE] Starting imputation round 63/110, elapsed time 332.211
+[MICE] Starting imputation round 64/110, elapsed time 338.822
+[MICE] Starting imputation round 65/110, elapsed time 345.359
+[MICE] Starting imputation round 66/110, elapsed time 351.893
+[MICE] Starting imputation round 67/110, elapsed time 358.401
+[MICE] Starting imputation round 68/110, elapsed time 364.975
+[MICE] Starting imputation round 69/110, elapsed time 371.526
+[MICE] Starting imputation round 70/110, elapsed time 377.941
+[MICE] Starting imputation round 71/110, elapsed time 384.496
+[MICE] Starting imputation round 72/110, elapsed time 391.078
+[MICE] Starting imputation round 73/110, elapsed time 396.321
+[MICE] Starting imputation round 74/110, elapsed time 402.883
+[MICE] Starting imputation round 75/110, elapsed time 409.136
+[MICE] Starting imputation round 76/110, elapsed time 415.687
+[MICE] Starting imputation round 77/110, elapsed time 422.237
+[MICE] Starting imputation round 78/110, elapsed time 428.688
+[MICE] Starting imputation round 79/110, elapsed time 434.962
+[MICE] Starting imputation round 80/110, elapsed time 441.554
+[MICE] Starting imputation round 81/110, elapsed time 448.059
+[MICE] Starting imputation round 82/110, elapsed time 454.517
+[MICE] Starting imputation round 83/110, elapsed time 459.946
+[MICE] Starting imputation round 84/110, elapsed time 466.559
+[MICE] Starting imputation round 85/110, elapsed time 473.076
+[MICE] Starting imputation round 86/110, elapsed time 479.582
+[MICE] Starting imputation round 87/110, elapsed time 484.864
+[MICE] Starting imputation round 88/110, elapsed time 491.469
+[MICE] Starting imputation round 89/110, elapsed time 498.047
+[MICE] Starting imputation round 90/110, elapsed time 504.492
+[MICE] Starting imputation round 91/110, elapsed time 511.079
+[MICE] Starting imputation round 92/110, elapsed time 517.692
+[MICE] Starting imputation round 93/110, elapsed time 524.218
+[MICE] Starting imputation round 94/110, elapsed time 530.688
+[MICE] Starting imputation round 95/110, elapsed time 537.198
+[MICE] Starting imputation round 96/110, elapsed time 543.795
+[MICE] Starting imputation round 97/110, elapsed time 550.497
+[MICE] Starting imputation round 98/110, elapsed time 557.092
+[MICE] Starting imputation round 99/110, elapsed time 563.666
+[MICE] Starting imputation round 100/110, elapsed time 570.254
+[MICE] Starting imputation round 101/110, elapsed time 576.734
+[MICE] Starting imputation round 102/110, elapsed time 583.251
+[MICE] Starting imputation round 103/110, elapsed time 589.921
+[MICE] Starting imputation round 104/110, elapsed time 596.456
+[MICE] Starting imputation round 105/110, elapsed time 603.147
+[MICE] Starting imputation round 106/110, elapsed time 609.440
+[MICE] Starting imputation round 107/110, elapsed time 615.355
+[MICE] Starting imputation round 108/110, elapsed time 620.928
+[MICE] Starting imputation round 109/110, elapsed time 626.936
+[MICE] Starting imputation round 110/110, elapsed time 633.420
+LANDAREA_AVG
+AMT_GOODS_PRICE
+NONLIVINGAPARTMENTS_MODE
+APARTMENTS_MODE
+CLOSED_AMT_ANNUITY_MEAN
+ELEVATORS_MEDI
+PREV_AMT_DOWN_PAYMENT_MIN
+BURO_MONTHS_BALANCE_SIZE_SUM
+OBS_30_CNT_SOCIAL_CIRCLE
+ACTIVE_DAYS_CREDIT_MIN
+CLOSED_MONTHS_BALANCE_SIZE_MEAN
+CLOSED_AMT_CREDIT_MAX_OVERDUE_MEAN
+APARTMENTS_MEDI
+ENTRANCES_MODE
+YEARS_BUILD_AVG
+PREV_NAME_PAYMENT_TYPE_Cash through the bank_MEAN
+NONLIVINGAPARTMENTS_AVG
+ACTIVE_MONTHS_BALANCE_MIN_MIN
+PREV_AMT_APPLICATION_MEAN
+NEW_RATIO_BURO_CREDIT_DAY_OVERDUE_MAX
+PREV_AMT_ANNUITY_MAX
+BURO_CREDIT_CURRENCY_currency 1_MEAN
+ACTIVE_CREDIT_DAY_OVERDUE_MAX
+REGION_RATING_CLIENT_W_CITY
+ACTIVE_AMT_ANNUITY_MEAN
+APPROVED_HOUR_APPR_PROCESS_START_MIN
+PREV_NAME_SELLER_INDUSTRY_Furniture_MEAN
+PREV_NAME_CONTRACT_TYPE_Revolving loans_MEAN
+ACTIVE_DAYS_CREDIT_ENDDATE_MAX
+TOTALAREA_MODE
+NEW_RATIO_BURO_AMT_CREDIT_SUM_SUM
+PREV_AMT_ANNUITY_MEAN
+APARTMENTS_AVG
+LIVINGAREA_AVG
+ACTIVE_AMT_CREDIT_SUM_LIMIT_SUM
+BASEMENTAREA_AVG
+PREV_HOUR_APPR_PROCESS_START_MEAN
+PREV_AMT_GOODS_PRICE_MAX
+PREV_RATE_DOWN_PAYMENT_MIN
+APPROVED_RATE_DOWN_PAYMENT_MAX
+ENTRANCES_MEDI
+NEW_RATIO_BURO_CREDIT_DAY_OVERDUE_MEAN
+NEW_RATIO_BURO_DAYS_CREDIT_MEAN
+PREV_NAME_PORTFOLIO_Cards_MEAN
+BURO_CREDIT_DAY_OVERDUE_MAX
+PREV_AMT_ANNUITY_MIN
+APPROVED_AMT_ANNUITY_MEAN
+NEW_RATIO_BURO_AMT_CREDIT_SUM_MEAN
+BURO_MONTHS_BALANCE_SIZE_MEAN
+APPROVED_AMT_ANNUITY_MIN
+BURO_MONTHS_BALANCE_MIN_MIN
+PREV_AMT_GOODS_PRICE_MEAN
+NEW_RATIO_BURO_MONTHS_BALANCE_MIN_MIN
+PREV_DAYS_DECISION_MIN
+PREV_NAME_GOODS_CATEGORY_Furniture_MEAN
+APPROVED_DAYS_DECISION_MIN
+NEW_RATIO_BURO_AMT_CREDIT_SUM_OVERDUE_MEAN
+HOUSETYPE_MODE_block of flats
+PREV_DAYS_DECISION_MEAN
+CLOSED_MONTHS_BALANCE_SIZE_SUM
+PREV_NAME_SELLER_INDUSTRY_Clothing_MEAN
+APPROVED_DAYS_DECISION_MEAN
+PREV_NAME_CONTRACT_TYPE_Consumer loans_MEAN
+FLOORSMAX_MODE
+CLOSED_MONTHS_BALANCE_MIN_MIN
+PREV_RATE_DOWN_PAYMENT_MEAN
+PREV_NAME_CASH_LOAN_PURPOSE_XNA_MEAN
+ORGANIZATION_TYPE_Advertising
+APPROVED_AMT_ANNUITY_MAX
+BURO_AMT_CREDIT_MAX_OVERDUE_MEAN
+FLOORSMAX_AVG
+YEARS_BEGINEXPLUATATION_AVG
+BURO_AMT_ANNUITY_MEAN
+NEW_RATIO_BURO_AMT_CREDIT_SUM_MAX
+BURO_AMT_CREDIT_SUM_DEBT_MAX
+PREV_AMT_APPLICATION_MIN
+COMMONAREA_AVG
+PREV_NAME_GOODS_CATEGORY_Clothing and Accessories_MEAN
+BURO_AMT_CREDIT_SUM_DEBT_SUM
+NONLIVINGAREA_MEDI
+YEARS_BEGINEXPLUATATION_MEDI
+NEW_RATIO_BURO_AMT_CREDIT_SUM_DEBT_MAX
+ACTIVE_AMT_CREDIT_SUM_DEBT_MAX
+NEW_RATIO_BURO_DAYS_CREDIT_MIN
+COMMONAREA_MODE
+BURO_CREDIT_CURRENCY_currency 2_MEAN
+BURO_DAYS_CREDIT_ENDDATE_MAX
+APPROVED_HOUR_APPR_PROCESS_START_MEAN
+NAME_INCOME_TYPE_Pensioner
+FLOORSMAX_MEDI
+LIVINGAPARTMENTS_AVG
+ACTIVE_MONTHS_BALANCE_SIZE_MEAN
+ACTIVE_DAYS_CREDIT_MEAN
+LIVINGAREA_MODE
+BURO_CREDIT_TYPE_Microloan_MEAN
+PREV_AMT_CREDIT_MAX
+FLOORSMIN_MEDI
+PREV_NAME_CONTRACT_TYPE_Cash loans_MEAN
+OBS_60_CNT_SOCIAL_CIRCLE
+BURO_CREDIT_ACTIVE_Active_MEAN
+PREV_AMT_DOWN_PAYMENT_MEAN
+LANDAREA_MEDI
+NEW_RATIO_BURO_AMT_CREDIT_SUM_DEBT_MEAN
+CLOSED_AMT_ANNUITY_MAX
+NONLIVINGAPARTMENTS_MEDI
+CLOSED_AMT_CREDIT_SUM_DEBT_MAX
+CLOSED_DAYS_CREDIT_MIN
+APPROVED_RATE_DOWN_PAYMENT_MIN
+PREV_HOUR_APPR_PROCESS_START_MAX
+PREV_FLAG_LAST_APPL_PER_CONTRACT_N_MEAN
+NEW_RATIO_BURO_AMT_CREDIT_SUM_DEBT_SUM
+REGION_RATING_CLIENT
+CLOSED_AMT_CREDIT_SUM_DEBT_SUM
+ACTIVE_AMT_CREDIT_SUM_DEBT_SUM
+BASEMENTAREA_MEDI
+YEARS_BUILD_MEDI
+NEW_RATIO_BURO_AMT_CREDIT_SUM_LIMIT_SUM
+BASEMENTAREA_MODE
+NONLIVINGAREA_AVG
+APPROVED_AMT_DOWN_PAYMENT_MAX
+EMERGENCYSTATE_MODE_No
+PREV_AMT_CREDIT_MEAN
+PREV_AMT_GOODS_PRICE_MIN
+BURO_DAYS_CREDIT_MIN
+NEW_RATIO_BURO_CNT_CREDIT_PROLONG_SUM
+ACTIVE_AMT_ANNUITY_MAX
+ACTIVE_CNT_CREDIT_PROLONG_SUM
+PREV_NAME_CASH_LOAN_PURPOSE_XAP_MEAN
+ENTRANCES_AVG
+PREV_RATE_DOWN_PAYMENT_MAX
+AMT_CREDIT
+BURO_AMT_CREDIT_SUM_LIMIT_SUM
+LIVINGAPARTMENTS_MEDI
+PREV_CODE_REJECT_REASON_XAP_MEAN
+ACTIVE_AMT_CREDIT_SUM_SUM
+FLOORSMIN_AVGnum_features_in_raw_features_will_be_impute: 165
+num_base_feature_worth_imputing_set : 33
+original_raw_featurs : (356251, 820)
+X_missing_df before feature_scaling : (356251, 165)
+feature_scaling: True
+X_missing_df after feature_scaling : (356251, 165)
+visit_sequence: monotone
+impute_type: col
+init_fill_method: mean
+/home/linuxbrew/.linuxbrew/Cellar/python/3.6.5/lib/python3.6/site-packages/numpy/core/fromnumeric.py:2957: RuntimeWarning: Mean of empty slice.
+  out=out, **kwargs)
+/home/linuxbrew/.linuxbrew/Cellar/python/3.6.5/lib/python3.6/site-packages/numpy/core/_methods.py:80: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+
+APPROVED_AMT_GOODS_PRICE_MIN
+APPROVED_RATE_DOWN_PAYMENT_MEAN
+PREV_AMT_APPLICATION_MAX
+APPROVED_AMT_DOWN_PAYMENT_MEAN
+BURO_AMT_ANNUITY_MAX
+NEW_RATIO_BURO_AMT_CREDIT_SUM_LIMIT_MEAN
+FLAG_EMP_PHONE
+ACTIVE_AMT_CREDIT_SUM_MAX
+COMMONAREA_MEDI
+NONLIVINGAREA_MODE
+YEARS_BUILD_MODE
+PREV_AMT_CREDIT_MIN
+LANDAREA_MODE
+PREV_HOUR_APPR_PROCESS_START_MIN
+ELEVATORS_AVG
+LIVINGAREA_MEDI
+APPROVED_AMT_DOWN_PAYMENT_MIN
+PREV_FLAG_LAST_APPL_PER_CONTRACT_Y_MEAN
+PREV_NAME_CONTRACT_STATUS_Refused_MEAN
+FLOORSMIN_MODE
+PREV_NAME_PAYMENT_TYPE_XNA_MEAN
+YEARS_BEGINEXPLUATATION_MODE
+LIVINGAPARTMENTS_MODE
+ELEVATORS_MODE
+PREV_NAME_GOODS_CATEGORY_XNA_MEAN
+APPROVED_HOUR_APPR_PROCESS_START_MAX
+PREV_AMT_DOWN_PAYMENT_MAX
+BURO_CREDIT_ACTIVE_Closed_MEAN
+ORGANIZATION_TYPE_XNA
+[MICE] Completing matrix with shape (356251, 165)
+[MICE] Starting imputation round 1/110, elapsed time 2.981
+Traceback (most recent call last):
+  File "correlation_selection_and_mice_imputing.py", line 120, in <module>
+    init_fill_method = 'mean').complete(X_missing_df.values)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python/3.6.5/lib/python3.6/site-packages/fancyimpute/mice.py", line 334, in complete
+    imputed_arrays, missing_mask = self.multiple_imputations(X)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python/3.6.5/lib/python3.6/site-packages/fancyimpute/mice.py", line 325, in multiple_imputations
+    visit_indices=visit_indices)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python/3.6.5/lib/python3.6/site-packages/fancyimpute/mice.py", line 202, in perform_imputation_round
+    inverse_covariance=None)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python/3.6.5/lib/python3.6/site-packages/fancyimpute/bayesian_ridge_regression.py", line 68, in fit
+    self.inverse_covariance = inv(outer_product)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python/3.6.5/lib/python3.6/site-packages/numpy/linalg/linalg.py", line 528, in inv
+    ainv = _umath_linalg.inv(a, signature=signature, extobj=extobj)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python/3.6.5/lib/python3.6/site-packages/numpy/linalg/linalg.py", line 89, in _raise_linalgerror_singular
+    raise LinAlgError("Singular matrix")
+numpy.linalg.linalg.LinAlgError: Singular matrix
