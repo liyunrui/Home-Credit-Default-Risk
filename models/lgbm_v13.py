@@ -395,10 +395,10 @@ def group_target_by_cols(df, recipe, base_id='SK_ID_CURR'):
     for m in range(len(recipe)):
         group_id_cols = recipe[m][0]
         for n in range(len(recipe[m][1])):
-            target = recipe[m][1][n][0]
+            select = recipe[m][1][n][0]
             method = recipe[m][1][n][1]
-            name_grouped_target = target+'_grouped_by_'+'_and_'.join(group_id_cols)+'_with_'+method
-            tmp = df[group_id_cols + [target]].groupby(group_id_cols).agg(method)
+            name_grouped_target = '_'.join(group_id_cols)+'_'+method+'_'+select
+            tmp = df[group_id_cols + [select]].groupby(group_id_cols).agg(method)
             tmp = tmp.reset_index()
             tmp.columns = pd.Index(group_id_cols+[name_grouped_target])
 
@@ -580,8 +580,8 @@ def application_train_test(nan_as_category = False):
     for function_name in ['min', 'max', 'sum', 'mean', 'nanmedian']: # replace NEW_SCORES_STD
         df['external_sources_{}'.format(function_name)] = eval('np.{}'.format(function_name))(df[['EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3']], axis=1)
 
-    df['long_employment'] = (df['DAYS_EMPLOYED'] < -2000).astype(int)
-    df['retirement_age'] = (df['DAYS_BIRTH'] < -14000).astype(int)
+    df['short_employment'] = (df['DAYS_EMPLOYED'] < -2000).astype(int) # should be long_employment
+    df['young_age'] = (df['DAYS_BIRTH'] < -14000).astype(int) # should be retirement_age
 
     # df['EXT_SOURCE_1_VAR'] = (df['EXT_SOURCE_1'] - df['NEW_EXT_SOURCES_MEAN'])**2
     # df['EXT_SOURCE_2_VAR'] = (df['EXT_SOURCE_2'] - df['NEW_EXT_SOURCES_MEAN'])**2
@@ -601,7 +601,7 @@ def application_train_test(nan_as_category = False):
        	for select, method in select_and_method:
             # select = APPLICATION_AGGREGATION_RECIPIES[m][1][n][0]
             # method = APPLICATION_AGGREGATION_RECIPIES[m][1][n][1]
-            name_grouped_target = select+'_grouped_by_'+'_and_'.join(group_id_cols)+'_with_'+method
+            name_grouped_target = '_'.join(group_id_cols)+'_'+method+'_'+select
             tmp = df[group_id_cols + [select]].groupby(group_id_cols).agg(method)
             tmp = tmp.reset_index()
             tmp.columns = pd.Index(group_id_cols+[name_grouped_target])
@@ -801,6 +801,299 @@ def bureau_and_balance(nan_as_category = True):
     gc.collect()
     return bureau_agg
 
+
+CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES = []
+for agg in ['mean', 'min', 'max', 'sum', 'var']:
+    for select in ['AMT_BALANCE',
+                   'AMT_CREDIT_LIMIT_ACTUAL',
+                   'AMT_DRAWINGS_ATM_CURRENT',
+                   'AMT_DRAWINGS_CURRENT',
+                   'AMT_DRAWINGS_OTHER_CURRENT',
+                   'AMT_DRAWINGS_POS_CURRENT',
+                   'AMT_PAYMENT_CURRENT',
+                   'CNT_DRAWINGS_ATM_CURRENT',
+                   'CNT_DRAWINGS_CURRENT',
+                   'CNT_DRAWINGS_OTHER_CURRENT',
+                   'CNT_INSTALMENT_MATURE_CUM',
+                   'MONTHS_BALANCE',
+                   'SK_DPD',
+                   'SK_DPD_DEF'
+                   ]:
+        CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES.append((select, agg))
+CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES = [(['SK_ID_CURR'], CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES)]
+
+# Preprocess credit_card_balance.csv
+def credit_card_balance(nan_as_category = True):
+    credit_card = read_df('credit_card_balance')
+    if DEBUG:
+        credit_card = credit_card[:HEAD]
+
+    # 13.1.2.1 rm
+    # credit_card, new_credit_card_categorical_cols = one_hot_encoder(credit_card, nan_as_category= True)
+
+    credit_card['AMT_DRAWINGS_ATM_CURRENT'][credit_card['AMT_DRAWINGS_ATM_CURRENT'] < 0] = np.nan
+    credit_card['AMT_DRAWINGS_CURRENT'][credit_card['AMT_DRAWINGS_CURRENT'] < 0] = np.nan
+
+    # 13.1.2.1 rm
+    # for cat in new_credit_card_categorical_cols: CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES[0][1].append((cat, 'mean')) 
+
+    credit_card_agg = group_target_by_cols(credit_card, CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES)
+
+    # static features
+    credit_card['number_of_installments'] = credit_card.groupby(by=['SK_ID_CURR', 'SK_ID_PREV'])['CNT_INSTALMENT_MATURE_CUM'].agg('max').reset_index()['CNT_INSTALMENT_MATURE_CUM']
+    credit_card['credit_card_max_loading_of_credit_limit'] = credit_card.groupby(by=['SK_ID_CURR', 'SK_ID_PREV', 'AMT_CREDIT_LIMIT_ACTUAL']).apply(lambda x: x.AMT_BALANCE.max() / x.AMT_CREDIT_LIMIT_ACTUAL.max()).reset_index()[0]
+
+    groupby = credit_card.groupby(by=['SK_ID_CURR'])
+
+    g = groupby['SK_ID_PREV'].agg('nunique').reset_index() # credit_card_agg['CC_COUNT'] = credit_card.groupby('SK_ID_CURR').size()
+    g.rename(index=str, columns={'SK_ID_PREV': 'credit_card_number_of_loans'}, inplace=True)
+    credit_card_agg = credit_card_agg.merge(g, on=['SK_ID_CURR'], how='left')
+
+    g = groupby['SK_DPD'].agg('mean').reset_index()
+    g.rename(index=str, columns={'SK_DPD': 'credit_card_average_of_days_past_due'}, inplace=True)
+    credit_card_agg = credit_card_agg.merge(g, on=['SK_ID_CURR'], how='left')
+
+    g = groupby['AMT_DRAWINGS_ATM_CURRENT'].agg('sum').reset_index()
+    g.rename(index=str, columns={'AMT_DRAWINGS_ATM_CURRENT': 'credit_card_drawings_atm'}, inplace=True)
+    credit_card_agg = credit_card_agg.merge(g, on=['SK_ID_CURR'], how='left')
+
+    g = groupby['AMT_DRAWINGS_CURRENT'].agg('sum').reset_index()
+    g.rename(index=str, columns={'AMT_DRAWINGS_CURRENT': 'credit_card_drawings_total'}, inplace=True)
+    credit_card_agg = credit_card_agg.merge(g, on=['SK_ID_CURR'], how='left')
+
+    g = groupby['number_of_installments'].agg('sum').reset_index()
+    g.rename(index=str, columns={'number_of_installments': 'credit_card_total_installments'}, inplace=True)
+    credit_card_agg = credit_card_agg.merge(g, on=['SK_ID_CURR'], how='left')
+
+    g = groupby['credit_card_max_loading_of_credit_limit'].agg('mean').reset_index()
+    g.rename(index=str, columns={'credit_card_max_loading_of_credit_limit': 'credit_card_avg_loading_of_credit_limit'}, inplace=True)
+    credit_card_agg = credit_card_agg.merge(g, on=['SK_ID_CURR'], how='left')
+
+    credit_card_agg['credit_card_cash_card_ratio'] = credit_card_agg['credit_card_drawings_atm'] / credit_card_agg['credit_card_drawings_total']
+
+    credit_card_agg['credit_card_installments_per_loan'] = credit_card_agg['credit_card_total_installments'] / credit_card_agg['credit_card_number_of_loans']
+
+
+    # dynamic features
+    credit_card_sorted = credit_card.sort_values(['SK_ID_CURR', 'MONTHS_BALANCE'])
+    credit_card_sorted['credit_card_monthly_diff'] = credit_card_sorted.groupby(by=['SK_ID_CURR'])['AMT_BALANCE'].diff()
+    g = credit_card_sorted.groupby(by=['SK_ID_CURR'])['credit_card_monthly_diff'].agg('mean').reset_index()
+    credit_card_agg = credit_card_agg.merge(g, on=['SK_ID_CURR'], how='left')
+
+
+    # num_aggregations = {
+    #     'AMT_BALANCE': ['mean', 'min', 'max', 'sum', 'var'],
+    #     'AMT_CREDIT_LIMIT_ACTUAL': ['mean', 'min', 'max', 'sum', 'var'],
+    #     'AMT_DRAWINGS_ATM_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
+    #     'AMT_DRAWINGS_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
+    #     'AMT_DRAWINGS_OTHER_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
+    #     'AMT_DRAWINGS_POS_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
+    #     'AMT_PAYMENT_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
+    #     'CNT_DRAWINGS_ATM_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
+    #     'CNT_DRAWINGS_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
+    #     'CNT_DRAWINGS_OTHER_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
+    #     'CNT_INSTALMENT_MATURE_CUM': ['mean', 'min', 'max', 'sum', 'var'],
+    #     'MONTHS_BALANCE': ['mean', 'min', 'max', 'sum', 'var'],
+    #     'SK_DPD': ['mean', 'min', 'max', 'sum', 'var'],
+    #     'SK_DPD_DEF': ['mean', 'min', 'max', 'sum', 'var'],
+    # }
+    # credit_card_agg = credit_card.groupby('SK_ID_CURR').agg(num_aggregations)
+
+    # credit_card_agg.columns = pd.Index(['CC_' + e[0] + "_" + e[1].upper() for e in credit_card_agg.columns.tolist()])
+
+    credit_card_agg.drop(['SK_ID_PREV'], axis= 1, inplace = True, errors='ignore')
+
+    del credit_card
+    gc.collect()
+    return credit_card_agg
+
+
+POS_CASH_BALANCE_AGGREGATION_RECIPIES = []
+for agg in ['mean', 'min', 'max', 'sum', 'var']:
+    for select in ['MONTHS_BALANCE',
+                   'SK_DPD',
+                   'SK_DPD_DEF'
+                   ]:
+        POS_CASH_BALANCE_AGGREGATION_RECIPIES.append((select, agg))
+POS_CASH_BALANCE_AGGREGATION_RECIPIES = [(['SK_ID_CURR'], POS_CASH_BALANCE_AGGREGATION_RECIPIES)]
+
+def pos_cash__generate_features(gr, agg_periods, trend_periods):
+    one_time = pos_cash__one_time_features(gr)
+    all = pos_cash__all_installment_features(gr)
+    agg = pos_cash__last_k_installment_features(gr, agg_periods)
+    trend = pos_cash__trend_in_last_k_installment_features(gr, trend_periods)
+    last = pos_cash__last_loan_features(gr)
+    features = {**one_time, **all, **agg, **trend, **last}
+
+    return pd.Series(features)
+
+def pos_cash__one_time_features(gr):
+    gr_ = gr.copy()
+    gr_.sort_values(['MONTHS_BALANCE'], inplace=True)
+    features = {}
+
+    features['pos_cash_remaining_installments'] = gr_['CNT_INSTALMENT_FUTURE'].tail(1)
+    features['pos_cash_completed_contracts'] = gr_['is_contract_status_completed'].agg('sum')
+
+    return features
+
+def pos_cash__all_installment_features(gr):
+    return pos_cash__last_k_installment_features(gr, periods=[10e16])
+
+def add_features_in_group(features, gr_, feature_name, aggs, prefix):
+    for agg in aggs:
+        if agg == 'sum':
+            features['{}{}_sum'.format(prefix, feature_name)] = gr_[feature_name].sum()
+        elif agg == 'mean':
+            features['{}{}_mean'.format(prefix, feature_name)] = gr_[feature_name].mean()
+        elif agg == 'max':
+            features['{}{}_max'.format(prefix, feature_name)] = gr_[feature_name].max()
+        elif agg == 'min':
+            features['{}{}_min'.format(prefix, feature_name)] = gr_[feature_name].min()
+        elif agg == 'std':
+            features['{}{}_std'.format(prefix, feature_name)] = gr_[feature_name].std()
+        elif agg == 'count':
+            features['{}{}_count'.format(prefix, feature_name)] = gr_[feature_name].count()
+        elif agg == 'skew':
+            features['{}{}_skew'.format(prefix, feature_name)] = skew(gr_[feature_name])
+        elif agg == 'kurt':
+            features['{}{}_kurt'.format(prefix, feature_name)] = kurtosis(gr_[feature_name])
+        elif agg == 'iqr':
+            features['{}{}_iqr'.format(prefix, feature_name)] = iqr(gr_[feature_name])
+        elif agg == 'median':
+            features['{}{}_median'.format(prefix, feature_name)] = gr_[feature_name].median()
+
+    return features
+
+def pos_cash__last_k_installment_features(gr, periods):
+    gr_ = gr.copy()
+    gr_.sort_values(['MONTHS_BALANCE'], ascending=False, inplace=True)
+
+    features = {}
+    for period in periods:
+        if period > 10e10:
+            period_name = 'all_installment_'
+            gr_period = gr_.copy()
+        else:
+            period_name = 'last_{}_'.format(period)
+            gr_period = gr_.iloc[:period]
+
+        features = add_features_in_group(features, gr_period, 'pos_cash_paid_late',
+                                         ['count', 'mean'],
+                                         period_name)
+        features = add_features_in_group(features, gr_period, 'pos_cash_paid_late_with_tolerance',
+                                         ['count', 'mean'],
+                                         period_name)
+        features = add_features_in_group(features, gr_period, 'SK_DPD',
+                                         ['sum', 'mean', 'max', 'std', 'skew', 'kurt'],
+                                         period_name)
+        features = add_features_in_group(features, gr_period, 'SK_DPD_DEF',
+                                         ['sum', 'mean', 'max', 'std', 'skew', 'kurt'],
+                                         period_name)
+    return features
+
+def add_trend_feature(features, gr, feature_name, prefix):
+    y = gr[feature_name].values
+    try:
+        x = np.arange(0, len(y)).reshape(-1, 1)
+        lr = LinearRegression()
+        lr.fit(x, y)
+        trend = lr.coef_[0]
+    except:
+        trend = np.nan
+    features['{}{}'.format(prefix, feature_name)] = trend
+    return features
+
+def pos_cash__trend_in_last_k_installment_features(gr, periods):
+    gr_ = gr.copy()
+    gr_.sort_values(['MONTHS_BALANCE'], ascending=False, inplace=True)
+
+    features = {}
+    for period in periods:
+        gr_period = gr_.iloc[:period]
+
+        features = add_trend_feature(features, gr_period,
+                                     'SK_DPD', '{}_period_trend_'.format(period)
+                                     )
+        features = add_trend_feature(features, gr_period,
+                                     'SK_DPD_DEF', '{}_period_trend_'.format(period)
+                                     )
+        features = add_trend_feature(features, gr_period,
+                                     'CNT_INSTALMENT_FUTURE', '{}_period_trend_'.format(period)
+                                     )
+    return features
+
+def pos_cash__last_loan_features(gr):
+    gr_ = gr.copy()
+    gr_.sort_values(['MONTHS_BALANCE'], ascending=False, inplace=True)
+    last_installment_id = gr_['SK_ID_PREV'].iloc[0]
+    gr_ = gr_[gr_['SK_ID_PREV'] == last_installment_id]
+
+    features={}
+    features = add_features_in_group(features, gr_, 'pos_cash_paid_late',
+                                     ['count', 'sum', 'mean'],
+                                     'last_loan_')
+    features = add_features_in_group(features, gr_, 'pos_cash_paid_late_with_tolerance',
+                                     ['mean'],
+                                     'last_loan_')
+    features = add_features_in_group(features, gr_, 'SK_DPD',
+                                     ['sum', 'mean', 'max', 'std'],
+                                     'last_loan_')
+    features = add_features_in_group(features, gr_, 'SK_DPD_DEF',
+                                     ['sum', 'mean', 'max', 'std'],
+                                     'last_loan_')
+
+    return features
+
+# Preprocess POS_CASH_balance.csv
+def pos_cash(nan_as_category = True):
+    pos_cash = read_df('POS_CASH_balance')
+    if DEBUG:
+        pos_cash = pos_cash[:HEAD]
+
+    # 13.1.2.1 rm
+    # pos_cash, new_pos_cash_categorical_cols = one_hot_encoder(pos_cash, nan_as_category= True)
+    # for cat in new_pos_cash_categorical_cols:
+        # POS_CASH_BALANCE_AGGREGATION_RECIPIES[0][1].append((cat, 'mean'))
+
+    pos_cash_agg = group_target_by_cols(pos_cash, POS_CASH_BALANCE_AGGREGATION_RECIPIES)
+
+    pos_cash['is_contract_status_completed'] = pos_cash['NAME_CONTRACT_STATUS'] == 'Completed'
+    pos_cash['pos_cash_paid_late'] = (pos_cash['SK_DPD'] > 0).astype(int)
+    pos_cash['pos_cash_paid_late_with_tolerance'] = (pos_cash['SK_DPD_DEF'] > 0).astype(int)
+
+    func = partial(
+        pos_cash__generate_features,
+        agg_periods=pos_cash__last_k_agg_periods,
+        trend_periods=pos_cash__last_k_trend_periods
+    )
+    g = parallel_apply(pos_cash.groupby(['SK_ID_CURR']), func, index_name='SK_ID_CURR', num_workers=NUM_WORKERS).reset_index()
+    g['pos_cash_remaining_installments'] = g['pos_cash_remaining_installments'].astype('float64')
+    pos_cash_agg = pos_cash_agg.merge(g, on='SK_ID_CURR', how='left')
+
+    # pos['TIME_DECAYED_UNPAYED_RATIO'] = pos['CNT_INSTALMENT_FUTURE'] / pos['CNT_INSTALMENT'] / pos['MONTHS_BALANCE']**2
+
+    # # Features
+    # aggregations = {
+    #     'MONTHS_BALANCE': ['max', 'mean', 'size'],
+    #     'SK_DPD': ['max', 'mean'],
+    #     'SK_DPD_DEF': ['max', 'mean'],
+    #     'TIME_DECAYED_UNPAYED_RATIO': ['max', 'mean', 'size', 'sum'],
+    # }
+    # for cat in cat_cols:
+    #     aggregations[cat] = ['mean']
+
+    # pos_agg = pos.groupby('SK_ID_CURR').agg(aggregations)
+    # pos_agg.columns = pd.Index(['POS_' + e[0] + "_" + e[1].upper() for e in pos_agg.columns.tolist()])
+    # Count pos cash accounts
+    pos_cash_agg['POS_COUNT'] = pos_cash.groupby('SK_ID_CURR').size()
+    
+
+    del pos_cash
+    gc.collect()
+    return pos_cash_agg
+
+
 PREVIOUS_APPLICATION_AGGREGATION_RECIPIES = []
 for agg in ['mean', 'min', 'max', 'sum', 'var']:
     for select in ['AMT_ANNUITY',
@@ -928,189 +1221,6 @@ def previous_applications(nan_as_category = True):
     gc.collect()
     return prev_app_agg
 
-POS_CASH_BALANCE_AGGREGATION_RECIPIES = []
-for agg in ['mean', 'min', 'max', 'sum', 'var']:
-    for select in ['MONTHS_BALANCE',
-                   'SK_DPD',
-                   'SK_DPD_DEF'
-                   ]:
-        POS_CASH_BALANCE_AGGREGATION_RECIPIES.append((select, agg))
-POS_CASH_BALANCE_AGGREGATION_RECIPIES = [(['SK_ID_CURR'], POS_CASH_BALANCE_AGGREGATION_RECIPIES)]
-
-def pos_cash__generate_features(gr, agg_periods, trend_periods):
-    one_time = pos_cash__one_time_features(gr)
-    all = pos_cash__all_installment_features(gr)
-    agg = pos_cash__last_k_installment_features(gr, agg_periods)
-    trend = pos_cash__trend_in_last_k_installment_features(gr, trend_periods)
-    last = pos_cash__last_loan_features(gr)
-    features = {**one_time, **all, **agg, **trend, **last}
-    return pd.Series(features)
-
-def pos_cash__one_time_features(gr):
-    gr_ = gr.copy()
-    gr_.sort_values(['MONTHS_BALANCE'], inplace=True)
-    features = {}
-
-    features['pos_cash_remaining_installments'] = gr_['CNT_INSTALMENT_FUTURE'].tail(1)
-    features['pos_cash_completed_contracts'] = gr_['is_contract_status_completed'].agg('sum')
-
-    return features
-
-def pos_cash__all_installment_features(gr):
-    return pos_cash__last_k_installment_features(gr, periods=[10e16])
-
-def add_features_in_group(features, gr_, feature_name, aggs, prefix):
-    for agg in aggs:
-        if agg == 'sum':
-            features['{}{}_sum'.format(prefix, feature_name)] = gr_[feature_name].sum()
-        elif agg == 'mean':
-            features['{}{}_mean'.format(prefix, feature_name)] = gr_[feature_name].mean()
-        elif agg == 'max':
-            features['{}{}_max'.format(prefix, feature_name)] = gr_[feature_name].max()
-        elif agg == 'min':
-            features['{}{}_min'.format(prefix, feature_name)] = gr_[feature_name].min()
-        elif agg == 'std':
-            features['{}{}_std'.format(prefix, feature_name)] = gr_[feature_name].std()
-        elif agg == 'count':
-            features['{}{}_count'.format(prefix, feature_name)] = gr_[feature_name].count()
-        elif agg == 'skew':
-            features['{}{}_skew'.format(prefix, feature_name)] = skew(gr_[feature_name])
-        elif agg == 'kurt':
-            features['{}{}_kurt'.format(prefix, feature_name)] = kurtosis(gr_[feature_name])
-        elif agg == 'iqr':
-            features['{}{}_iqr'.format(prefix, feature_name)] = iqr(gr_[feature_name])
-        elif agg == 'median':
-            features['{}{}_median'.format(prefix, feature_name)] = gr_[feature_name].median()
-
-    return features
-
-def pos_cash__last_k_installment_features(gr, periods):
-    gr_ = gr.copy()
-    gr_.sort_values(['MONTHS_BALANCE'], ascending=False, inplace=True)
-
-    features = {}
-    for period in periods:
-        if period > 10e10:
-            period_name = 'all_installment_'
-            gr_period = gr_.copy()
-        else:
-            period_name = 'last_{}_'.format(period)
-            gr_period = gr_.iloc[:period]
-
-        features = add_features_in_group(features, gr_period, 'pos_cash_paid_late',
-                                         ['count', 'mean'],
-                                         period_name)
-        features = add_features_in_group(features, gr_period, 'pos_cash_paid_late_with_tolerance',
-                                         ['count', 'mean'],
-                                         period_name)
-        features = add_features_in_group(features, gr_period, 'SK_DPD',
-                                         ['sum', 'mean', 'max', 'std', 'skew', 'kurt'],
-                                         period_name)
-        features = add_features_in_group(features, gr_period, 'SK_DPD_DEF',
-                                         ['sum', 'mean', 'max', 'std', 'skew', 'kurt'],
-                                         period_name)
-    return features
-
-def add_trend_feature(features, gr, feature_name, prefix):
-    y = gr[feature_name].values
-    try:
-        x = np.arange(0, len(y)).reshape(-1, 1)
-        lr = LinearRegression()
-        lr.fit(x, y)
-        trend = lr.coef_[0]
-    except:
-        trend = np.nan
-    features['{}{}'.format(prefix, feature_name)] = trend
-    return features
-
-def pos_cash__trend_in_last_k_installment_features(gr, periods):
-    gr_ = gr.copy()
-    gr_.sort_values(['MONTHS_BALANCE'], ascending=False, inplace=True)
-
-    features = {}
-    for period in periods:
-        gr_period = gr_.iloc[:period]
-
-        features = add_trend_feature(features, gr_period,
-                                     'SK_DPD', '{}_period_trend_'.format(period)
-                                     )
-        features = add_trend_feature(features, gr_period,
-                                     'SK_DPD_DEF', '{}_period_trend_'.format(period)
-                                     )
-        features = add_trend_feature(features, gr_period,
-                                     'CNT_INSTALMENT_FUTURE', '{}_period_trend_'.format(period)
-                                     )
-    return features
-
-def pos_cash__last_loan_features(gr):
-    gr_ = gr.copy()
-    gr_.sort_values(['MONTHS_BALANCE'], ascending=False, inplace=True)
-    last_installment_id = gr_['SK_ID_PREV'].iloc[0]
-    gr_ = gr_[gr_['SK_ID_PREV'] == last_installment_id]
-
-    features={}
-    features = add_features_in_group(features, gr_, 'pos_cash_paid_late',
-                                     ['count', 'sum', 'mean'],
-                                     'last_loan_')
-    features = add_features_in_group(features, gr_, 'pos_cash_paid_late_with_tolerance',
-                                     ['mean'],
-                                     'last_loan_')
-    features = add_features_in_group(features, gr_, 'SK_DPD',
-                                     ['sum', 'mean', 'max', 'std'],
-                                     'last_loan_')
-    features = add_features_in_group(features, gr_, 'SK_DPD_DEF',
-                                     ['sum', 'mean', 'max', 'std'],
-                                     'last_loan_')
-
-    return features
-
-# Preprocess POS_CASH_balance.csv
-def pos_cash(nan_as_category = True):
-    pos_cash = read_df('POS_CASH_balance')
-    if DEBUG:
-        pos_cash = pos_cash[:HEAD]
-
-	# 13.1.2.1 rm
-    # pos_cash, new_pos_cash_categorical_cols = one_hot_encoder(pos_cash, nan_as_category= True)
-    # for cat in new_pos_cash_categorical_cols:
-        # POS_CASH_BALANCE_AGGREGATION_RECIPIES[0][1].append((cat, 'mean'))
-
-    pos_cash_agg = group_target_by_cols(pos_cash, POS_CASH_BALANCE_AGGREGATION_RECIPIES)
-
-    pos_cash['is_contract_status_completed'] = pos_cash['NAME_CONTRACT_STATUS'] == 'Completed'
-    pos_cash['pos_cash_paid_late'] = (pos_cash['SK_DPD'] > 0).astype(int)
-    pos_cash['pos_cash_paid_late_with_tolerance'] = (pos_cash['SK_DPD_DEF'] > 0).astype(int)
-
-    func = partial(
-        pos_cash__generate_features,
-        agg_periods=pos_cash__last_k_agg_periods,
-        trend_periods=pos_cash__last_k_trend_periods
-    )
-    g = parallel_apply(pos_cash.groupby(['SK_ID_CURR']), func, index_name='SK_ID_CURR', num_workers=NUM_WORKERS).reset_index()
-    pos_cash_agg = pos_cash_agg.merge(g, on='SK_ID_CURR', how='left')
-
-
-    # pos['TIME_DECAYED_UNPAYED_RATIO'] = pos['CNT_INSTALMENT_FUTURE'] / pos['CNT_INSTALMENT'] / pos['MONTHS_BALANCE']**2
-
-    # # Features
-    # aggregations = {
-    #     'MONTHS_BALANCE': ['max', 'mean', 'size'],
-    #     'SK_DPD': ['max', 'mean'],
-    #     'SK_DPD_DEF': ['max', 'mean'],
-    #     'TIME_DECAYED_UNPAYED_RATIO': ['max', 'mean', 'size', 'sum'],
-    # }
-    # for cat in cat_cols:
-    #     aggregations[cat] = ['mean']
-
-    # pos_agg = pos.groupby('SK_ID_CURR').agg(aggregations)
-    # pos_agg.columns = pd.Index(['POS_' + e[0] + "_" + e[1].upper() for e in pos_agg.columns.tolist()])
-    # Count pos cash accounts
-    pos_cash_agg['POS_COUNT'] = pos_cash.groupby('SK_ID_CURR').size()
-    
-
-    del pos_cash
-    gc.collect()
-    return pos_cash_agg
 
 def installments_payments__generate_features(gr, agg_periods, trend_periods, period_fractions):
     all = installments_payments__all_installment_features(gr)
@@ -1304,110 +1414,6 @@ def installments_payments(df, nan_as_category = True):
     gc.collect()
     return installments_agg
 
-CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES = []
-for agg in ['mean', 'min', 'max', 'sum', 'var']:
-    for select in ['AMT_BALANCE',
-                   'AMT_CREDIT_LIMIT_ACTUAL',
-                   'AMT_DRAWINGS_ATM_CURRENT',
-                   'AMT_DRAWINGS_CURRENT',
-                   'AMT_DRAWINGS_OTHER_CURRENT',
-                   'AMT_DRAWINGS_POS_CURRENT',
-                   'AMT_PAYMENT_CURRENT',
-                   'CNT_DRAWINGS_ATM_CURRENT',
-                   'CNT_DRAWINGS_CURRENT',
-                   'CNT_DRAWINGS_OTHER_CURRENT',
-                   'CNT_INSTALMENT_MATURE_CUM',
-                   'MONTHS_BALANCE',
-                   'SK_DPD',
-                   'SK_DPD_DEF'
-                   ]:
-        CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES.append((select, agg))
-CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES = [(['SK_ID_CURR'], CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES)]
-
-# Preprocess credit_card_balance.csv
-def credit_card_balance(nan_as_category = True):
-    credit_card = read_df('credit_card_balance')
-    if DEBUG:
-        credit_card = credit_card[:HEAD]
-
-    # 13.1.2.1 rm
-    # credit_card, new_credit_card_categorical_cols = one_hot_encoder(credit_card, nan_as_category= True)
-
-    credit_card['AMT_DRAWINGS_ATM_CURRENT'][credit_card['AMT_DRAWINGS_ATM_CURRENT'] < 0] = np.nan
-    credit_card['AMT_DRAWINGS_CURRENT'][credit_card['AMT_DRAWINGS_CURRENT'] < 0] = np.nan
-
-    # 13.1.2.1 rm
-    # for cat in new_credit_card_categorical_cols: CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES[0][1].append((cat, 'mean')) 
-
-    credit_card_agg = group_target_by_cols(credit_card, CREDIT_CARD_BALANCE_AGGREGATION_RECIPIES)
-
-    # static features
-    credit_card['number_of_installments'] = credit_card.groupby(by=['SK_ID_CURR', 'SK_ID_PREV'])['CNT_INSTALMENT_MATURE_CUM'].agg('max').reset_index()['CNT_INSTALMENT_MATURE_CUM']
-    credit_card['credit_card_max_loading_of_credit_limit'] = credit_card.groupby(by=['SK_ID_CURR', 'SK_ID_PREV', 'AMT_CREDIT_LIMIT_ACTUAL']).apply(lambda x: x.AMT_BALANCE.max() / x.AMT_CREDIT_LIMIT_ACTUAL.max()).reset_index()[0]
-
-    groupby = credit_card.groupby(by=['SK_ID_CURR'])
-
-    g = groupby['SK_ID_PREV'].agg('nunique').reset_index() # credit_card_agg['CC_COUNT'] = credit_card.groupby('SK_ID_CURR').size()
-    g.rename(index=str, columns={'SK_ID_PREV': 'credit_card_number_of_loans'}, inplace=True)
-    credit_card_agg = credit_card_agg.merge(g, on=['SK_ID_CURR'], how='left')
-
-    g = groupby['SK_DPD'].agg('mean').reset_index()
-    g.rename(index=str, columns={'SK_DPD': 'credit_card_average_of_days_past_due'}, inplace=True)
-    credit_card_agg = credit_card_agg.merge(g, on=['SK_ID_CURR'], how='left')
-
-    g = groupby['AMT_DRAWINGS_ATM_CURRENT'].agg('sum').reset_index()
-    g.rename(index=str, columns={'AMT_DRAWINGS_ATM_CURRENT': 'credit_card_drawings_atm'}, inplace=True)
-    credit_card_agg = credit_card_agg.merge(g, on=['SK_ID_CURR'], how='left')
-
-    g = groupby['AMT_DRAWINGS_CURRENT'].agg('sum').reset_index()
-    g.rename(index=str, columns={'AMT_DRAWINGS_CURRENT': 'credit_card_drawings_total'}, inplace=True)
-    credit_card_agg = credit_card_agg.merge(g, on=['SK_ID_CURR'], how='left')
-
-    g = groupby['number_of_installments'].agg('sum').reset_index()
-    g.rename(index=str, columns={'number_of_installments': 'credit_card_total_installments'}, inplace=True)
-    credit_card_agg = credit_card_agg.merge(g, on=['SK_ID_CURR'], how='left')
-
-    g = groupby['credit_card_max_loading_of_credit_limit'].agg('mean').reset_index()
-    g.rename(index=str, columns={'credit_card_max_loading_of_credit_limit': 'credit_card_avg_loading_of_credit_limit'}, inplace=True)
-    credit_card_agg = credit_card_agg.merge(g, on=['SK_ID_CURR'], how='left')
-
-    credit_card_agg['credit_card_cash_card_ratio'] = credit_card_agg['credit_card_drawings_atm'] / credit_card_agg['credit_card_drawings_total']
-
-    credit_card_agg['credit_card_installments_per_loan'] = credit_card_agg['credit_card_total_installments'] / credit_card_agg['credit_card_number_of_loans']
-
-
-    # dynamic features
-    credit_card_sorted = credit_card.sort_values(['SK_ID_CURR', 'MONTHS_BALANCE'])
-    credit_card_sorted['credit_card_monthly_diff'] = credit_card_sorted.groupby(by=['SK_ID_CURR'])['AMT_BALANCE'].diff()
-    g = credit_card_sorted.groupby(by=['SK_ID_CURR'])['credit_card_monthly_diff'].agg('mean').reset_index()
-    credit_card_agg = credit_card_agg.merge(g, on=['SK_ID_CURR'], how='left')
-
-
-    # num_aggregations = {
-    #     'AMT_BALANCE': ['mean', 'min', 'max', 'sum', 'var'],
-    #     'AMT_CREDIT_LIMIT_ACTUAL': ['mean', 'min', 'max', 'sum', 'var'],
-    #     'AMT_DRAWINGS_ATM_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
-    #     'AMT_DRAWINGS_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
-    #     'AMT_DRAWINGS_OTHER_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
-    #     'AMT_DRAWINGS_POS_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
-    #     'AMT_PAYMENT_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
-    #     'CNT_DRAWINGS_ATM_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
-    #     'CNT_DRAWINGS_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
-    #     'CNT_DRAWINGS_OTHER_CURRENT': ['mean', 'min', 'max', 'sum', 'var'],
-    #     'CNT_INSTALMENT_MATURE_CUM': ['mean', 'min', 'max', 'sum', 'var'],
-    #     'MONTHS_BALANCE': ['mean', 'min', 'max', 'sum', 'var'],
-    #     'SK_DPD': ['mean', 'min', 'max', 'sum', 'var'],
-    #     'SK_DPD_DEF': ['mean', 'min', 'max', 'sum', 'var'],
-    # }
-    # credit_card_agg = credit_card.groupby('SK_ID_CURR').agg(num_aggregations)
-
-    # credit_card_agg.columns = pd.Index(['CC_' + e[0] + "_" + e[1].upper() for e in credit_card_agg.columns.tolist()])
-
-    credit_card_agg.drop(['SK_ID_PREV'], axis= 1, inplace = True, errors='ignore')
-
-    del credit_card
-    gc.collect()
-    return credit_card_agg
 
 # LightGBM GBDT with KFold or Stratified KFold
 # Parameters from Tilii kernel: https://www.kaggle.com/tilii7/olivier-lightgbm-parameters-by-bayesian-opt/code
@@ -1507,7 +1513,7 @@ def display_importances(feature_importance_df_):
 def rename_columns(df, name):
     for col in df.columns:
         if col != 'SK_ID_CURR':
-            df.rename(index=str, columns={col: name+'__'+col}, inplace=True)
+            df.rename(index=str, columns={col: name+'_'+col}, inplace=True)
     return df
 
 def main():
@@ -1518,6 +1524,7 @@ def main():
         # df = drop_categorical_columns(df)
 
         print("Train/Test application df shape:", df.shape)
+        print("with features:", df.columns.tolist())
     with timer("Process bureau and bureau_balance"):
         bureau = bureau_and_balance()
         # bureau.set_index('SK_ID_CURR', inplace=True)
@@ -1525,31 +1532,47 @@ def main():
         bureau = rename_columns(bureau, 'bureau')
 
         print("Bureau df shape:", bureau.shape)
+        print("with features:", bureau.columns.tolist())
         df = df.merge(bureau, how='left', on=['SK_ID_CURR'])
         # df = pd.concat([df, bureau], axis=1)
         del bureau
         gc.collect()
-    with timer("Process previous_applications"):
-        prev = previous_applications()
-        prev = rename_columns(prev, 'previous_applications')
-        # prev.set_index('SK_ID_CURR', inplace=True)
-        # prev = drop_categorical_columns(prev)
-    
-        print("Previous applications df shape:", prev.shape)
-        df = df.merge(prev, how='left', on=['SK_ID_CURR'])
-        # df = pd.concat([df, prev], axis=1)
-        del prev
-        gc.collect()
+    with timer("Process credit card balance"):
+        cc = credit_card_balance()
+        cc = rename_columns(cc, 'credit_card_balance')
+        # cc.set_index('SK_ID_CURR', inplace=True)
+        # cc = drop_categorical_columns(cc)
+
+        print("Credit card balance df shape:", cc.shape)
+        print("with features:", cc.columns.tolist())
+        df = df.merge(cc, how='left', on=['SK_ID_CURR'])
+        # df = pd.concat([df, cc], axis=1)
+        del cc
+        gc.collect()    
     with timer("Process POS-CASH balance"):
         pos = pos_cash()
-        pos = rename_columns(pos, 'POS_CASH')
+        pos = rename_columns(pos, 'POS_CASH_balance')
         # pos.set_index('SK_ID_CURR', inplace=True)
         # pos = drop_categorical_columns(pos)
 
         print("Pos-cash balance df shape:", pos.shape)
+        print("with features:", pos.columns.tolist())
         df = df.merge(pos, how='left', on=['SK_ID_CURR'])
+
         # df = pd.concat([df, pos], axis=1)
         del pos
+        gc.collect()
+    with timer("Process previous_applications"):
+        prev = previous_applications()
+        prev = rename_columns(prev, 'previous_application')
+        # prev.set_index('SK_ID_CURR', inplace=True)
+        # prev = drop_categorical_columns(prev)
+    
+        print("Previous applications df shape:", prev.shape)
+        print("with features:", prev.columns.tolist())
+        df = df.merge(prev, how='left', on=['SK_ID_CURR'])
+        # df = pd.concat([df, prev], axis=1)
+        del prev
         gc.collect()
     with timer("Process installments payments"):
         ins = installments_payments(df)
@@ -1558,20 +1581,10 @@ def main():
         # ins = drop_categorical_columns(ins)
 
         print("Installments payments df shape:", ins.shape)
+        print("with features:", ins.columns.tolist())
         df = df.merge(ins, how='left', on=['SK_ID_CURR'])
         # df = pd.concat([df, ins], axis=1)
         del ins
-        gc.collect()
-    with timer("Process credit card balance"):
-        cc = credit_card_balance()
-        cc = rename_columns(cc, 'credit_card')
-        # cc.set_index('SK_ID_CURR', inplace=True)
-        # cc = drop_categorical_columns(cc)
-
-        print("Credit card balance df shape:", cc.shape)
-        df = df.merge(cc, how='left', on=['SK_ID_CURR'])
-        # df = pd.concat([df, cc], axis=1)
-        del cc
         gc.collect()
     with timer("Run LightGBM with kfold"):
         # df = drop_categorical_columns(df)
@@ -1582,19 +1595,9 @@ def main():
       
         # 13.1.4
         categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
-        tmp = df['POS_CASH__pos_cash_remaining_installments'].tolist()
-        for n,t in enumerate(tmp):
-            if t != np.nan:
-                print(n,t)
         encoder = ce.OrdinalEncoder(cols=categorical_columns,drop_invariant=True)
-        print(categorical_columns)
-        # for col in df.columns:
-        #     if df[col].dtype == 'object':
-        #         print(col)
-        #         print(df[col].head)
-        #         df[col]=encoder.fit_transform(df['index',col])
-                # df[col] = df[col].astype('str')
-        
+        print('categorical columns:',categorical_columns)
+
         encoder.fit(df)
         df = encoder.transform(df)
 
