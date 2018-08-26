@@ -4,16 +4,20 @@
 # different fold causes at least 0.003: https://www.kaggle.com/c/home-credit-default-risk/discussion/58332
 
 NUM_FOLDS = 5
-NUM_WORKERS = 22
+
 STRATIFIED = True
 TEST_NULL_HYPO = False
 ITERATION = (80 if TEST_NULL_HYPO else 1)
 USE_SELECTED_VAL = False
 
 SEED = 90210
-DEBUG =True
+DEBUG = True
 HEAD = 1000
 
+DEVICE='cpu' # 13.1.6
+BOOSTING_TYPE='gbdt' # 13.1.6
+OBJECTIVE='binary' # 13.1.6
+METRIC='auc' # 13.1.6
 N_ESTIMATORS=5000
 LEARNING_RATE=0.02
 MAX_BIN=300
@@ -24,8 +28,12 @@ SUBSAMPLE=1.0
 SUBSAMPLE_FREQ=1
 COLSAMPLE_BYTREE=0.05
 MIN_SPLIT_GAIN=0.5
-REG_LAMBDA=100
 REG_ALPHA=0
+REG_LAMBDA=100
+SCALE_POS_WEIGHT=1 # 13.1.6
+
+NUM_WORKERS=29
+EARLY_STOPPING_ROUNDS=100
 
 installments__last_k_trend_periods=[10, 50, 100, 500]
 installments__last_k_agg_periods=[1, 5, 10, 20, 50, 100]
@@ -269,9 +277,23 @@ FEATURE_GRAVEYARD = [
 #     'BURO_DAYS_CREDIT_MEAN', 'POS_MONTHS_BALANCE_MEAN', 'PREV_NAME_GOODS_CATEGORY_Furniture_MEAN', 'LANDAREA_MEDI',
 #     'NEW_RATIO_PREV_DAYS_DECISION_MAX', 'CC_AMT_PAYMENT_CURRENT_MEAN', 'HOUSETYPE_MODE_specific housing', 'INSTAL_DBD_MEAN',
 
-    'FLAG_DOCUMENT_2','FLAG_DOCUMENT_4','FLAG_DOCUMENT_5','FLAG_DOCUMENT_6','FLAG_DOCUMENT_7','FLAG_DOCUMENT_8','FLAG_DOCUMENT_9',
-    'FLAG_DOCUMENT_10', 'FLAG_DOCUMENT_11','FLAG_DOCUMENT_12','FLAG_DOCUMENT_13', 'FLAG_DOCUMENT_14','FLAG_DOCUMENT_15',
-    'FLAG_DOCUMENT_16', 'FLAG_DOCUMENT_17','FLAG_DOCUMENT_18','FLAG_DOCUMENT_19', 'FLAG_DOCUMENT_20','FLAG_DOCUMENT_21',
+    # useless columns, only "FLAG_DOCUMENT_3, 4, 5, 6, 7, 8, 9, 11, 18" left
+    'FLAG_DOCUMENT_2', 'FLAG_DOCUMENT_10', 'FLAG_DOCUMENT_12', 'FLAG_DOCUMENT_13', 'FLAG_DOCUMENT_14', 'FLAG_DOCUMENT_15',
+    'FLAG_DOCUMENT_16', 'FLAG_DOCUMENT_17', 'FLAG_DOCUMENT_19', 'FLAG_DOCUMENT_20', 'FLAG_DOCUMENT_21',
+    # 'FLAG_DOCUMENT_3', 'FLAG_DOCUMENT_4', 'FLAG_DOCUMENT_5', 'FLAG_DOCUMENT_6', 'FLAG_DOCUMENT_7', 'FLAG_DOCUMENT_8',
+    # 'FLAG_DOCUMENT_9', 'FLAG_DOCUMENT_11', 'FLAG_DOCUMENT_18',
+
+    # highly correlated numerical columns, only "FLAG_EMP_PHONE" left
+    'AMT_GOODS_PRICE', 'APARTMENTS_MEDI', 'APARTMENTS_MODE', 'BASEMENTAREA_MEDI', 'BASEMENTAREA_MODE', 'COMMONAREA_MEDI',
+    'COMMONAREA_MODE', 'ELEVATORS_MEDI', 'ELEVATORS_MODE', 'ENTRANCES_MEDI', 'ENTRANCES_MODE', 'FLOORSMAX_MEDI',
+    'FLOORSMAX_MODE', 'FLOORSMIN_MEDI', 'FLOORSMIN_MODE', 'LANDAREA_MEDI', 'LANDAREA_MODE', 'LIVINGAPARTMENTS_MEDI',
+    'LIVINGAPARTMENTS_MODE', 'LIVINGAREA_MEDI', 'LIVINGAREA_MODE', 'NONLIVINGAPARTMENTS_MEDI', 'NONLIVINGAPARTMENTS_MODE',
+    'NONLIVINGAREA_MEDI', 'NONLIVINGAREA_MODE', 'OBS_60_CNT_SOCIAL_CIRCLE', 'REGION_RATING_CLIENT_W_CITY',
+    'YEARS_BEGINEXPLUATATION_MEDI', 'YEARS_BEGINEXPLUATATION_MODE', 'YEARS_BUILD_MEDI', 'YEARS_BUILD_MODE',
+    # 'FLAG_EMP_PHONE',
+
+    # 13.1.5 more than half folds never use it
+    # 'installments_payments_last_5_installment_paid_over_count', 'installments_payments_last_5_installment_paid_over_amount_sum', 'installments_payments_last_5_installment_paid_over_mean', 'installments_payments_last_5_installment_paid_over_amount_std', 'installments_payments_last_5_installment_paid_late_mean', 'installments_payments_last_5by20_fraction_NUM_INSTALMENT_VERSION_iqr', 'installments_payments_last_5_installment_paid_over_amount_min', 'installments_payments_last_5_installment_paid_over_amount_median', 'installments_payments_last_5_installment_paid_over_amount_mean', 'installments_payments_last_5_installment_paid_over_amount_max', 'installments_payments_last_5_installment_paid_over_amount_kurt', 'installments_payments_last_5_installment_paid_over_amount_iqr', 'installments_payments_last_5_installment_paid_over_amount_skew', 'installments_payments_SK_ID_CURR_var_NUM_INSTALMENT_VERSION', 'installments_payments_last_5by20_fraction_NUM_INSTALMENT_VERSION_max', 'installments_payments_last_5_installment_paid_late_in_days_sum', 'installments_payments_last_5_installment_paid_late_in_days_std', 'installments_payments_last_5_installment_paid_late_in_days_skew', 'installments_payments_last_5_installment_paid_late_in_days_min', 'installments_payments_last_5_installment_paid_late_in_days_median', 'installments_payments_last_5_installment_paid_late_in_days_mean', 'installments_payments_last_5_installment_paid_late_in_days_max', 'installments_payments_last_5_installment_paid_late_in_days_kurt', 'installments_payments_last_5_installment_paid_late_in_days_iqr', 'installments_payments_last_5_installment_paid_late_count', 'installments_payments_last_5_NUM_INSTALMENT_VERSION_sum', 'installments_payments_last_5_NUM_INSTALMENT_VERSION_std', 'installments_payments_last_5by20_fraction_NUM_INSTALMENT_VERSION_kurt', 'installments_payments_last_5by20_fraction_NUM_INSTALMENT_VERSION_median', 'installments_payments_last_5by20_fraction_NUM_INSTALMENT_VERSION_mean', 'installments_payments_last_5by20_fraction_installment_paid_late_in_days_std', 'installments_payments_last_5by20_fraction_installment_paid_over_amount_sum', 'installments_payments_last_5by20_fraction_installment_paid_over_amount_std', 'installments_payments_last_5by20_fraction_installment_paid_over_amount_skew', 'installments_payments_last_5by20_fraction_installment_paid_over_amount_min', 'installments_payments_last_5by20_fraction_installment_paid_over_amount_median', 'installments_payments_last_5by20_fraction_installment_paid_over_amount_mean', 'installments_payments_last_5by20_fraction_installment_paid_over_amount_max', 'installments_payments_last_5by20_fraction_installment_paid_over_amount_kurt', 'installments_payments_last_5by20_fraction_installment_paid_over_amount_iqr', 'installments_payments_last_5by20_fraction_installment_paid_late_mean', 'installments_payments_last_5by20_fraction_installment_paid_late_in_days_sum', 'installments_payments_last_5by20_fraction_installment_paid_late_in_days_skew', 'installments_payments_last_5_NUM_INSTALMENT_VERSION_min', 'installments_payments_last_5by20_fraction_installment_paid_late_in_days_min', 'installments_payments_last_5by20_fraction_installment_paid_late_in_days_median', 'installments_payments_last_5by20_fraction_installment_paid_late_in_days_mean', 'installments_payments_last_5by20_fraction_installment_paid_late_in_days_max', 'installments_payments_last_5by20_fraction_installment_paid_late_in_days_kurt', 'installments_payments_last_5by20_fraction_installment_paid_late_in_days_iqr', 'installments_payments_last_5by20_fraction_installment_paid_late_count', 'installments_payments_last_5by20_fraction_NUM_INSTALMENT_VERSION_sum', 'installments_payments_last_5by20_fraction_NUM_INSTALMENT_VERSION_std', 'installments_payments_last_5by20_fraction_NUM_INSTALMENT_VERSION_skew', 'installments_payments_last_5by20_fraction_NUM_INSTALMENT_VERSION_min', 'installments_payments_last_5_NUM_INSTALMENT_VERSION_skew', 'installments_payments_last_5_NUM_INSTALMENT_VERSION_mean', 'installments_payments_last_5_NUM_INSTALMENT_VERSION_median', 'installments_payments_last_20by100_fraction_installment_paid_over_amount_min', 'installments_payments_last_50_NUM_INSTALMENT_VERSION_min', 'installments_payments_last_50_NUM_INSTALMENT_VERSION_median', 'installments_payments_last_50_NUM_INSTALMENT_VERSION_mean', 'installments_payments_last_50_NUM_INSTALMENT_VERSION_max', 'installments_payments_last_50_NUM_INSTALMENT_VERSION_kurt', 'installments_payments_last_50_NUM_INSTALMENT_VERSION_iqr', 'installments_payments_last_20by100_fraction_installment_paid_over_mean', 'installments_payments_last_20by100_fraction_installment_paid_over_count', 'installments_payments_last_20by100_fraction_installment_paid_over_amount_sum', 'installments_payments_last_20by100_fraction_installment_paid_over_amount_std', 'installments_payments_last_20by100_fraction_installment_paid_over_amount_skew', 'installments_payments_last_20by100_fraction_installment_paid_over_amount_median', 'installments_payments_last_50_NUM_INSTALMENT_VERSION_std', 'installments_payments_last_20by100_fraction_installment_paid_over_amount_mean', 'installments_payments_last_20by100_fraction_installment_paid_over_amount_max', 'installments_payments_last_20by100_fraction_installment_paid_over_amount_kurt', 'installments_payments_last_20by100_fraction_installment_paid_over_amount_iqr', 'installments_payments_last_20by100_fraction_installment_paid_late_mean', 'installments_payments_last_20by100_fraction_installment_paid_late_in_days_sum', 'installments_payments_last_20by100_fraction_installment_paid_late_in_days_std', 'installments_payments_last_20by100_fraction_installment_paid_late_in_days_skew', 'installments_payments_last_20by100_fraction_installment_paid_late_in_days_min', 'installments_payments_last_20by100_fraction_installment_paid_late_in_days_median', 'installments_payments_last_20by100_fraction_installment_paid_late_in_days_mean', 'installments_payments_last_50_NUM_INSTALMENT_VERSION_skew', 'installments_payments_last_50_NUM_INSTALMENT_VERSION_sum', 'installments_payments_last_5by20_fraction_installment_paid_over_mean', 'installments_payments_last_50_installment_paid_over_amount_max', 'installments_payments_last_5_NUM_INSTALMENT_VERSION_max', 'installments_payments_last_5_NUM_INSTALMENT_VERSION_kurt', 'installments_payments_last_5_NUM_INSTALMENT_VERSION_iqr', 'installments_payments_last_50_installment_paid_over_mean', 'installments_payments_last_50_installment_paid_over_count', 'installments_payments_last_50_installment_paid_over_amount_sum', 'installments_payments_last_50_installment_paid_over_amount_std', 'installments_payments_last_50_installment_paid_over_amount_skew', 'installments_payments_last_50_installment_paid_over_amount_min', 'installments_payments_last_50_installment_paid_over_amount_median', 'installments_payments_last_50_installment_paid_over_amount_mean', 'installments_payments_last_50_installment_paid_over_amount_kurt', 'installments_payments_last_50_installment_paid_late_count', 'installments_payments_last_50_installment_paid_over_amount_iqr', 'installments_payments_last_50_installment_paid_late_mean', 'installments_payments_last_50_installment_paid_late_in_days_sum', 'installments_payments_last_50_installment_paid_late_in_days_std', 'installments_payments_last_50_installment_paid_late_in_days_skew', 'installments_payments_last_50_installment_paid_late_in_days_min', 'installments_payments_last_50_installment_paid_late_in_days_median', 'installments_payments_last_50_installment_paid_late_in_days_mean', 'installments_payments_last_50_installment_paid_late_in_days_max', 'installments_payments_last_50_installment_paid_late_in_days_kurt', 'installments_payments_last_50_installment_paid_late_in_days_iqr', 'installments_payments_last_5by20_fraction_installment_paid_over_count', 'installments_payments_last_5by50_fraction_NUM_INSTALMENT_VERSION_max', 'installments_payments_last_5by50_fraction_NUM_INSTALMENT_VERSION_iqr', 'installments_payments_last_5by50_fraction_NUM_INSTALMENT_VERSION_kurt', 'installments_payments_SK_ID_CURR_max_DAYS_ENTRY_PAYMENT', 'installments_payments_SK_ID_CURR_max_DAYS_INSTALMENT', 'installments_payments_SK_ID_CURR_max_NUM_INSTALMENT_NUMBER', 'installments_payments_SK_ID_CURR_max_NUM_INSTALMENT_VERSION', 'installments_payments_SK_ID_CURR_mean_AMT_INSTALMENT', 'installments_payments_SK_ID_CURR_mean_AMT_PAYMENT', 'installments_payments_SK_ID_CURR_mean_DAYS_ENTRY_PAYMENT', 'installments_payments_SK_ID_CURR_mean_DAYS_INSTALMENT', 'POS_CASH_balance_12_period_trend_CNT_INSTALMENT_FUTURE', 'POS_CASH_balance_12_period_trend_SK_DPD', 'POS_CASH_balance_12_period_trend_SK_DPD_DEF', 'POS_CASH_balance_6_period_trend_CNT_INSTALMENT_FUTURE', 'POS_CASH_balance_6_period_trend_SK_DPD', 'POS_CASH_balance_6_period_trend_SK_DPD_DEF', 'POS_CASH_balance_SK_ID_CURR_min_SK_DPD', 'POS_CASH_balance_SK_ID_CURR_min_SK_DPD_DEF', 'installments_payments_SK_ID_CURR_mean_NUM_INSTALMENT_NUMBER', 'installments_payments_SK_ID_CURR_mean_NUM_INSTALMENT_VERSION', 'installments_payments_SK_ID_CURR_min_AMT_INSTALMENT', 'installments_payments_SK_ID_CURR_min_AMT_PAYMENT', 'installments_payments_SK_ID_CURR_min_DAYS_ENTRY_PAYMENT', 'installments_payments_SK_ID_CURR_min_DAYS_INSTALMENT', 'installments_payments_SK_ID_CURR_min_NUM_INSTALMENT_NUMBER', 'installments_payments_SK_ID_CURR_min_NUM_INSTALMENT_VERSION', 'REG_REGION_NOT_LIVE_REGION', 'installments_payments_SK_ID_CURR_max_AMT_PAYMENT', 'installments_payments_SK_ID_CURR_max_AMT_INSTALMENT', 'installments_payments_50_period_trend_installment_paid_over_amount', 'FLAG_DOCUMENT_7', 'credit_card_balance_SK_ID_CURR_min_SK_DPD_DEF', 'credit_card_balance_SK_ID_CURR_min_SK_DPD', 'credit_card_balance_credit_card_number_of_loans', 'credit_card_balance_SK_ID_CURR_min_CNT_DRAWINGS_OTHER_CURRENT', 'credit_card_balance_SK_ID_CURR_min_CNT_DRAWINGS_ATM_CURRENT', 'EMERGENCYSTATE_MODE', 'FLAG_CONT_MOBILE', 'FLAG_DOCUMENT_11', 'FLAG_DOCUMENT_4', 'FLAG_DOCUMENT_5', 'FLAG_DOCUMENT_6', 'FLAG_DOCUMENT_9', 'installments_payments_50_period_trend_installment_paid_late_in_days', 'FLAG_EMP_PHONE', 'FLAG_MOBIL', 'credit_card_balance_SK_ID_CURR_max_CNT_DRAWINGS_OTHER_CURRENT', 'children_ratio', 'child_to_non_child_ratio', 'installments_payments_100_period_trend_installment_paid_late_in_days', 'installments_payments_100_period_trend_installment_paid_over_amount', 'installments_payments_10_period_trend_installment_paid_late_in_days', 'installments_payments_10_period_trend_installment_paid_over_amount', 'installments_payments_500_period_trend_installment_paid_late_in_days', 'installments_payments_500_period_trend_installment_paid_over_amount', 'installments_payments_SK_ID_CURR_sum_AMT_INSTALMENT', 'installments_payments_SK_ID_CURR_sum_AMT_PAYMENT', 'installments_payments_SK_ID_CURR_sum_DAYS_ENTRY_PAYMENT', 'installments_payments_last_5by50_fraction_installment_paid_late_in_days_median', 'installments_payments_last_5by50_fraction_installment_paid_over_amount_min', 'installments_payments_last_5by50_fraction_installment_paid_over_amount_median', 'installments_payments_last_5by50_fraction_installment_paid_over_amount_mean', 'installments_payments_last_5by50_fraction_installment_paid_over_amount_max', 'installments_payments_last_5by50_fraction_installment_paid_over_amount_kurt', 'installments_payments_last_5by50_fraction_installment_paid_over_amount_iqr', 'installments_payments_last_5by50_fraction_installment_paid_late_mean', 'installments_payments_last_5by50_fraction_installment_paid_late_in_days_sum', 'installments_payments_last_5by50_fraction_installment_paid_late_in_days_std', 'installments_payments_last_5by50_fraction_installment_paid_late_in_days_skew', 'installments_payments_last_5by50_fraction_installment_paid_late_in_days_min', 'installments_payments_last_5by50_fraction_installment_paid_late_in_days_mean', 'installments_payments_last_5by50_fraction_installment_paid_over_amount_std', 'installments_payments_last_5by50_fraction_installment_paid_late_in_days_max', 'installments_payments_last_5by50_fraction_installment_paid_late_in_days_kurt', 'installments_payments_last_5by50_fraction_installment_paid_late_in_days_iqr', 'installments_payments_last_5by50_fraction_installment_paid_late_count', 'installments_payments_last_5by50_fraction_NUM_INSTALMENT_VERSION_sum', 'installments_payments_last_5by50_fraction_NUM_INSTALMENT_VERSION_std', 'installments_payments_last_5by50_fraction_NUM_INSTALMENT_VERSION_skew', 'installments_payments_last_5by50_fraction_NUM_INSTALMENT_VERSION_min', 'installments_payments_last_5by50_fraction_NUM_INSTALMENT_VERSION_median', 'installments_payments_last_5by50_fraction_NUM_INSTALMENT_VERSION_mean', 'installments_payments_all_installment_NUM_INSTALMENT_VERSION_iqr', 'installments_payments_last_5by50_fraction_installment_paid_over_amount_skew', 'installments_payments_last_5by50_fraction_installment_paid_over_amount_sum', 'installments_payments_SK_ID_CURR_sum_DAYS_INSTALMENT', 'installments_payments_last_loan_installment_paid_over_amount_sum', 'installments_payments_SK_ID_CURR_sum_NUM_INSTALMENT_NUMBER', 'bureau_SK_ID_CURR_min_AMT_CREDIT_SUM_OVERDUE', 'bureau_SK_ID_CURR_min_CNT_CREDIT_PROLONG', 'bureau_SK_ID_CURR_min_CREDIT_DAY_OVERDUE', 'installments_payments_SK_ID_CURR_sum_NUM_INSTALMENT_VERSION', 'installments_payments_SK_ID_CURR_var_AMT_INSTALMENT', 'installments_payments_SK_ID_CURR_var_AMT_PAYMENT', 'installments_payments_SK_ID_CURR_var_DAYS_ENTRY_PAYMENT', 'installments_payments_SK_ID_CURR_var_DAYS_INSTALMENT', 'installments_payments_last_loan_installment_paid_over_mean', 'installments_payments_last_loan_installment_paid_over_count', 'installments_payments_last_loan_installment_paid_over_amount_std', 'installments_payments_last_5by50_fraction_installment_paid_over_count', 'installments_payments_last_loan_installment_paid_over_amount_min', 'installments_payments_last_loan_installment_paid_over_amount_mean', 'installments_payments_last_loan_installment_paid_over_amount_max', 'installments_payments_last_loan_installment_paid_late_mean', 'installments_payments_last_loan_installment_paid_late_in_days_sum', 'installments_payments_last_loan_installment_paid_late_in_days_std', 'installments_payments_last_loan_installment_paid_late_in_days_min', 'installments_payments_last_loan_installment_paid_late_in_days_mean', 'installments_payments_last_loan_installment_paid_late_in_days_max', 'installments_payments_last_loan_installment_paid_late_count', 'installments_payments_last_5by50_fraction_installment_paid_over_mean', 'installments_payments_last_20by100_fraction_installment_paid_late_in_days_max', 'installments_payments_last_20by100_fraction_installment_paid_late_in_days_kurt', 'installments_payments_last_20by100_fraction_installment_paid_late_in_days_iqr', 'installments_payments_last_10_installment_paid_over_amount_max', 'installments_payments_last_10_installment_paid_over_amount_iqr', 'installments_payments_last_10_installment_paid_late_mean', 'installments_payments_last_10_installment_paid_late_in_days_sum', 'installments_payments_last_10_installment_paid_late_in_days_std', 'installments_payments_last_10_installment_paid_late_in_days_skew', 'installments_payments_last_10_installment_paid_late_in_days_min', 'installments_payments_last_10_installment_paid_late_in_days_median', 'installments_payments_last_10_installment_paid_late_in_days_mean', 'installments_payments_last_10_installment_paid_late_in_days_max', 'installments_payments_last_10_installment_paid_late_in_days_kurt', 'installments_payments_last_10_installment_paid_late_in_days_iqr', 'installments_payments_last_10_installment_paid_late_count', 'installments_payments_last_10_NUM_INSTALMENT_VERSION_sum', 'installments_payments_last_10_NUM_INSTALMENT_VERSION_std', 'installments_payments_last_10_NUM_INSTALMENT_VERSION_skew', 'installments_payments_last_10_NUM_INSTALMENT_VERSION_min', 'installments_payments_last_10_NUM_INSTALMENT_VERSION_median', 'installments_payments_last_10_NUM_INSTALMENT_VERSION_mean', 'installments_payments_last_10_NUM_INSTALMENT_VERSION_max', 'installments_payments_last_10_NUM_INSTALMENT_VERSION_kurt', 'installments_payments_last_10_NUM_INSTALMENT_VERSION_iqr', 'installments_payments_last_100_installment_paid_over_mean', 'installments_payments_last_100_installment_paid_over_count', 'installments_payments_last_100_installment_paid_over_amount_sum', 'installments_payments_last_100_installment_paid_over_amount_std', 'installments_payments_last_10_installment_paid_over_amount_kurt', 'installments_payments_last_10_installment_paid_over_amount_mean', 'installments_payments_last_20by100_fraction_installment_paid_late_count', 'installments_payments_last_10_installment_paid_over_amount_median', 'installments_payments_last_10by100_fraction_installment_paid_late_in_days_sum', 'installments_payments_last_10by100_fraction_installment_paid_late_in_days_std', 'installments_payments_last_10by100_fraction_installment_paid_late_in_days_skew', 'installments_payments_last_10by100_fraction_installment_paid_late_in_days_min', 'installments_payments_last_10by100_fraction_installment_paid_late_in_days_median', 'installments_payments_last_10by100_fraction_installment_paid_late_in_days_mean', 'installments_payments_last_10by100_fraction_installment_paid_late_in_days_max', 'installments_payments_last_10by100_fraction_installment_paid_late_in_days_kurt', 'installments_payments_last_10by100_fraction_installment_paid_late_in_days_iqr', 'installments_payments_last_10by100_fraction_installment_paid_late_count', 'installments_payments_last_10by100_fraction_NUM_INSTALMENT_VERSION_sum', 'installments_payments_last_10by100_fraction_NUM_INSTALMENT_VERSION_std', 'installments_payments_last_10by100_fraction_NUM_INSTALMENT_VERSION_skew', 'installments_payments_last_10by100_fraction_NUM_INSTALMENT_VERSION_min', 'installments_payments_last_10by100_fraction_NUM_INSTALMENT_VERSION_median', 'installments_payments_last_10by100_fraction_NUM_INSTALMENT_VERSION_mean', 'installments_payments_last_10by100_fraction_NUM_INSTALMENT_VERSION_max', 'installments_payments_last_10by100_fraction_NUM_INSTALMENT_VERSION_kurt', 'installments_payments_last_10by100_fraction_NUM_INSTALMENT_VERSION_iqr', 'installments_payments_last_10_installment_paid_over_mean', 'installments_payments_last_10_installment_paid_over_count', 'installments_payments_last_10_installment_paid_over_amount_sum', 'installments_payments_last_10_installment_paid_over_amount_std', 'installments_payments_last_10_installment_paid_over_amount_skew', 'installments_payments_last_10_installment_paid_over_amount_min', 'installments_payments_last_100_installment_paid_over_amount_skew', 'installments_payments_last_100_installment_paid_over_amount_min', 'installments_payments_last_100_installment_paid_over_amount_median', 'installments_payments_last_100_installment_paid_over_amount_mean', 'installments_payments_all_installment_installment_paid_over_amount_min', 'installments_payments_all_installment_installment_paid_over_amount_median', 'installments_payments_all_installment_installment_paid_over_amount_mean', 'installments_payments_all_installment_installment_paid_over_amount_max', 'installments_payments_all_installment_installment_paid_over_amount_kurt', 'installments_payments_all_installment_installment_paid_over_amount_iqr', 'installments_payments_all_installment_installment_paid_late_mean', 'installments_payments_all_installment_installment_paid_late_in_days_sum', 'installments_payments_all_installment_installment_paid_late_in_days_std', 'installments_payments_all_installment_installment_paid_late_in_days_skew', 'installments_payments_all_installment_installment_paid_late_in_days_min', 'installments_payments_all_installment_installment_paid_late_in_days_median', 'installments_payments_all_installment_installment_paid_late_in_days_mean', 'installments_payments_all_installment_installment_paid_late_in_days_max', 'installments_payments_all_installment_installment_paid_late_in_days_kurt', 'installments_payments_all_installment_installment_paid_late_in_days_iqr', 'installments_payments_all_installment_installment_paid_late_count', 'installments_payments_all_installment_NUM_INSTALMENT_VERSION_sum', 'installments_payments_all_installment_NUM_INSTALMENT_VERSION_std', 'installments_payments_all_installment_NUM_INSTALMENT_VERSION_skew', 'installments_payments_all_installment_NUM_INSTALMENT_VERSION_min', 'installments_payments_all_installment_NUM_INSTALMENT_VERSION_median', 'installments_payments_all_installment_NUM_INSTALMENT_VERSION_mean', 'installments_payments_all_installment_NUM_INSTALMENT_VERSION_max', 'installments_payments_all_installment_NUM_INSTALMENT_VERSION_kurt', 'installments_payments_all_installment_installment_paid_over_amount_skew', 'installments_payments_all_installment_installment_paid_over_amount_std', 'installments_payments_all_installment_installment_paid_over_amount_sum', 'installments_payments_last_100_installment_paid_late_in_days_kurt', 'installments_payments_last_100_installment_paid_over_amount_max', 'installments_payments_last_100_installment_paid_over_amount_kurt', 'installments_payments_last_100_installment_paid_over_amount_iqr', 'installments_payments_last_100_installment_paid_late_mean', 'installments_payments_last_100_installment_paid_late_in_days_sum', 'installments_payments_last_100_installment_paid_late_in_days_std', 'installments_payments_last_100_installment_paid_late_in_days_skew', 'installments_payments_last_100_installment_paid_late_in_days_min', 'installments_payments_last_100_installment_paid_late_in_days_median', 'installments_payments_last_100_installment_paid_late_in_days_mean', 'installments_payments_last_100_installment_paid_late_in_days_max', 'installments_payments_last_100_installment_paid_late_in_days_iqr', 'installments_payments_all_installment_installment_paid_over_count', 'installments_payments_last_100_installment_paid_late_count', 'installments_payments_last_100_NUM_INSTALMENT_VERSION_sum', 'installments_payments_last_100_NUM_INSTALMENT_VERSION_std', 'installments_payments_last_100_NUM_INSTALMENT_VERSION_skew', 'installments_payments_last_100_NUM_INSTALMENT_VERSION_min', 'installments_payments_last_100_NUM_INSTALMENT_VERSION_median', 'installments_payments_last_100_NUM_INSTALMENT_VERSION_mean', 'installments_payments_last_100_NUM_INSTALMENT_VERSION_max', 'installments_payments_last_100_NUM_INSTALMENT_VERSION_kurt', 'installments_payments_last_100_NUM_INSTALMENT_VERSION_iqr', 'installments_payments_all_installment_installment_paid_over_mean', 'installments_payments_last_10by100_fraction_installment_paid_late_mean', 'installments_payments_last_10by100_fraction_installment_paid_over_amount_iqr', 'installments_payments_last_10by100_fraction_installment_paid_over_amount_kurt', 'installments_payments_last_1_installment_paid_late_in_days_skew', 'installments_payments_last_20_installment_paid_late_in_days_kurt', 'installments_payments_last_20_installment_paid_late_in_days_iqr', 'installments_payments_SK_ID_CURR_var_NUM_INSTALMENT_NUMBER', 'installments_payments_last_20_NUM_INSTALMENT_VERSION_sum', 'installments_payments_last_20_NUM_INSTALMENT_VERSION_std', 'installments_payments_last_20_NUM_INSTALMENT_VERSION_skew', 'installments_payments_last_20_NUM_INSTALMENT_VERSION_min', 'installments_payments_last_20_NUM_INSTALMENT_VERSION_median', 'installments_payments_last_20_NUM_INSTALMENT_VERSION_mean', 'installments_payments_last_20_NUM_INSTALMENT_VERSION_max', 'installments_payments_last_20_NUM_INSTALMENT_VERSION_kurt', 'installments_payments_last_20_NUM_INSTALMENT_VERSION_iqr', 'installments_payments_last_1_installment_paid_over_mean', 'installments_payments_last_1_installment_paid_over_count', 'installments_payments_last_1_installment_paid_over_amount_sum', 'installments_payments_last_1_installment_paid_over_amount_std', 'installments_payments_last_1_installment_paid_over_amount_skew', 'installments_payments_last_1_installment_paid_over_amount_min', 'installments_payments_last_1_installment_paid_over_amount_median', 'installments_payments_last_1_installment_paid_over_amount_mean', 'installments_payments_last_1_installment_paid_over_amount_max', 'installments_payments_last_1_installment_paid_over_amount_kurt', 'installments_payments_last_1_installment_paid_over_amount_iqr', 'installments_payments_last_1_installment_paid_late_mean', 'installments_payments_last_1_installment_paid_late_in_days_sum', 'installments_payments_last_20_installment_paid_late_in_days_max', 'installments_payments_last_20_installment_paid_late_in_days_mean', 'installments_payments_last_20_installment_paid_late_in_days_median', 'installments_payments_last_20_installment_paid_over_amount_sum', 'installments_payments_last_20by100_fraction_NUM_INSTALMENT_VERSION_sum', 'installments_payments_last_20by100_fraction_NUM_INSTALMENT_VERSION_std', 'installments_payments_last_20by100_fraction_NUM_INSTALMENT_VERSION_skew', 'installments_payments_last_20by100_fraction_NUM_INSTALMENT_VERSION_min', 'installments_payments_last_20by100_fraction_NUM_INSTALMENT_VERSION_median', 'installments_payments_last_20by100_fraction_NUM_INSTALMENT_VERSION_mean', 'installments_payments_last_20by100_fraction_NUM_INSTALMENT_VERSION_max', 'installments_payments_last_20by100_fraction_NUM_INSTALMENT_VERSION_kurt', 'installments_payments_last_20by100_fraction_NUM_INSTALMENT_VERSION_iqr', 'installments_payments_last_20_installment_paid_over_mean', 'installments_payments_last_20_installment_paid_over_count', 'installments_payments_last_20_installment_paid_over_amount_std', 'installments_payments_last_20_installment_paid_late_in_days_min', 'installments_payments_last_20_installment_paid_over_amount_skew', 'installments_payments_last_20_installment_paid_over_amount_min', 'installments_payments_last_20_installment_paid_over_amount_median', 'installments_payments_last_20_installment_paid_over_amount_mean', 'installments_payments_last_20_installment_paid_over_amount_max', 'installments_payments_last_20_installment_paid_over_amount_kurt', 'installments_payments_last_20_installment_paid_over_amount_iqr', 'installments_payments_last_20_installment_paid_late_mean', 'installments_payments_last_20_installment_paid_late_in_days_sum', 'installments_payments_last_20_installment_paid_late_in_days_std', 'installments_payments_last_20_installment_paid_late_in_days_skew', 'installments_payments_last_1_installment_paid_late_in_days_std', 'installments_payments_last_1_installment_paid_late_in_days_min', 'installments_payments_last_10by100_fraction_installment_paid_over_amount_max', 'installments_payments_last_1_installment_paid_late_in_days_median', 'installments_payments_last_10by50_fraction_installment_paid_late_in_days_skew', 'installments_payments_last_10by50_fraction_installment_paid_late_in_days_min', 'installments_payments_last_10by50_fraction_installment_paid_late_in_days_median', 'installments_payments_last_10by50_fraction_installment_paid_late_in_days_mean', 'installments_payments_last_10by50_fraction_installment_paid_late_in_days_max', 'installments_payments_last_10by50_fraction_installment_paid_late_in_days_kurt', 'installments_payments_last_10by50_fraction_installment_paid_late_in_days_iqr', 'installments_payments_last_10by50_fraction_installment_paid_late_count', 'installments_payments_last_10by50_fraction_NUM_INSTALMENT_VERSION_sum', 'installments_payments_last_10by50_fraction_NUM_INSTALMENT_VERSION_std', 'installments_payments_last_10by50_fraction_NUM_INSTALMENT_VERSION_skew', 'installments_payments_last_10by50_fraction_NUM_INSTALMENT_VERSION_min', 'installments_payments_last_10by50_fraction_NUM_INSTALMENT_VERSION_median', 'installments_payments_last_10by50_fraction_NUM_INSTALMENT_VERSION_mean', 'installments_payments_last_10by50_fraction_NUM_INSTALMENT_VERSION_max', 'installments_payments_last_10by50_fraction_NUM_INSTALMENT_VERSION_kurt', 'installments_payments_last_10by50_fraction_NUM_INSTALMENT_VERSION_iqr', 'installments_payments_last_10by100_fraction_installment_paid_over_mean', 'installments_payments_last_10by100_fraction_installment_paid_over_count', 'installments_payments_last_10by100_fraction_installment_paid_over_amount_sum', 'installments_payments_last_10by100_fraction_installment_paid_over_amount_std', 'installments_payments_last_10by100_fraction_installment_paid_over_amount_skew', 'installments_payments_last_10by100_fraction_installment_paid_over_amount_min', 'installments_payments_last_10by100_fraction_installment_paid_over_amount_median', 'installments_payments_last_10by100_fraction_installment_paid_over_amount_mean', 'installments_payments_last_10by50_fraction_installment_paid_late_in_days_std', 'installments_payments_last_10by50_fraction_installment_paid_late_in_days_sum', 'installments_payments_last_10by50_fraction_installment_paid_late_mean', 'installments_payments_last_1_NUM_INSTALMENT_VERSION_max', 'installments_payments_last_1_installment_paid_late_in_days_mean', 'installments_payments_last_1_installment_paid_late_in_days_max', 'installments_payments_last_1_installment_paid_late_in_days_kurt', 'installments_payments_last_1_installment_paid_late_in_days_iqr', 'installments_payments_last_1_installment_paid_late_count', 'installments_payments_last_1_NUM_INSTALMENT_VERSION_sum', 'installments_payments_last_1_NUM_INSTALMENT_VERSION_std', 'installments_payments_last_1_NUM_INSTALMENT_VERSION_skew', 'installments_payments_last_1_NUM_INSTALMENT_VERSION_min', 'installments_payments_last_1_NUM_INSTALMENT_VERSION_median', 'installments_payments_last_1_NUM_INSTALMENT_VERSION_mean', 'installments_payments_last_1_NUM_INSTALMENT_VERSION_kurt', 'installments_payments_last_10by50_fraction_installment_paid_over_amount_iqr', 'installments_payments_last_1_NUM_INSTALMENT_VERSION_iqr', 'installments_payments_last_10by50_fraction_installment_paid_over_mean', 'installments_payments_last_10by50_fraction_installment_paid_over_count', 'installments_payments_last_10by50_fraction_installment_paid_over_amount_sum', 'installments_payments_last_10by50_fraction_installment_paid_over_amount_std', 'installments_payments_last_10by50_fraction_installment_paid_over_amount_skew', 'installments_payments_last_10by50_fraction_installment_paid_over_amount_min', 'installments_payments_last_10by50_fraction_installment_paid_over_amount_median', 'installments_payments_last_10by50_fraction_installment_paid_over_amount_mean', 'installments_payments_last_10by50_fraction_installment_paid_over_amount_max', 'installments_payments_last_10by50_fraction_installment_paid_over_amount_kurt', 'installments_payments_last_20_installment_paid_late_count',
 ]
 
 # CATEGORICAL_COLUMNS = {
@@ -617,7 +639,6 @@ def application_train_test(nan_as_category = False):
                 df[diff_feature_name] = df[select] - df[name_grouped_target]
                 df[abs_diff_feature_name] = np.abs(df[select] - df[name_grouped_target])
 
-                
     df.drop(cols_to_remove, axis=1, inplace= True) # 13.1.3
     # Categorical features with Binary encode (0 or 1; two categories)
     # for bin_feature in ['CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY']:
@@ -1085,8 +1106,9 @@ def pos_cash(nan_as_category = True):
 
     # pos_agg = pos.groupby('SK_ID_CURR').agg(aggregations)
     # pos_agg.columns = pd.Index(['POS_' + e[0] + "_" + e[1].upper() for e in pos_agg.columns.tolist()])
-    # Count pos cash accounts
-    pos_cash_agg['POS_COUNT'] = pos_cash.groupby('SK_ID_CURR').size()
+    
+    # Count pos cash accounts # to do: does it work?
+    # pos_cash_agg['POS_COUNT'] = pos_cash.groupby('SK_ID_CURR').size()
     
 
     del pos_cash
@@ -1148,8 +1170,8 @@ def previous_applications(nan_as_category = True):
     g.rename(index=str, columns={'previous_application_prev_was_refused': 'previous_application_fraction_of_refused_applications'},inplace=True)
     prev_app_agg = prev_app_agg.merge(g, on=['SK_ID_CURR'], how='left')
 
-    prev_app_sorted['prev_applications_prev_was_revolving_loan'] = (prev_app_sorted['NAME_CONTRACT_TYPE'] == 'Revolving loans').astype('int')
-    g = prev_app_sorted.groupby(by=['SK_ID_CURR'])['prev_applications_prev_was_revolving_loan'].last().reset_index()
+    prev_app_sorted['prev_application_prev_was_revolving_loan'] = (prev_app_sorted['NAME_CONTRACT_TYPE'] == 'Revolving loans').astype('int')
+    g = prev_app_sorted.groupby(by=['SK_ID_CURR'])['prev_application_prev_was_revolving_loan'].last().reset_index()
     prev_app_agg = prev_app_agg.merge(g, on=['SK_ID_CURR'], how='left')
 
     for number in numbers_of_previous_applications:
@@ -1422,6 +1444,13 @@ def kfold_lightgbm(df, num_folds, stratified = False, seed = int(time.time())):
     train_df = df[df['TARGET'].notnull()]
     test_df = df[df['TARGET'].isnull()]
     print("Starting LightGBM. Train shape: {}, test shape: {}".format(train_df.shape, test_df.shape))
+    
+    # print all features
+    # print('All features:', train_df.columns.tolist())
+    # print('e.g., for some examplary guys:')
+    # print(train_df.ix[1,'SK_ID_CURR'])
+    # print(list(train_df.iloc[1,:]))
+
     del df
     gc.collect()
     # Cross validation model
@@ -1445,38 +1474,57 @@ def kfold_lightgbm(df, num_folds, stratified = False, seed = int(time.time())):
         # LightGBM parameters found by Bayesian optimization
         if TEST_NULL_HYPO:
             clf = LGBMClassifier(
-                nthread=NUM_WORKERS,
+                device=DEVICE,
+                boosting_type=BOOSTING_TYPE,
+                objective=OBJECTIVE,
+                metric=METRIC,
                 n_estimators=N_ESTIMATORS,
                 learning_rate=LEARNING_RATE,
-                num_leaves=NUM_LEAVES, # 127
+                max_bin=MAX_BIN,
                 max_depth=MAX_DEPTH,
+                num_leaves=NUM_LEAVES,
+                min_child_samples=MIN_CHILD_SAMPLES,
+                subsample=SUBSAMPLE,
+                subsample_freq=SUBSAMPLE_FREQ,
+                colsample_bytree=COLSAMPLE_BYTREE,
+                min_split_gain=MIN_SPLIT_GAIN,
+                reg_alpha=REG_ALPHA,
+                reg_lambda=REG_LAMBDA,
+                scale_pos_weight = SCALE_POS_WEIGHT,
+
+                nthread=NUM_WORKERS,
                 silent=-1,
                 verbose=-1,
                 random_state=seed,
                 )
         else:
             clf = LGBMClassifier(
-                nthread=NUM_WORKERS,
+                device=DEVICE,
+                boosting_type=BOOSTING_TYPE,
+                objective=OBJECTIVE,
+                metric=METRIC,
                 n_estimators=N_ESTIMATORS,
                 learning_rate=LEARNING_RATE,
+                max_bin=MAX_BIN,
+                max_depth=MAX_DEPTH,
                 num_leaves=NUM_LEAVES,
-                colsample_bytree=COLSAMPLE_BYTREE,
+                min_child_samples=MIN_CHILD_SAMPLES,
                 subsample=SUBSAMPLE,
                 subsample_freq=SUBSAMPLE_FREQ,
-                max_depth=MAX_DEPTH,
+                colsample_bytree=COLSAMPLE_BYTREE,
+                min_split_gain=MIN_SPLIT_GAIN,
                 reg_alpha=REG_ALPHA,
                 reg_lambda=REG_LAMBDA,
-                min_split_gain=MIN_SPLIT_GAIN,
-                # min_child_weight=MIN_CHILD_WEIGHT,
-                min_child_samples=MIN_CHILD_SAMPLES,
-                max_bin=MAX_BIN,
+                scale_pos_weight = SCALE_POS_WEIGHT,
+
+                nthread=NUM_WORKERS,
                 silent=-1,
                 verbose=-1,
                 random_state=seed,
                 )
 
         clf.fit(train_x, train_y, eval_set=[(train_x, train_y), (valid_x, valid_y)], 
-            eval_metric= 'auc', verbose= False, early_stopping_rounds= 100)
+            eval_metric= 'auc', verbose= False, early_stopping_rounds=EARLY_STOPPING_ROUNDS)
 
         oof_preds[valid_idx] = clf.predict_proba(valid_x, num_iteration=clf.best_iteration_)[:, 1]
         train_preds[train_idx] += clf.predict_proba(train_x, num_iteration=clf.best_iteration_)[:, 1] / folds.n_splits
@@ -1524,7 +1572,7 @@ def main():
         # df = drop_categorical_columns(df)
 
         print("Train/Test application df shape:", df.shape)
-        print("with features:", df.columns.tolist())
+        # print("with features:", df.columns.tolist())        
     with timer("Process bureau and bureau_balance"):
         bureau = bureau_and_balance()
         # bureau.set_index('SK_ID_CURR', inplace=True)
@@ -1532,7 +1580,7 @@ def main():
         bureau = rename_columns(bureau, 'bureau')
 
         print("Bureau df shape:", bureau.shape)
-        print("with features:", bureau.columns.tolist())
+        # print("with features:", bureau.columns.tolist())
         df = df.merge(bureau, how='left', on=['SK_ID_CURR'])
         # df = pd.concat([df, bureau], axis=1)
         del bureau
@@ -1544,11 +1592,23 @@ def main():
         # cc = drop_categorical_columns(cc)
 
         print("Credit card balance df shape:", cc.shape)
-        print("with features:", cc.columns.tolist())
+        # print("with features:", cc.columns.tolist())
         df = df.merge(cc, how='left', on=['SK_ID_CURR'])
         # df = pd.concat([df, cc], axis=1)
         del cc
-        gc.collect()    
+        gc.collect()
+    with timer("Process installments payments"):
+        ins = installments_payments(df)
+        ins = rename_columns(ins, 'installments_payments')
+        # ins.set_index('SK_ID_CURR', inplace=True)
+        # ins = drop_categorical_columns(ins)
+
+        print("Installments payments df shape:", ins.shape)
+        # print("with features:", ins.columns.tolist())
+        df = df.merge(ins, how='left', on=['SK_ID_CURR'])
+        # df = pd.concat([df, ins], axis=1)
+        del ins
+        gc.collect()
     with timer("Process POS-CASH balance"):
         pos = pos_cash()
         pos = rename_columns(pos, 'POS_CASH_balance')
@@ -1556,7 +1616,7 @@ def main():
         # pos = drop_categorical_columns(pos)
 
         print("Pos-cash balance df shape:", pos.shape)
-        print("with features:", pos.columns.tolist())
+        # print("with features:", pos.columns.tolist())
         df = df.merge(pos, how='left', on=['SK_ID_CURR'])
 
         # df = pd.concat([df, pos], axis=1)
@@ -1569,25 +1629,17 @@ def main():
         # prev = drop_categorical_columns(prev)
     
         print("Previous applications df shape:", prev.shape)
-        print("with features:", prev.columns.tolist())
+        # print("with features:", prev.columns.tolist())
         df = df.merge(prev, how='left', on=['SK_ID_CURR'])
         # df = pd.concat([df, prev], axis=1)
         del prev
         gc.collect()
-    with timer("Process installments payments"):
-        ins = installments_payments(df)
-        ins = rename_columns(ins, 'installments_payments')
-        # ins.set_index('SK_ID_CURR', inplace=True)
-        # ins = drop_categorical_columns(ins)
-
-        print("Installments payments df shape:", ins.shape)
-        print("with features:", ins.columns.tolist())
-        df = df.merge(ins, how='left', on=['SK_ID_CURR'])
-        # df = pd.concat([df, ins], axis=1)
-        del ins
-        gc.collect()
     with timer("Run LightGBM with kfold"):
         # df = drop_categorical_columns(df)
+
+        # 13.1.4
+        df['nan_count'] = df.isnull().sum(axis=1)
+
         print(df.shape)
         df.drop(FEATURE_GRAVEYARD, axis=1, inplace=True, errors='ignore')
         gc.collect()
@@ -1595,8 +1647,8 @@ def main():
       
         # 13.1.4
         categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
-        encoder = ce.OrdinalEncoder(cols=categorical_columns,drop_invariant=True)
-        print('categorical columns:',categorical_columns)
+        encoder = ce.OrdinalEncoder(cols=categorical_columns,drop_invariant=False) # to do: True, then 1218 featuers -> 998 features??
+        # print('categorical columns:', categorical_columns)
 
         encoder.fit(df)
         df = encoder.transform(df)
