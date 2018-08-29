@@ -11,7 +11,7 @@ ITERATION = (80 if TEST_NULL_HYPO else 1)
 USE_SELECTED_VAL = False
 
 SEED = 90210
-DEBUG = True
+DEBUG = False
 HEAD = 1000
 
 DEVICE='cpu' # 13.1.6
@@ -31,6 +31,8 @@ MIN_SPLIT_GAIN=0.5
 REG_ALPHA=0
 REG_LAMBDA=100
 SCALE_POS_WEIGHT=1 # 13.1.6
+VERBOSE=1
+SILENT=-1
 
 NUM_WORKERS=29
 EARLY_STOPPING_ROUNDS=100
@@ -461,7 +463,24 @@ def parallel_apply(groups, func, index_name='Index', num_workers=1, chunk_size=1
     features.index.name = index_name
     return features
 
-aggregation_pairs = [(col, agg) for col in ['AMT_CREDIT', 'AMT_ANNUITY', 'AMT_INCOME_TOTAL', 'AMT_GOODS_PRICE', 'EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3', 'OWN_CAR_AGE', 'REGION_POPULATION_RELATIVE', 'DAYS_REGISTRATION', 'CNT_CHILDREN', 'CNT_FAM_MEMBERS', 'DAYS_ID_PUBLISH', 'DAYS_BIRTH', 'DAYS_EMPLOYED'] for agg in ['min', 'mean', 'max', 'sum', 'var']]
+cols_to_agg = ['AMT_CREDIT', 
+               'AMT_ANNUITY',
+               'AMT_INCOME_TOTAL',
+               'AMT_GOODS_PRICE', 
+               'EXT_SOURCE_1',
+               'EXT_SOURCE_2',
+               'EXT_SOURCE_3',
+               'OWN_CAR_AGE',
+               'REGION_POPULATION_RELATIVE',
+               'DAYS_REGISTRATION',
+               'CNT_CHILDREN',
+               'CNT_FAM_MEMBERS',
+               'DAYS_ID_PUBLISH',
+               'DAYS_BIRTH',
+               'DAYS_EMPLOYED'
+]
+aggs = ['min', 'mean', 'max', 'sum', 'var']
+aggregation_pairs = [(col, agg) for col in cols_to_agg for agg in aggs]
 
 APPLICATION_AGGREGATION_RECIPIES = [
     (['NAME_EDUCATION_TYPE', 'CODE_GENDER'], aggregation_pairs),
@@ -555,18 +574,123 @@ def application_train_test(nan_as_category = False):
         df = df[:HEAD]
         test_df = test_df[:HEAD]
     print("Train samples: {}, test samples: {}".format(len(df), len(test_df)))
-    df = df.append(test_df).reset_index()
     
     # todo: use "istest" is worse?
     # df = df.merge(pd.read_csv('../util/istest_pred/istest_pred-linux2.csv'), how='left', on=['SK_ID_CURR'])  
 
+    # # df['CODE_GENDER'].replace('XNA',np.nan, inplace=True) # df = df[df['CODE_GENDER'] != 'XNA']
+    # # df['DAYS_LAST_PHONE_CHANGE'].replace(0, np.nan, inplace=True)
+    # # df['DAYS_EMPLOYED'].replace(365243, np.nan, inplace= True)
+    # # df['NAME_FAMILY_STATUS'].replace('Unknown', np.nan, inplace=True)
+    # # df['ORGANIZATION_TYPE'].replace('XNA', np.nan, inplace=True)
+
+    # # docs = [_f for _f in df.columns if 'FLAG_DOC' in _f]
+    # # # df['NEW_DOC_IND_STD'] = df[docs].std(axis=1)
+    # # df['NEW_DOC_IND_KURT'] = df[docs].kurtosis(axis=1)
+    # # live = [_f for _f in df.columns if ('FLAG_' in _f) & ('FLAG_DOC' not in _f)]
+    # # df['NEW_LIVE_IND_SUM'] = df[live].sum(axis=1)
+    # # df['NEW_LIVE_IND_KURT'] = df[live].kurtosis(axis=1)
+    # # inc_by_org = df[['AMT_INCOME_TOTAL', 'ORGANIZATION_TYPE']].groupby('ORGANIZATION_TYPE').median()['AMT_INCOME_TOTAL']
+    # # df['NEW_INC_BY_ORG'] = df['ORGANIZATION_TYPE'].map(inc_by_org)
+    # df['annuity_income_percentage'] = df['AMT_ANNUITY'] / (1 + df['AMT_INCOME_TOTAL'])
+    # # df['NEW_SOURCES_PROD'] = df['EXT_SOURCE_1'] * df['EXT_SOURCE_2'] * df['EXT_SOURCE_3']
+    # # df['INCOME_TO_GOODS_PRICE_RATIO'] = df['AMT_INCOME_TOTAL'] / df['AMT_GOODS_PRICE']
+    # # df['DIFF_INCOME_AND_GOODS_PRICE'] = df['AMT_INCOME_TOTAL'] - df['AMT_GOODS_PRICE']
+    # df['car_to_birth_ratio'] = df['OWN_CAR_AGE'] / df['DAYS_BIRTH']
+    # df['car_to_employ_ratio'] = df['OWN_CAR_AGE'] / df['DAYS_EMPLOYED']
+    # df['children_ratio'] = df['CNT_CHILDREN'] / df['CNT_FAM_MEMBERS']
+    # df['credit_to_annuity_ratio'] = df['AMT_CREDIT'] / df['AMT_ANNUITY']
+    # df['credit_to_goods_ratio'] = df['AMT_CREDIT'] / df['AMT_GOODS_PRICE'] # df['DIFF_CREDIT_AND_GOODS'] = df['AMT_CREDIT'] - df['AMT_GOODS_PRICE']
+    # df['credit_to_income_ratio'] = df['AMT_CREDIT'] / df['AMT_INCOME_TOTAL']
+    # df['days_employed_percentage'] = df['DAYS_EMPLOYED'] / df['DAYS_BIRTH']
+    # df['income_credit_percentage'] = df['AMT_INCOME_TOTAL'] / df['AMT_CREDIT']
+    # df['income_per_child'] = df['AMT_INCOME_TOTAL'] / (1 + df['CNT_CHILDREN'])
+    # df['income_per_person'] = df['AMT_INCOME_TOTAL'] / df['CNT_FAM_MEMBERS']
+    # df['payment_rate'] = df['AMT_ANNUITY'] / df['AMT_CREDIT']
+    # df['phone_to_birth_ratio'] = df['DAYS_LAST_PHONE_CHANGE'] / df['DAYS_BIRTH']
+    # df['phone_to_employ_ratio'] = df['DAYS_LAST_PHONE_CHANGE'] / df['DAYS_EMPLOYED']
+    # df['external_sources_weighted'] = df.EXT_SOURCE_1 * 2 + df.EXT_SOURCE_2 * 3 + df.EXT_SOURCE_3 * 4
+    # df['cnt_non_child'] = df['CNT_FAM_MEMBERS'] - df['CNT_CHILDREN']
+    # df['child_to_non_child_ratio'] = df['CNT_CHILDREN'] / df['cnt_non_child']
+    # df['income_per_non_child'] = df['AMT_INCOME_TOTAL'] / df['cnt_non_child']
+    # df['credit_per_person'] = df['AMT_CREDIT'] / df['CNT_FAM_MEMBERS']
+    # df['credit_per_child'] = df['AMT_CREDIT'] / (1 + df['CNT_CHILDREN'])
+    # df['credit_per_non_child'] = df['AMT_CREDIT'] / df['cnt_non_child']
+    # for function_name in ['min', 'max', 'sum', 'mean', 'nanmedian']: # replace NEW_SCORES_STD
+    #     df['external_sources_{}'.format(function_name)] = eval('np.{}'.format(function_name))(df[['EXT_SOURCE_1', 'EXT_SOURCE_2', 'EXT_SOURCE_3']], axis=1)
+
+    # df['short_employment'] = (df['DAYS_EMPLOYED'] < -2000).astype(int) # should be long_employment
+    # df['young_age'] = (df['DAYS_BIRTH'] < -14000).astype(int) # should be retirement_age
+
+    # # df['EXT_SOURCE_1_VAR'] = (df['EXT_SOURCE_1'] - df['NEW_EXT_SOURCES_MEAN'])**2
+    # # df['EXT_SOURCE_2_VAR'] = (df['EXT_SOURCE_2'] - df['NEW_EXT_SOURCES_MEAN'])**2
+    # # df['EXT_SOURCE_3_VAR'] = (df['EXT_SOURCE_3'] - df['NEW_EXT_SOURCES_MEAN'])**2
+    # # df['EXT_SOURCE_1_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_1_VAR'].median())
+    # # df['EXT_SOURCE_2_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_2_VAR'].median())
+    # # df['EXT_SOURCE_3_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_3_VAR'].median())
+
+    # # df['SOCIAL_PRED'] = df['OBS_30_CNT_SOCIAL_CIRCLE'] + df['DEF_30_CNT_SOCIAL_CIRCLE'] + 2*df['OBS_60_CNT_SOCIAL_CIRCLE'] + 2*df['DEF_60_CNT_SOCIAL_CIRCLE']
+
+    # # grouping categorical features to generate new features
+    # # df = group_target_by_cols(df, APPLICATION_AGGREGATION_RECIPIES)
+    # cols_to_remove = [] # 13.1.3
+    # for group_id_cols, select_and_method in APPLICATION_AGGREGATION_RECIPIES:
+    #    	for select, method in select_and_method:
+    #         name_grouped_target = '_'.join(group_id_cols)+'_'+method+'_'+select
+    #         tmp = df[group_id_cols + [select]].groupby(group_id_cols).agg(method)
+    #         tmp = tmp.reset_index()
+    #         tmp.columns = pd.Index(group_id_cols+[name_grouped_target])
+    #         df = df.merge(tmp, how='left', on=group_id_cols)
+            
+    #         ## to do: redundant processings
+    #         cols_to_remove.append(name_grouped_target) # 13.1.3 
+    #         # 13.1.2
+    #         if method in ['mean', 'median', 'max', 'min']:
+    #             diff_feature_name = name_grouped_target+'_diff'
+    #             abs_diff_feature_name = name_grouped_target+'_abs_diff'
+
+    #             df[diff_feature_name] = df[select] - df[name_grouped_target]
+    #             df[abs_diff_feature_name] = np.abs(df[select] - df[name_grouped_target])
+    #             if 'NAME_FAMILY_STATUS_NAME_EDUCATION_TYPE_mean_AMT_ANNUITY_diff' == diff_feature_name:
+    #                 # print(tmp.columns.tolist())
+    #                 print(tmp.shape)
+    #                 print(df.loc[((df['NAME_FAMILY_STATUS']=='Separated') & (df['NAME_EDUCATION_TYPE']=='Secondary / secondary special')),['SK_ID_CURR',select]].values.tolist())
+    #                 # print(tmp.loc[((tmp['NAME_FAMILY_STATUS']=='Separated') & (tmp['NAME_EDUCATION_TYPE']=='Secondary / secondary special')),name_grouped_target].values.tolist())
+    #                 # print(df.loc[df['SK_ID_CURR']==100193,[diff_feature_name,select,name_grouped_target]].values.tolist())
+    #                 exit()
+    
+    df = featrue_extraction_application(df)
+    test_df = featrue_extraction_application(test_df)
+
+    # print(df.loc[df['SK_ID_CURR']==100193,['NAME_FAMILY_STATUS_NAME_EDUCATION_TYPE_mean_AMT_ANNUITY_diff', 'AMT_ANNUITY', 'NAME_FAMILY_STATUS_NAME_EDUCATION_TYPE_mean_AMT_ANNUITY']].values.tolist())
+
+    # 13.1.7
+    df = df.append(test_df).reset_index()
+
+    
+    # Categorical features with Binary encode (0 or 1; two categories)
+    # for bin_feature in ['CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY']:
+    #     df[bin_feature], uniques = pd.factorize(df[bin_feature])
+
+    # 13.1.2.1 rm
+    # Categorical features with One-Hot encode
+    # df, new_application_categorical_cols = one_hot_encoder(df, nan_as_category)
+
+    
+
+    del test_df
+    gc.collect()
+    return df
+
+def featrue_extraction_application(df):
+
+    # cleaning
     df['CODE_GENDER'].replace('XNA',np.nan, inplace=True) # df = df[df['CODE_GENDER'] != 'XNA']
     df['DAYS_LAST_PHONE_CHANGE'].replace(0, np.nan, inplace=True)
     df['DAYS_EMPLOYED'].replace(365243, np.nan, inplace= True)
     df['NAME_FAMILY_STATUS'].replace('Unknown', np.nan, inplace=True)
     df['ORGANIZATION_TYPE'].replace('XNA', np.nan, inplace=True)
 
-    # 28
     # docs = [_f for _f in df.columns if 'FLAG_DOC' in _f]
     # # df['NEW_DOC_IND_STD'] = df[docs].std(axis=1)
     # df['NEW_DOC_IND_KURT'] = df[docs].kurtosis(axis=1)
@@ -605,24 +729,11 @@ def application_train_test(nan_as_category = False):
     df['short_employment'] = (df['DAYS_EMPLOYED'] < -2000).astype(int) # should be long_employment
     df['young_age'] = (df['DAYS_BIRTH'] < -14000).astype(int) # should be retirement_age
 
-    # df['EXT_SOURCE_1_VAR'] = (df['EXT_SOURCE_1'] - df['NEW_EXT_SOURCES_MEAN'])**2
-    # df['EXT_SOURCE_2_VAR'] = (df['EXT_SOURCE_2'] - df['NEW_EXT_SOURCES_MEAN'])**2
-    # df['EXT_SOURCE_3_VAR'] = (df['EXT_SOURCE_3'] - df['NEW_EXT_SOURCES_MEAN'])**2
-    # df['EXT_SOURCE_1_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_1_VAR'].median())
-    # df['EXT_SOURCE_2_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_2_VAR'].median())
-    # df['EXT_SOURCE_3_VAR'] = df['EXT_SOURCE_1_VAR'].fillna(df['EXT_SOURCE_3_VAR'].median())
-
-    # df['SOCIAL_PRED'] = df['OBS_30_CNT_SOCIAL_CIRCLE'] + df['DEF_30_CNT_SOCIAL_CIRCLE'] + 2*df['OBS_60_CNT_SOCIAL_CIRCLE'] + 2*df['DEF_60_CNT_SOCIAL_CIRCLE']
-
     # grouping categorical features to generate new features
     # df = group_target_by_cols(df, APPLICATION_AGGREGATION_RECIPIES)
     cols_to_remove = [] # 13.1.3
     for group_id_cols, select_and_method in APPLICATION_AGGREGATION_RECIPIES:
-        # group_id_cols = APPLICATION_AGGREGATION_RECIPIES[m][0]
-        # for n in range(len(APPLICATION_AGGREGATION_RECIPIES[m][1])):
-       	for select, method in select_and_method:
-            # select = APPLICATION_AGGREGATION_RECIPIES[m][1][n][0]
-            # method = APPLICATION_AGGREGATION_RECIPIES[m][1][n][1]
+        for select, method in select_and_method:
             name_grouped_target = '_'.join(group_id_cols)+'_'+method+'_'+select
             tmp = df[group_id_cols + [select]].groupby(group_id_cols).agg(method)
             tmp = tmp.reset_index()
@@ -638,18 +749,14 @@ def application_train_test(nan_as_category = False):
 
                 df[diff_feature_name] = df[select] - df[name_grouped_target]
                 df[abs_diff_feature_name] = np.abs(df[select] - df[name_grouped_target])
-
+                # if 'NAME_FAMILY_STATUS_NAME_EDUCATION_TYPE_mean_AMT_ANNUITY_diff' == diff_feature_name:
+                #     # print(tmp.columns.tolist())
+                #     print(tmp.shape)
+                #     print(df.loc[((df['NAME_FAMILY_STATUS']=='Separated') & (df['NAME_EDUCATION_TYPE']=='Secondary / secondary special')),['SK_ID_CURR',select]].values.tolist())
+                #     # print(tmp.loc[((tmp['NAME_FAMILY_STATUS']=='Separated') & (tmp['NAME_EDUCATION_TYPE']=='Secondary / secondary special')),name_grouped_target].values.tolist())
+                #     # print(df.loc[df['SK_ID_CURR']==100193,[diff_feature_name,select,name_grouped_target]].values.tolist())
+                #     exit()
     df.drop(cols_to_remove, axis=1, inplace= True) # 13.1.3
-    # Categorical features with Binary encode (0 or 1; two categories)
-    # for bin_feature in ['CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY']:
-    #     df[bin_feature], uniques = pd.factorize(df[bin_feature])
-
-    # 13.1.2.1 rm
-    # Categorical features with One-Hot encode
-    # df, new_application_categorical_cols = one_hot_encoder(df, nan_as_category)
-
-    del test_df
-    gc.collect()
     return df
 
 BUREAU_NUM_AGGREGATION_RECIPIES = [
@@ -1109,7 +1216,6 @@ def pos_cash(nan_as_category = True):
     
     # Count pos cash accounts # to do: does it work?
     # pos_cash_agg['POS_COUNT'] = pos_cash.groupby('SK_ID_CURR').size()
-    
 
     del pos_cash
     gc.collect()
@@ -1367,7 +1473,6 @@ def installments_payments(df, nan_as_category = True):
     #     INSTALLMENTS_PAYMENTS_AGGREGATION_RECIPIES[0][1].append((cat, 'mean'))
 
     installments_agg = group_target_by_cols(installments, INSTALLMENTS_PAYMENTS_AGGREGATION_RECIPIES)
-
     installments['installment_paid_late_in_days'] = installments['DAYS_ENTRY_PAYMENT'] - installments['DAYS_INSTALMENT']
     installments['installment_paid_late'] = (installments['installment_paid_late_in_days'] > 0).astype(int)
     installments['installment_paid_over_amount'] = installments['AMT_PAYMENT'] - installments['AMT_INSTALMENT']
@@ -1379,8 +1484,15 @@ def installments_payments(df, nan_as_category = True):
                    period_fractions=installments__last_k_agg_period_fractions,
                    trend_periods=installments__last_k_trend_periods)
     g = parallel_apply(groupby, func, index_name='SK_ID_CURR', num_workers=NUM_WORKERS).reset_index()
+    # print(installments['SK_ID_CURR'])
+    # print(installments_agg['SK_ID_CURR']) #151639
+    # print(g['SK_ID_CURR'])
+    # print(g.columns.tolist())
+    # print(g.ix[(g['SK_ID_CURR'] == 100003),'all_installment_installment_paid_late_count'])
     installments_agg = installments_agg.merge(g, on='SK_ID_CURR', how='left')
 
+    # print(installments_agg.loc[(installments_agg['SK_ID_CURR']==100003),'all_installment_installment_paid_late_count'])
+    # print(installments_agg.loc[(installments_agg['SK_ID_CURR']==100193),'all_installment_installment_paid_late_count'])
 
     # # Percentage and difference paid in each installment (amount paid and installment value)
     # installments['PAYMENT_PERC'] = installments['AMT_PAYMENT'] / installments['AMT_INSTALMENT']
@@ -1446,10 +1558,10 @@ def kfold_lightgbm(df, num_folds, stratified = False, seed = int(time.time())):
     print("Starting LightGBM. Train shape: {}, test shape: {}".format(train_df.shape, test_df.shape))
     
     # print all features
-    # print('All features:', train_df.columns.tolist())
-    # print('e.g., for some examplary guys:')
-    # print(train_df.ix[1,'SK_ID_CURR'])
-    # print(list(train_df.iloc[1,:]))
+    print('All features:', train_df.columns.tolist())
+    print('e.g., for some examplary guys 100193:')
+    print(train_df.loc[train_df['SK_ID_CURR']==100193].values.tolist())
+    # exit()
 
     del df
     gc.collect()
@@ -1493,8 +1605,8 @@ def kfold_lightgbm(df, num_folds, stratified = False, seed = int(time.time())):
                 scale_pos_weight = SCALE_POS_WEIGHT,
 
                 nthread=NUM_WORKERS,
-                silent=-1,
-                verbose=-1,
+                silent=SILENT,
+                verbose=VERBOSE,
                 random_state=seed,
                 )
         else:
@@ -1518,8 +1630,8 @@ def kfold_lightgbm(df, num_folds, stratified = False, seed = int(time.time())):
                 scale_pos_weight = SCALE_POS_WEIGHT,
 
                 nthread=NUM_WORKERS,
-                silent=-1,
-                verbose=-1,
+                silent=SILENT,
+                verbose=VERBOSE,
                 random_state=seed,
                 )
 
