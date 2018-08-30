@@ -828,6 +828,21 @@ def kfold_xgb(df, num_folds, stratified = False, seed = int(time.time())):
         valid_x, valid_y = train_df[feats].iloc[valid_idx], train_df['TARGET'].iloc[valid_idx]
 
         clf = XGBClassifier(
+            # # v0.1
+            # booster='gbtree',
+            # objective='binary:logistic',
+            # n_estimators=10000,
+            # eta=0.001,
+            # max_depth=16,
+            # subsample=0.5,
+            # colsample_bytree=0.5,
+            # colsample_bylevel=1,
+            # min_child_weight=4,
+            # reg_lambda=0.001,
+            # reg_alpha=0.001,
+            # scale_pos_weight=1,
+            
+            # v0
             max_depth=6,
             learning_rate=0.05,
             n_estimators=10000,
@@ -842,6 +857,7 @@ def kfold_xgb(df, num_folds, stratified = False, seed = int(time.time())):
             colsample_bylevel=0.632,
             reg_alpha=0,
             reg_lambda=0,
+
             random_state=seed,
             )
 
